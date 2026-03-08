@@ -694,9 +694,9 @@ async function saveEssay() {
   if (!title || !content) { alert('請填寫標題和內文。'); return; }
 
   if (id) {
-    await adminDb.from('essays').update({title, tag, content}).eq('id', id);
+    await anonDb.from('essays').update({title, tag, content}).eq('id', id);
   } else {
-    await adminDb.from('essays').insert({title, tag, content});
+    await anonDb.from('essays').insert({title, tag, content});
   }
   closeModal('essayModal');
   renderEssayList();
@@ -709,7 +709,7 @@ async function editEssay(id) {
 
 async function deleteEssay(id) {
   if (!confirm('確定刪除這篇心得？')) return;
-  await adminDb.from('essays').delete().eq('id', id);
+  await anonDb.from('essays').delete().eq('id', id);
   renderEssayList();
 }
 
@@ -795,9 +795,9 @@ async function saveGalleryItem() {
   if (!pendingImageData) { alert('請選擇圖片。'); return; }
 
   if (id) {
-    await adminDb.from('gallery').update({title, caption, image_url: pendingImageData}).eq('id', id);
+    await anonDb.from('gallery').update({title, caption, image_url: pendingImageData}).eq('id', id);
   } else {
-    await adminDb.from('gallery').insert({title, caption, image_url: pendingImageData});
+    await anonDb.from('gallery').insert({title, caption, image_url: pendingImageData});
   }
   closeModal('galleryModal');
   pendingImageData = null;
@@ -811,7 +811,7 @@ async function editGalleryItem(id) {
 
 async function deleteGalleryItem(id) {
   if (!confirm('確定刪除此圖片？')) return;
-  await adminDb.from('gallery').delete().eq('id', id);
+  await anonDb.from('gallery').delete().eq('id', id);
   renderGallery();
 }
 
