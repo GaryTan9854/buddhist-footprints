@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>佛法足跡</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #1a1612;
+  --ink-light: #3d342a;
+  --ink-faint: #6b5d50;
+  --rice:      #f4efe6;
+  --rice-warm: #ece4d2;
+  --rice-deep: #e5dcc8;
+  --gold:      #b8952a;
+  --gold-lt:   #d4ac3a;
+  --gold-pale: rgba(184,149,42,0.12);
+  --verm:      #9b3a2a;
+  --mist:      rgba(244,239,230,0.90);
+  --shadow:    rgba(26,22,18,0.09);
+  --border:    rgba(184,149,42,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--rice)}
+::-webkit-scrollbar-thumb{background:rgba(184,149,42,0.3);border-radius:3px}
+
+body {
+  background:var(--rice);
+  color:var(--ink);
+  font-family:'Noto Serif TC',serif;
+  min-height:100vh;
+}
+
+/* ── Background wash ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 90% 50% at 10% 15%, rgba(175,160,130,0.16) 0%,transparent 65%),
+    radial-gradient(ellipse 60% 70% at 90% 80%, rgba(155,140,110,0.13) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 30% at 55% 50%, rgba(200,185,155,0.07) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ══════════════════════════════
+   SITE HEADER / NAV
+══════════════════════════════ */
+.site-header {
+  position:sticky;top:0;z-index:100;
+  background:rgba(244,239,230,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:64px;
+}
+.site-logo {
+  display:flex;align-items:baseline;gap:12px;
+}
+.site-logo-main {
+  font-family:'Noto Serif TC',serif;
+  font-size:18px;font-weight:500;
+  color:var(--ink);letter-spacing:4px;
+}
+.site-logo-sub {
+  font-family:'Cinzel',serif;
+  font-size:9px;letter-spacing:5px;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+.site-nav {
+  display:flex;gap:0;
+}
+.nav-btn {
+  padding:8px 22px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11px;letter-spacing:3px;
+  color:var(--ink-faint);
+  background:none;border:none;cursor:pointer;
+  position:relative;
+  transition:color 0.2s;
+}
+.nav-btn::after {
+  content:'';
+  position:absolute;bottom:0;left:22px;right:22px;
+  height:1.5px;background:var(--gold);
+  transform:scaleX(0);transition:transform 0.25s;
+}
+.nav-btn:hover{color:var(--gold);}
+.nav-btn.active{color:var(--gold);}
+.nav-btn.active::after{transform:scaleX(1);}
+
+/* ══════════════════════════════
+   PAGE WRAPPER
+══════════════════════════════ */
+.page{display:none;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* ══════════════════════════════
+   SECTION HERO (each page top)
+══════════════════════════════ */
+.page-hero {
+  text-align:center;
+  padding:56px 32px 40px;
+  animation:fadeDown 0.7s ease forwards;
+}
+.page-hero-en {
+  font-family:'Cinzel',serif;
+  font-size:10px;letter-spacing:8px;
+  color:var(--gold);margin-bottom:10px;
+}
+.page-hero-title {
+  font-size:26px;font-weight:300;
+  letter-spacing:8px;color:var(--ink);
+  margin-bottom:8px;
+}
+.page-hero-desc {
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:12px;letter-spacing:2px;
+  color:var(--ink-faint);
+}
+.ornament {
+  display:flex;align-items:center;gap:14px;
+  justify-content:center;margin:18px 0 0;
+}
+.ornament::before,.ornament::after{
+  content:'';height:1px;width:60px;
+  background:linear-gradient(to right,transparent,var(--gold));
+}
+.ornament::after{background:linear-gradient(to left,transparent,var(--gold));}
+.ornament span{font-size:15px;color:var(--gold);}
+
+/* ══════════════════════════════
+   CONTAINER
+══════════════════════════════ */
+.content-wrap{
+  max-width:860px;margin:0 auto;
+  padding:0 32px 80px;
+}
+
+/* ══════════════════════════════
+   CARD BASE
+══════════════════════════════ */
+.card{
+  background:var(--mist);
+  border:1px solid var(--border);
+  border-radius:2px;
+  box-shadow:0 3px 20px var(--shadow),inset 0 1px 0 rgba(255,255,255,0.5);
+  animation:fadeUp 0.6s ease forwards;opacity:0;
+}
+.card-header{
+  display:flex;align-items:center;gap:12px;
+  padding:16px 26px 13px;
+  border-bottom:1px solid rgba(184,149,42,0.1);
+}
+.card-label{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:4px;color:var(--gold);
+}
+.card-body{padding:26px 30px;}
+
+/* ══════════════════════════════
+   ① DHARMA PAGE
+══════════════════════════════ */
+.dharma-tabs{
+  display:flex;gap:0;margin-bottom:28px;
+  border-bottom:1px solid var(--border);
+}
+.dharma-tab{
+  padding:10px 26px;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11px;letter-spacing:3px;color:var(--ink-faint);
+  background:none;border:none;cursor:pointer;
+  border-bottom:2px solid transparent;
+  margin-bottom:-1px;transition:all 0.22s;
+}
+.dharma-tab:hover{color:var(--gold);}
+.dharma-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+.dharma-source{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11px;letter-spacing:2px;color:var(--gold);
+  margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.dharma-link{
+  display:inline-flex;align-items:center;gap:4px;
+  color:var(--gold);text-decoration:none;
+  font-size:10px;letter-spacing:2px;
+  border:1px solid rgba(184,149,42,0.38);
+  padding:3px 10px;border-radius:1px;transition:all 0.2s;
+}
+.dharma-link:hover{background:var(--gold);color:var(--rice);}
+.dharma-text{
+  font-size:22px;line-height:2.5;
+  letter-spacing:0.08em;color:var(--ink);
+  border-left:3px solid var(--gold);
+  padding-left:22px;margin-bottom:24px;
+}
+.dharma-reflection{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:13px;line-height:2.1;color:var(--ink-faint);
+  padding:18px 22px;background:var(--gold-pale);border-radius:1px;
+}
+.dharma-reflection strong{
+  display:block;font-size:10px;letter-spacing:2px;
+  color:var(--ink-light);margin-bottom:8px;
+}
+.more-links{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;}
+.more-link{
+  display:inline-flex;align-items:center;gap:4px;
+  color:var(--ink-faint);text-decoration:none;
+  font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;
+  border:1px solid rgba(107,93,80,0.2);
+  padding:4px 11px;border-radius:1px;transition:all 0.2s;
+}
+.more-link:hover{color:var(--ink);border-color:var(--gold);background:var(--gold-pale);}
+
+/* history */
+.history-empty{
+  text-align:center;padding:44px 20px;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;
+  color:var(--ink-faint);line-height:2;
+}
+.history-item{
+  display:grid;grid-template-columns:130px 1fr 20px;
+  align-items:start;gap:16px;
+  padding:16px 0;
+  border-bottom:1px solid rgba(184,149,42,0.09);
+  cursor:pointer;transition:all 0.18s;
+}
+.history-item:last-child{border-bottom:none;}
+.history-item:hover{background:var(--gold-pale);margin:0 -30px;padding-left:30px;padding-right:30px;}
+.history-date{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:2px;color:var(--ink-faint);
+  padding-top:3px;white-space:nowrap;
+}
+.today-badge{
+  display:inline-block;font-size:9px;letter-spacing:1px;
+  background:var(--gold);color:var(--rice);
+  padding:1px 7px;border-radius:1px;margin-left:5px;
+}
+.history-source{
+  font-family:'Noto Sans TC',sans-serif;font-size:10px;
+  letter-spacing:1px;color:var(--gold);margin-bottom:5px;
+}
+.history-quote{font-size:15px;line-height:1.9;color:var(--ink-light);letter-spacing:0.04em;}
+.history-arrow{color:rgba(184,149,42,0.35);font-size:14px;align-self:center;}
+.history-item:hover .history-arrow{color:var(--gold);}
+.detail-back{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;
+  color:var(--ink-faint);cursor:pointer;
+  margin-bottom:22px;padding:6px 0;
+  border:none;background:none;transition:color 0.2s;
+}
+.detail-back:hover{color:var(--gold);}
+.detail-date-label{
+  font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;
+  color:var(--ink-faint);margin-bottom:18px;
+}
+
+/* ══════════════════════════════
+   ② ESSAYS PAGE
+══════════════════════════════ */
+.essays-toolbar{
+  display:flex;justify-content:flex-end;
+  margin-bottom:24px;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 22px;
+  background:var(--gold);color:var(--rice);
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
+  border:none;cursor:pointer;border-radius:1px;
+  transition:all 0.22s;
+}
+.btn-primary:hover{background:var(--gold-lt);}
+.btn-outline{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 20px;
+  background:transparent;color:var(--gold);
+  border:1px solid var(--gold);
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
+  cursor:pointer;border-radius:1px;transition:all 0.22s;
+}
+.btn-outline:hover{background:var(--gold);color:var(--rice);}
+.btn-sm{
+  padding:5px 14px;font-size:10px;letter-spacing:2px;
+}
+
+/* Essay card list */
+.essay-list{display:flex;flex-direction:column;gap:16px;}
+.essay-card{
+  background:var(--mist);border:1px solid var(--border);
+  border-radius:2px;padding:24px 28px;
+  box-shadow:0 2px 14px var(--shadow);
+  cursor:pointer;transition:all 0.22s;
+}
+.essay-card:hover{
+  border-color:rgba(184,149,42,0.4);
+  box-shadow:0 4px 24px rgba(26,22,18,0.13);
+  transform:translateY(-1px);
+}
+.essay-card-meta{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:10px;
+}
+.essay-date{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:3px;color:var(--gold);
+}
+.essay-tag{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:9px;letter-spacing:2px;
+  background:var(--gold-pale);color:var(--gold);
+  padding:2px 9px;border-radius:1px;
+}
+.essay-title{
+  font-size:17px;font-weight:500;
+  letter-spacing:2px;color:var(--ink);
+  margin-bottom:10px;line-height:1.7;
+}
+.essay-excerpt{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:12px;line-height:2;color:var(--ink-faint);
+  display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+.essay-card-footer{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:14px;
+}
+.essay-read-more{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:2px;color:var(--gold);
+}
+.essay-actions{display:flex;gap:8px;}
+
+/* Essay editor modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,22,18,0.55);
+  z-index:200;align-items:center;justify-content:center;
+  padding:24px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--rice);
+  border:1px solid var(--border);
+  border-radius:2px;
+  width:100%;max-width:720px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(26,22,18,0.3);
+  animation:modalIn 0.3s ease forwards;
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 28px;border-bottom:1px solid var(--border);
+}
+.modal-title{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11px;letter-spacing:4px;color:var(--gold);
+}
+.modal-close{
+  background:none;border:none;cursor:pointer;
+  font-size:18px;color:var(--ink-faint);
+  transition:color 0.2s;
+}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:28px;}
+.form-group{margin-bottom:20px;}
+.form-label{
+  display:block;
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:3px;color:var(--gold);
+  margin-bottom:8px;
+}
+.form-input{
+  width:100%;padding:10px 14px;
+  background:rgba(255,255,255,0.6);
+  border:1px solid var(--border);border-radius:1px;
+  font-family:'Noto Serif TC',serif;font-size:14px;
+  color:var(--ink);outline:none;
+  transition:border-color 0.2s;
+}
+.form-input:focus{border-color:rgba(184,149,42,0.6);}
+.form-textarea{
+  width:100%;min-height:280px;padding:14px;
+  background:rgba(255,255,255,0.6);
+  border:1px solid var(--border);border-radius:1px;
+  font-family:'Noto Serif TC',serif;font-size:14px;
+  line-height:2;color:var(--ink);outline:none;resize:vertical;
+  transition:border-color 0.2s;
+}
+.form-textarea:focus{border-color:rgba(184,149,42,0.6);}
+.modal-footer{
+  display:flex;justify-content:flex-end;gap:12px;
+  padding:16px 28px 24px;
+}
+
+/* Essay detail view */
+.essay-detail-header{
+  margin-bottom:32px;
+}
+.essay-detail-back{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;
+  color:var(--ink-faint);cursor:pointer;
+  margin-bottom:24px;background:none;border:none;transition:color 0.2s;
+}
+.essay-detail-back:hover{color:var(--gold);}
+.essay-detail-date{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:10px;letter-spacing:3px;color:var(--gold);
+  margin-bottom:12px;
+}
+.essay-detail-title{
+  font-size:24px;font-weight:400;
+  letter-spacing:4px;color:var(--ink);
+  margin-bottom:8px;line-height:1.7;
+}
+.essay-detail-divider{
+  height:1px;background:linear-gradient(to right,var(--gold),transparent);
+  margin:20px 0;width:120px;
+}
+.essay-detail-body{
+  font-family:'Noto Serif TC',serif;font-size:15px;
+  line-height:2.4;color:var(--ink-light);
+  white-space:pre-wrap;
+}
+.essay-empty{
+  text-align:center;padding:60px 20px;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;
+  color:var(--ink-faint);line-height:2.2;
+}
+.essay-empty .empty-icon{font-size:32px;margin-bottom:16px;}
+
+/* ══════════════════════════════
+   ③ GALLERY PAGE
+══════════════════════════════ */
+.gallery-toolbar{
+  display:flex;justify-content:flex-end;gap:12px;
+  margin-bottom:28px;align-items:center;
+}
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.gallery-item{
+  background:var(--mist);border:1px solid var(--border);
+  border-radius:2px;overflow:hidden;
+  cursor:pointer;transition:all 0.25s;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.gallery-item:hover{
+  border-color:rgba(184,149,42,0.4);
+  transform:translateY(-3px);
+  box-shadow:0 8px 28px rgba(26,22,18,0.15);
+}
+.gallery-img-wrap{
+  width:100%;aspect-ratio:4/3;overflow:hidden;
+  background:var(--rice-deep);
+  display:flex;align-items:center;justify-content:center;
+}
+.gallery-img-wrap img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform 0.4s;
+}
+.gallery-item:hover .gallery-img-wrap img{transform:scale(1.04);}
+.gallery-info{padding:14px 16px;}
+.gallery-item-title{
+  font-size:13px;font-weight:500;
+  letter-spacing:2px;color:var(--ink);
+  margin-bottom:5px;
+}
+.gallery-item-caption{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:11px;line-height:1.8;color:var(--ink-faint);
+}
+.gallery-upload-area{
+  border:1.5px dashed rgba(184,149,42,0.35);
+  border-radius:2px;padding:48px 20px;
+  text-align:center;cursor:pointer;
+  transition:all 0.22s;background:rgba(255,255,255,0.25);
+}
+.gallery-upload-area:hover{
+  border-color:var(--gold);background:var(--gold-pale);
+}
+.upload-icon{font-size:28px;margin-bottom:12px;}
+.upload-text{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:12px;letter-spacing:2px;color:var(--ink-faint);line-height:2;
+}
+.upload-hidden{display:none;}
+
+/* Gallery upload modal */
+.gallery-modal-img{
+  width:100%;max-height:220px;object-fit:contain;
+  background:var(--rice-deep);margin-bottom:16px;
+  border-radius:1px;
+}
+
+/* Gallery lightbox */
+.lightbox{
+  display:none;position:fixed;inset:0;
+  background:rgba(15,12,10,0.88);
+  z-index:300;align-items:center;justify-content:center;
+  padding:24px;flex-direction:column;gap:16px;
+}
+.lightbox.open{display:flex;}
+.lightbox img{
+  max-width:100%;max-height:70vh;
+  object-fit:contain;border:1px solid var(--border);
+}
+.lightbox-info{text-align:center;}
+.lightbox-title{
+  font-size:16px;letter-spacing:3px;color:var(--rice);margin-bottom:6px;
+}
+.lightbox-caption{
+  font-family:'Noto Sans TC',sans-serif;
+  font-size:12px;color:rgba(244,239,230,0.6);
+}
+.lightbox-close{
+  position:absolute;top:24px;right:28px;
+  background:none;border:none;cursor:pointer;
+  color:rgba(244,239,230,0.5);font-size:24px;
+  transition:color 0.2s;
+}
+.lightbox-close:hover{color:var(--gold);}
+.gallery-empty{
+  text-align:center;padding:64px 20px;
+  font-family:'Noto Sans TC',sans-serif;font-size:13px;
+  color:var(--ink-faint);line-height:2.2;grid-column:1/-1;
+}
+
+/* ══════════════════════════════
+   UTILITIES / ANIMATIONS
+══════════════════════════════ */
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:700px){
+  .site-header{padding:0 20px;}
+  .site-logo-sub{display:none;}
+  .nav-btn{padding:8px 12px;font-size:10px;letter-spacing:2px;}
+  .content-wrap{padding:0 16px 60px;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);}
+  .dharma-text{font-size:18px;}
+}
+@media(max-width:480px){
+  .gallery-grid{grid-template-columns:1fr;}
+  .history-item{grid-template-columns:100px 1fr 16px;gap:10px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SITE HEADER ══ -->
+<header class="site-header">
+  <div class="site-logo">
+    <span class="site-logo-main">佛法足跡</span>
+    <span class="site-logo-sub">Buddhist Footprints</span>
+  </div>
+  <nav class="site-nav">
+    <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
+    <button class="nav-btn" onclick="showPage('essays',this)">佛法心得</button>
+    <button class="nav-btn" onclick="showPage('gallery',this)">佛法圖集</button>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════
+     PAGE ① 每日佛典
+══════════════════════════════════════ -->
+<div class="page active" id="page-dharma">
+  <div class="page-hero">
+    <div class="page-hero-en">DAILY DHARMA</div>
+    <div class="page-hero-title">每日佛典</div>
+    <div class="page-hero-desc">大乘漢傳 · 禪宗語錄 · 每日一篇</div>
+    <div class="ornament"><span>☸</span></div>
+  </div>
+  <div class="content-wrap">
+    <div class="dharma-tabs">
+      <button class="dharma-tab active" id="dtab-today" onclick="switchDharmaTab('today')">今日主題</button>
+      <button class="dharma-tab" id="dtab-history" onclick="switchDharmaTab('history')">過往主題</button>
+    </div>
+    <div class="card" id="dharma-today-card" style="animation-delay:0.15s">
+      <div class="card-header">
+        <span style="font-size:19px">🪷</span>
+        <div class="card-label">TODAY · 今日佛典</div>
+      </div>
+      <div class="card-body" id="dharmaBody"></div>
+    </div>
+    <div id="dharma-history-wrap" style="display:none">
+      <div class="card" style="animation-delay:0.15s">
+        <div class="card-header">
+          <span style="font-size:19px">📜</span>
+          <div class="card-label">ARCHIVE · 過往主題</div>
+        </div>
+        <div class="card-body" id="historyBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE ② 佛法心得
+══════════════════════════════════════ -->
+<div class="page" id="page-essays">
+  <div class="page-hero">
+    <div class="page-hero-en">DHARMA REFLECTIONS</div>
+    <div class="page-hero-title">佛法心得</div>
+    <div class="page-hero-desc">記錄修行路上的所思所感</div>
+    <div class="ornament"><span>✦</span></div>
+  </div>
+  <div class="content-wrap">
+    <div class="essays-toolbar">
+      <button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button>
+    </div>
+    <div id="essayListWrap"></div>
+    <div id="essayDetailWrap" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE ③ 佛法圖集
+══════════════════════════════════════ -->
+<div class="page" id="page-gallery">
+  <div class="page-hero">
+    <div class="page-hero-en">DHARMA GALLERY</div>
+    <div class="page-hero-title">佛法圖集</div>
+    <div class="page-hero-desc">以圖象，詮釋法義</div>
+    <div class="ornament"><span>◈</span></div>
+  </div>
+  <div class="content-wrap">
+    <div class="gallery-toolbar">
+      <button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</div>
+
+<!-- ══ ESSAY EDITOR MODAL ══ -->
+<div class="modal-overlay" id="essayModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="essayModalTitle">NEW ESSAY · 新增心得</div>
+      <button class="modal-close" onclick="closeEssayEditor()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="essayEditId">
+      <div class="form-group">
+        <label class="form-label">標題 TITLE</label>
+        <input class="form-input" id="essayTitleInput" type="text" placeholder="心得標題…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">標籤 TAG（選填）</label>
+        <input class="form-input" id="essayTagInput" type="text" placeholder="例：金剛經、禪修、無常…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">內文 CONTENT</label>
+        <textarea class="form-textarea" id="essayContentInput" placeholder="在此貼入或撰寫你的佛法心得…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeEssayEditor()">取消</button>
+      <button class="btn-primary" onclick="saveEssay()">儲存發表</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GALLERY UPLOAD MODAL ══ -->
+<div class="modal-overlay" id="galleryModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">UPLOAD · 上傳圖片</div>
+      <button class="modal-close" onclick="closeGalleryModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="galleryEditId">
+      <div id="galleryPreviewWrap" style="display:none">
+        <img id="galleryPreviewImg" class="gallery-modal-img" src="" alt="">
+      </div>
+      <div class="gallery-upload-area" id="uploadTrigger" onclick="document.getElementById('galleryFileInput').click()">
+        <div class="upload-icon">🖼</div>
+        <div class="upload-text">點擊選擇圖片<br><span style="font-size:10px;opacity:0.6">支援 JPG · PNG · WEBP</span></div>
+      </div>
+      <input type="file" id="galleryFileInput" class="upload-hidden" accept="image/*" onchange="handleImageSelect(event)">
+      <div class="form-group" style="margin-top:20px">
+        <label class="form-label">標題 TITLE</label>
+        <input class="form-input" id="galleryTitleInput" type="text" placeholder="圖片標題…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">說明 CAPTION（選填）</label>
+        <input class="form-input" id="galleryCaptionInput" type="text" placeholder="此圖的佛法義涵或來源說明…">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeGalleryModal()">取消</button>
+      <button class="btn-primary" onclick="saveGalleryItem()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GALLERY LIGHTBOX ══ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-info">
+    <div class="lightbox-title" id="lightboxTitle"></div>
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// STORAGE HELPERS
+// ════════════════════════════════════════
+async function stGet(key){
+  try{ const r=await window.storage.get(key); return r?JSON.parse(r.value):null; }
+  catch(e){ return null; }
+}
+async function stSet(key,val){
+  try{ await window.storage.set(key,JSON.stringify(val)); }catch(e){}
+}
+
+// ════════════════════════════════════════
+// PAGE ROUTING
+// ════════════════════════════════════════
+function showPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='essays') renderEssayList();
+  if(name==='gallery') renderGallery();
+}
+
+// ════════════════════════════════════════
+// ① DHARMA
+// ════════════════════════════════════════
+const dharmaPool=[
+  {source:'《金剛般若波羅蜜經》第十品',text:'應無所住而生其心。',reflection:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cbetaLabel:'金剛經全文 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93'}]},
+  {source:'《般若波羅蜜多心經》',text:'色不異空，空不異色；色即是空，空即是色。',reflection:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cbetaLabel:'心經全文 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93'}]},
+  {source:'《六祖壇經》行由品第一',text:'本來無一物，何處惹塵埃。',reflection:'慧能大師以此偈悟道，打破了漸修執念。清淨心，不在於不斷去除，而在於認識到本性從未染污。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%85%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]},
+  {source:'《維摩詰所說經》佛國品第一',text:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。',reflection:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cbetaLabel:'維摩詰經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93'}]},
+  {source:'《臨濟錄》示眾',text:'隨處作主，立處皆真。',reflection:'臨濟義玄此語，是禪門最精練的生命態度。不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cbetaLabel:'臨濟錄 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84'}]},
+  {source:'《妙法蓮華經》方便品第二',text:'諸法從本來，常自寂滅相。',reflection:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cbetaLabel:'法華經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93'}]},
+  {source:'《趙州錄》公案',text:'吃茶去。',reflection:'趙州以三字接引無數學人——無論「曾來過」或「未曾來」，答案皆同。平常心是道，一杯茶的當下，便是修行的全體。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cbetaLabel:'趙州錄 · CBETA',altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16400'}]},
+  {source:'《大佛頂首楞嚴經》卷一',text:'一切浮塵諸幻化相，當處出生，隨處滅盡。',reflection:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cbetaLabel:'楞嚴經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93'}]},
+  {source:'黃檗希運禪師《傳心法要》',text:'無心是道。',reflection:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目，而不被自己預設的期望與恐懼所左右。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cbetaLabel:'傳心法要 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81'}]},
+  {source:'《六祖壇經》般若品第二',text:'菩提自性，本來清淨；但用此心，直了成佛。',reflection:'清淨的智慧是我們本有的，無需外求。六祖的頓悟法門，指向最直接的路：相信自心，當下即是。今日，信任自己內在那份本然的清明。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%85%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]},
+  {source:'《阿彌陀經》（姚秦鳩摩羅什譯）',text:'不可以少善根福德因緣，得生彼國。',reflection:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成；每一粒善種，都在適當的時節結果。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cbetaLabel:'阿彌陀經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AC%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93'}]},
+  {source:'《永嘉證道歌》玄覺禪師',text:'夢裡明明有六趣，覺後空空無大千。',reflection:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——玄覺禪師證道後依然入世，因為覺後的空，是包含一切的大空。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cbetaLabel:'證道歌 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C'}]},
+  {source:'《普賢行願品》',text:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。',reflection:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。今日，問自己：我的願，是否夠寬廣？',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0293_040',cbetaLabel:'普賢行願品 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93'}]},
+  {source:'雲門文偃禪師語錄',text:'函蓋乾坤，截斷眾流，隨波逐浪。',reflection:'雲門三句：第一句，以整體眼光函蓋萬象；第二句，果斷截斷分別妄念；第三句，靈活隨順因緣而行。三者次第分明，合則圓融無礙。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cbetaLabel:'雲門廣錄 · CBETA',altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16401'}]},
+  {source:'《圓覺經》大方廣圓覺修多羅了義經',text:'知幻即離，不作方便；離幻即覺，亦無漸次。',reflection:'圓覺經指出最直接的修行路：認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cbetaLabel:'圓覺經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93'}]},
+  {source:'洞山良价禪師《寶鏡三昧》',text:'如是之法，佛祖密付；汝今得之，宜善保護。',reflection:'洞山強調細密的觀照與綿密用功。「宜善保護」四字，說的是：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cbetaLabel:'洞山語錄 · CBETA',altLinks:[{label:'曹洞宗',url:'https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97'}]}
+];
+
+function todayKey(){
+  return new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Kuala_Lumpur'});
+}
+function formatDate(iso){
+  const [y,m,d]=iso.split('-').map(Number);
+  return new Date(y,m-1,d).toLocaleDateString('zh-Hant-TW',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+}
+function getDharmaByDate(iso){
+  const d=new Date(iso);
+  const start=new Date(d.getFullYear(),0,0);
+  const day=Math.floor((d-start)/86400000);
+  return dharmaPool[day%dharmaPool.length];
+}
+function getDharmaToday(){ return getDharmaByDate(todayKey()); }
+
+function renderDharmaEntry(d, dateLbl){
+  const alts=d.altLinks.map(l=>`<a class="more-link" href="${l.url}" target="_blank" rel="noopener">↗ ${l.label}</a>`).join('');
+  return `
+    ${dateLbl?`<div class="detail-date-label">${dateLbl}</div>`:''}
+    <div class="dharma-source">
+      <span>出處：${d.source}</span>
+      <a class="dharma-link" href="${d.cbetaUrl}" target="_blank" rel="noopener">☸ ${d.cbetaLabel}</a>
+    </div>
+    <div class="dharma-text">${d.text}</div>
+    <div class="dharma-reflection"><strong>今日思索 · REFLECTION</strong>${d.reflection}</div>
+    <div class="more-links">${alts}</div>`;
+}
+
+async function recordToday(){
+  const key=todayKey();
+  const hist=await stGet('dharma-history')||{};
+  if(!hist[key]){
+    const d=getDharmaToday();
+    hist[key]={date:key,source:d.source,text:d.text};
+    await stSet('dharma-history',hist);
+  }
+}
+
+function switchDharmaTab(tab){
+  document.getElementById('dtab-today').classList.toggle('active',tab==='today');
+  document.getElementById('dtab-history').classList.toggle('active',tab==='history');
+  document.getElementById('dharma-today-card').style.display=tab==='today'?'block':'none';
+  document.getElementById('dharma-history-wrap').style.display=tab==='history'?'block':'none';
+  if(tab==='history') renderDharmaHistory();
+}
+
+async function renderDharmaHistory(){
+  const hist=await stGet('dharma-history')||{};
+  const keys=Object.keys(hist).sort((a,b)=>b.localeCompare(a));
+  const todayK=todayKey();
+  const body=document.getElementById('historyBody');
+  if(!keys.length){
+    body.innerHTML=`<div class="history-empty">尚無過往紀錄。<br>每日開啟此頁面，今日主題將自動記錄於此。</div>`;
+    return;
+  }
+  body.innerHTML=`<div>${keys.map(k=>{
+    const e=hist[k];const isT=k===todayK;
+    return `<div class="history-item" onclick="showDharmaDetail('${k}')">
+      <div class="history-date">${formatDate(k)}${isT?'<span class="today-badge">今日</span>':''}</div>
+      <div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div>
+      <div class="history-arrow">›</div></div>`;
+  }).join('')}</div>`;
+}
+
+function showDharmaDetail(iso){
+  const d=getDharmaByDate(iso);
+  document.getElementById('historyBody').innerHTML=`
+    <button class="detail-back" onclick="renderDharmaHistory()">‹ 返回過往主題</button>
+    ${renderDharmaEntry(d,formatDate(iso))}`;
+}
+
+// Init dharma
+document.getElementById('dharmaBody').innerHTML=renderDharmaEntry(getDharmaToday(),null);
+recordToday();
+
+// ════════════════════════════════════════
+// ② ESSAYS
+// ════════════════════════════════════════
+let essayView='list'; // 'list' | 'detail'
+
+async function getEssays(){ return await stGet('essays')||[]; }
+async function saveEssays(arr){ await stSet('essays',arr); }
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+async function renderEssayList(){
+  essayView='list';
+  document.getElementById('essayListWrap').style.display='block';
+  document.getElementById('essayDetailWrap').style.display='none';
+  const essays=await getEssays();
+  const wrap=document.getElementById('essayListWrap');
+  if(!essays.length){
+    wrap.innerHTML=`<div class="essay-empty"><div class="empty-icon">📝</div>尚未發表任何心得。<br>點擊右上角「新增心得」，記錄你的修行體悟。</div>`;
+    return;
+  }
+  wrap.innerHTML=`<div class="essay-list">${essays.slice().reverse().map(e=>{
+    const excerpt=e.content.length>120?e.content.slice(0,120)+'…':e.content;
+    return `<div class="essay-card">
+      <div class="essay-card-meta">
+        <span class="essay-date">${e.date}</span>
+        ${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}
+      </div>
+      <div class="essay-title" onclick="showEssayDetail('${e.id}')">${e.title}</div>
+      <div class="essay-excerpt">${excerpt.replace(/\n/g,' ')}</div>
+      <div class="essay-card-footer">
+        <span class="essay-read-more" onclick="showEssayDetail('${e.id}')">閱讀全文 →</span>
+        <div class="essay-actions">
+          <button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>
+          <button class="btn-outline btn-sm" style="border-color:var(--verm);color:var(--verm)" onclick="deleteEssay('${e.id}')">刪除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function showEssayDetail(id){
+  essayView='detail';
+  const essays=await getEssays();
+  const e=essays.find(x=>x.id===id);
+  if(!e) return;
+  document.getElementById('essayListWrap').style.display='none';
+  const dw=document.getElementById('essayDetailWrap');
+  dw.style.display='block';
+  dw.innerHTML=`
+    <button class="essay-detail-back" onclick="renderEssayList()">‹ 返回心得列表</button>
+    <div class="card">
+      <div class="card-body">
+        <div class="essay-detail-date">${e.date}${e.tag?' · '+e.tag:''}</div>
+        <div class="essay-detail-title">${e.title}</div>
+        <div class="essay-detail-divider"></div>
+        <div class="essay-detail-body">${escHtml(e.content)}</div>
+        <div style="margin-top:28px;display:flex;gap:12px">
+          <button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>
+          <button class="btn-outline btn-sm" style="border-color:var(--verm);color:var(--verm)" onclick="deleteEssay('${e.id}')">刪除</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openEssayEditor(essay){
+  document.getElementById('essayEditId').value=essay?essay.id:'';
+  document.getElementById('essayModalTitle').textContent=essay?'EDIT · 編輯心得':'NEW ESSAY · 新增心得';
+  document.getElementById('essayTitleInput').value=essay?essay.title:'';
+  document.getElementById('essayTagInput').value=essay?essay.tag:'';
+  document.getElementById('essayContentInput').value=essay?essay.content:'';
+  document.getElementById('essayModal').classList.add('open');
+}
+function closeEssayEditor(){ document.getElementById('essayModal').classList.remove('open'); }
+
+async function saveEssay(){
+  const id=document.getElementById('essayEditId').value;
+  const title=document.getElementById('essayTitleInput').value.trim();
+  const tag=document.getElementById('essayTagInput').value.trim();
+  const content=document.getElementById('essayContentInput').value.trim();
+  if(!title||!content){ alert('請填寫標題和內文。'); return; }
+  let essays=await getEssays();
+  const now=new Date().toLocaleDateString('zh-Hant-TW',{year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
+  if(id){
+    essays=essays.map(e=>e.id===id?{...e,title,tag,content}:e);
+  } else {
+    essays.push({id:uid(),title,tag,content,date:now});
+  }
+  await saveEssays(essays);
+  closeEssayEditor();
+  renderEssayList();
+}
+
+async function editEssay(id){
+  const essays=await getEssays();
+  openEssayEditor(essays.find(e=>e.id===id));
+}
+
+async function deleteEssay(id){
+  if(!confirm('確定刪除這篇心得？')) return;
+  let essays=await getEssays();
+  essays=essays.filter(e=>e.id!==id);
+  await saveEssays(essays);
+  renderEssayList();
+}
+
+// ════════════════════════════════════════
+// ③ GALLERY
+// ════════════════════════════════════════
+let pendingImageData=null;
+
+async function getGallery(){ return await stGet('gallery')||[]; }
+async function saveGallery(arr){ await stSet('gallery',arr); }
+
+async function renderGallery(){
+  const items=await getGallery();
+  const grid=document.getElementById('galleryGrid');
+  if(!items.length){
+    grid.innerHTML=`<div class="gallery-empty">
+      <div style="font-size:32px;margin-bottom:16px">🖼</div>
+      尚未上傳任何圖片。<br>點擊右上角「上傳圖片」開始建立你的佛法圖集。
+    </div>`;
+    return;
+  }
+  grid.innerHTML=items.slice().reverse().map(it=>`
+    <div class="gallery-item">
+      <div class="gallery-img-wrap" onclick="openLightbox('${it.id}')">
+        <img src="${it.src}" alt="${it.title}" loading="lazy">
+      </div>
+      <div class="gallery-info">
+        <div class="gallery-item-title">${it.title}</div>
+        ${it.caption?`<div class="gallery-item-caption">${it.caption}</div>`:''}
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button class="btn-outline btn-sm" onclick="editGalleryItem('${it.id}')">編輯</button>
+          <button class="btn-outline btn-sm" style="border-color:var(--verm);color:var(--verm)" onclick="deleteGalleryItem('${it.id}')">刪除</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openGalleryUpload(item){
+  pendingImageData=item?item.src:null;
+  document.getElementById('galleryEditId').value=item?item.id:'';
+  document.getElementById('galleryTitleInput').value=item?item.title:'';
+  document.getElementById('galleryCaptionInput').value=item?item.caption:'';
+  const prev=document.getElementById('galleryPreviewWrap');
+  const pimg=document.getElementById('galleryPreviewImg');
+  const trigger=document.getElementById('uploadTrigger');
+  if(item){
+    pimg.src=item.src; prev.style.display='block'; trigger.style.display='none';
+  } else {
+    pimg.src=''; prev.style.display='none'; trigger.style.display='block';
+  }
+  document.getElementById('galleryFileInput').value='';
+  document.getElementById('galleryModal').classList.add('open');
+}
+function closeGalleryModal(){ document.getElementById('galleryModal').classList.remove('open'); pendingImageData=null; }
+
+function handleImageSelect(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    pendingImageData=ev.target.result;
+    const pimg=document.getElementById('galleryPreviewImg');
+    pimg.src=pendingImageData;
+    document.getElementById('galleryPreviewWrap').style.display='block';
+    document.getElementById('uploadTrigger').style.display='none';
+    if(!document.getElementById('galleryTitleInput').value){
+      document.getElementById('galleryTitleInput').value=file.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveGalleryItem(){
+  const id=document.getElementById('galleryEditId').value;
+  const title=document.getElementById('galleryTitleInput').value.trim();
+  const caption=document.getElementById('galleryCaptionInput').value.trim();
+  if(!title){ alert('請填寫圖片標題。'); return; }
+  if(!pendingImageData){ alert('請選擇圖片。'); return; }
+  let items=await getGallery();
+  if(id){
+    items=items.map(it=>it.id===id?{...it,title,caption,src:pendingImageData}:it);
+  } else {
+    items.push({id:uid(),title,caption,src:pendingImageData});
+  }
+  await saveGallery(items);
+  closeGalleryModal();
+  renderGallery();
+}
+
+async function editGalleryItem(id){
+  const items=await getGallery();
+  openGalleryUpload(items.find(it=>it.id===id));
+}
+
+async function deleteGalleryItem(id){
+  if(!confirm('確定刪除此圖片？')) return;
+  let items=await getGallery();
+  items=items.filter(it=>it.id!==id);
+  await saveGallery(items);
+  renderGallery();
+}
+
+async function openLightbox(id){
+  const items=await getGallery();
+  const it=items.find(x=>x.id===id); if(!it) return;
+  document.getElementById('lightboxImg').src=it.src;
+  document.getElementById('lightboxTitle').textContent=it.title;
+  document.getElementById('lightboxCaption').textContent=it.caption||'';
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.getElementById('lightbox').addEventListener('click',function(e){ if(e.target===this) closeLightbox(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
+</script>
+</body>
+</html>
