@@ -151,6 +151,9 @@ body::before {
 .btn-essay:hover{color:var(--ink);border-color:var(--gold);background:var(--gold-pale);}
 .btn-essay.linked{color:#4f8c6b;border-color:rgba(79,140,107,0.4);}
 .btn-essay.linked:hover{background:rgba(79,140,107,0.08);border-color:#4f8c6b;}
+.btn-lang { margin-left:auto;padding:5px 16px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--gold);background:transparent;border:1px solid rgba(184,149,42,0.35);border-radius:1px;cursor:pointer;transition:all 0.2s; }
+.btn-lang:hover{background:var(--gold-pale);border-color:var(--gold);}
+.btn-lang.en-mode{background:var(--gold-pale);border-color:var(--gold);color:var(--ink-light);}
 .essay-view-body { font-family:'Noto Serif TC',serif;font-size:15px;line-height:2;color:var(--ink-light);white-space:pre-wrap;padding:16px 0; }
 .btn-unlink { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--verm);background:none;border:1px solid rgba(155,58,42,0.3);border-radius:1px;padding:4px 12px;cursor:pointer;margin-bottom:16px;transition:all 0.2s; }
 .btn-unlink:hover{background:rgba(155,58,42,0.06);border-color:var(--verm);}
@@ -282,6 +285,7 @@ body::before {
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
     <button class="nav-btn" onclick="showPage('essays',this)">佛法心得</button>
+    <button class="nav-btn" onclick="showPage('mantras',this)">佛咒</button>
     <button class="nav-btn" onclick="showPage('gallery',this)">佛法圖集</button>
     <button class="admin-nav-btn" id="adminNavBtn" onclick="handleAdminClick()">管理員</button>
   </nav>
@@ -301,7 +305,7 @@ body::before {
       <button class="dharma-tab" id="dtab-history" onclick="switchDharmaTab('history')">過往主題</button>
     </div>
     <div class="card" id="dharma-today-card" style="animation-delay:0.15s">
-      <div class="card-header"><span style="font-size:19px">🪷</span><div class="card-label">TODAY · 今日佛典</div></div>
+      <div class="card-header"><span style="font-size:19px">🪷</span><div class="card-label">TODAY · 今日佛典</div><button class="btn-lang" id="langToggleBtn" onclick="toggleDharmaLang()">EN</button></div>
       <div class="card-body" id="dharmaBody"></div>
     </div>
     <div id="dharma-history-wrap" style="display:none">
@@ -327,6 +331,23 @@ body::before {
     </div>
     <div id="essayListWrap"></div>
     <div id="essayDetailWrap" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══ PAGE: 佛咒 ══ -->
+<div class="page" id="page-mantras">
+  <div class="page-hero">
+    <div class="page-hero-en">DHARMA MANTRAS</div>
+    <div class="page-hero-title">佛咒</div>
+    <div class="page-hero-desc">持咒修行 · 攝心入定</div>
+    <div class="ornament"><span>☸</span></div>
+  </div>
+  <div class="content-wrap">
+    <div id="mantraAdminToolbar" style="display:none" class="section-toolbar">
+      <button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button>
+    </div>
+    <div id="mantraListWrap"></div>
+    <div id="mantraDetailWrap" style="display:none"></div>
   </div>
 </div>
 
@@ -395,6 +416,35 @@ body::before {
     <div class="modal-footer">
       <button class="btn-outline" onclick="closeModal('essayModal')">取消</button>
       <button class="btn-primary" onclick="saveEssay()">儲存發表</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MANTRA EDITOR MODAL ══ -->
+<div class="modal-overlay" id="mantraModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="mantraModalTitle">NEW MANTRA · 新增佛咒</div>
+      <button class="modal-close" onclick="closeModal('mantraModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="mantraEditId">
+      <div class="form-group">
+        <label class="form-label">名稱 NAME</label>
+        <input class="form-input" id="mantraTitleInput" type="text" placeholder="佛咒名稱…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">標籤 TAG（選填）</label>
+        <input class="form-input" id="mantraTagInput" type="text" placeholder="例：消業、護身、心咒…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">內文 CONTENT</label>
+        <textarea class="form-textarea" id="mantraContentInput" placeholder="在此輸入佛咒全文或相關說明…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('mantraModal')">取消</button>
+      <button class="btn-primary" onclick="saveMantra()">儲存發表</button>
     </div>
   </div>
 </div>
@@ -468,14 +518,12 @@ body::before {
 // ════════════════════════════════════════
 const SUPABASE_URL = 'https://qstspcvkaznwvhsuavoo.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_5NFAn4Ur369Jysuk_Y_AHw_KHI3IoGS';
-const SUPABASE_SERVICE = 'sb_secret_DV-Y9Vl-UMca4TYuDHmP0g_eay1M8_z';
 
 // Admin password (change this to something only you know)
 const ADMIN_PASSWORD = 'dharma2026';
 
 const anonDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let isAdmin = false;
-// Note: SUPABASE_SERVICE key cannot be used in browser (Supabase security policy).
 // All writes use anonDb; admin status is gated by UI password only.
 
 // ════════════════════════════════════════
@@ -501,10 +549,12 @@ function doLogin() {
     document.getElementById('adminNavBtn').classList.add('logged-in');
     // Show admin toolbars
     document.getElementById('essayAdminToolbar').style.display = 'flex';
+    document.getElementById('mantraAdminToolbar').style.display = 'flex';
     document.getElementById('galleryAdminToolbar').style.display = 'flex';
     // Re-render current page with admin controls
     const activePage = document.querySelector('.page.active').id.replace('page-','');
     if (activePage === 'essays') renderEssayList();
+    if (activePage === 'mantras') renderMantraList();
     if (activePage === 'gallery') renderGallery();
   } else {
     document.getElementById('loginError').style.display = 'block';
@@ -516,9 +566,11 @@ function doLogout() {
   document.getElementById('adminNavBtn').textContent = '管理員';
   document.getElementById('adminNavBtn').classList.remove('logged-in');
   document.getElementById('essayAdminToolbar').style.display = 'none';
+  document.getElementById('mantraAdminToolbar').style.display = 'none';
   document.getElementById('galleryAdminToolbar').style.display = 'none';
   const activePage = document.querySelector('.page.active').id.replace('page-','');
   if (activePage === 'essays') renderEssayList();
+  if (activePage === 'mantras') renderMantraList();
   if (activePage === 'gallery') renderGallery();
 }
 
@@ -531,6 +583,7 @@ function showPage(name, btn) {
   document.getElementById('page-' + name).classList.add('active');
   if (btn) btn.classList.add('active');
   if (name === 'essays') renderEssayList();
+  if (name === 'mantras') renderMantraList();
   if (name === 'gallery') renderGallery();
 }
 
@@ -672,7 +725,7 @@ function showDharmaDetail(iso) {
 
 // Init dharma
 const _todayDharma = getDharmaByDate(todayKey());
-document.getElementById('dharmaBody').innerHTML = renderDharmaEntry(_todayDharma, null);
+renderTodayDharma();
 recordToday();
 
 // ════════════════════════════════════════
@@ -687,6 +740,7 @@ async function renderEssayList() {
   const { data: essays, error } = await anonDb
     .from('essays')
     .select('*')
+    .not('type', 'eq', 'mantra')
     .order('created_at', {ascending: false});
 
   if (error || !essays) {
@@ -786,6 +840,118 @@ async function deleteEssay(id) {
   if (!confirm('確定刪除這篇心得？')) return;
   await anonDb.from('essays').delete().eq('id', id);
   renderEssayList();
+}
+
+// ════════════════════════════════════════
+// ②-B MANTRAS (Supabase, type='mantra')
+// ════════════════════════════════════════
+async function renderMantraList() {
+  document.getElementById('mantraListWrap').style.display = 'block';
+  document.getElementById('mantraDetailWrap').style.display = 'none';
+  const wrap = document.getElementById('mantraListWrap');
+  wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
+
+  const { data: mantras, error } = await anonDb
+    .from('essays')
+    .select('*')
+    .eq('type', 'mantra')
+    .order('created_at', {ascending: false});
+
+  if (error || !mantras) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div>載入失敗，請重新整理頁面。</div>`;
+    return;
+  }
+  if (!mantras.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">☸</div>尚未新增任何佛咒。<br>${isAdmin ? '點擊右上角「新增佛咒」開始建立。' : '敬請期待。'}</div>`;
+    return;
+  }
+
+  wrap.innerHTML = `<div class="essay-list">${mantras.map(e => {
+    const excerpt = e.content.length > 120 ? e.content.slice(0,120) + '…' : e.content;
+    const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
+    const adminBtns = isAdmin ? `
+      <div class="essay-actions">
+        <button class="btn-outline btn-sm" onclick="event.stopPropagation();editMantra('${e.id}')">編輯</button>
+        <button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteMantra('${e.id}')">刪除</button>
+      </div>` : '';
+    return `<div class="essay-card" onclick="showMantraDetail('${e.id}')">
+      <div class="essay-card-meta">
+        <span class="essay-date">${dateStr}</span>
+        ${e.tag ? `<span class="essay-tag">${e.tag}</span>` : ''}
+      </div>
+      <div class="essay-title">${e.title}</div>
+      <div class="essay-excerpt">${excerpt.replace(/\n/g,' ')}</div>
+      <div class="essay-card-footer">
+        <span class="essay-read-more">閱讀全文 →</span>
+        ${adminBtns}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function showMantraDetail(id) {
+  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  if (!e) return;
+  document.getElementById('mantraListWrap').style.display = 'none';
+  const dw = document.getElementById('mantraDetailWrap');
+  dw.style.display = 'block';
+  const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
+  const adminBtns = isAdmin ? `
+    <div style="margin-top:28px;display:flex;gap:12px">
+      <button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button>
+      <button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button>
+    </div>` : '';
+  dw.innerHTML = `
+    <button class="essay-detail-back" onclick="renderMantraList()">‹ 返回佛咒列表</button>
+    <div class="card">
+      <div class="card-body">
+        <div class="essay-detail-date">${dateStr}${e.tag ? ' · ' + e.tag : ''}</div>
+        <div class="essay-detail-title">${e.title}</div>
+        <div class="essay-detail-divider"></div>
+        <div class="essay-detail-body">${escHtml(e.content)}</div>
+        ${adminBtns}
+      </div>
+    </div>`;
+}
+
+function openMantraEditor(mantra) {
+  document.getElementById('mantraEditId').value = mantra ? mantra.id : '';
+  document.getElementById('mantraModalTitle').textContent = mantra ? 'EDIT · 編輯佛咒' : 'NEW MANTRA · 新增佛咒';
+  document.getElementById('mantraTitleInput').value = mantra ? mantra.title : '';
+  document.getElementById('mantraTagInput').value = mantra ? (mantra.tag || '') : '';
+  document.getElementById('mantraContentInput').value = mantra ? mantra.content : '';
+  openModal('mantraModal');
+}
+
+async function saveMantra() {
+  if (!isAdmin) { alert('請先登入管理員。'); return; }
+  const id = document.getElementById('mantraEditId').value;
+  const title = document.getElementById('mantraTitleInput').value.trim();
+  const tag = document.getElementById('mantraTagInput').value.trim();
+  const content = document.getElementById('mantraContentInput').value.trim();
+  if (!title || !content) { alert('請填寫名稱和內文。'); return; }
+
+  let error;
+  if (id) {
+    ({ error } = await anonDb.from('essays').update({title, tag, content}).eq('id', id));
+  } else {
+    ({ error } = await anonDb.from('essays').insert({title, tag, content, type: 'mantra'}));
+  }
+  if (error) { alert('儲存失敗：' + error.message); return; }
+  closeModal('mantraModal');
+  renderMantraList();
+}
+
+async function editMantra(id) {
+  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  openMantraEditor(e);
+}
+
+async function deleteMantra(id) {
+  if (!isAdmin) return;
+  if (!confirm('確定刪除這則佛咒？')) return;
+  await anonDb.from('essays').delete().eq('id', id);
+  renderMantraList();
 }
 
 // ════════════════════════════════════════
@@ -900,6 +1066,50 @@ function openLightbox(id, src, title, caption) {
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 document.getElementById('lightbox').addEventListener('click', function(e) { if(e.target===this) closeLightbox(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox(); } });
+
+// ════════════════════════════════════════
+// ④ ENGLISH TOGGLE
+// ════════════════════════════════════════
+let _dharmaEnMode = false;
+
+function toggleDharmaLang() {
+  _dharmaEnMode = !_dharmaEnMode;
+  renderTodayDharma();
+}
+
+function renderDharmaEntryEn(d, en) {
+  return `
+    <div class="dharma-source" style="flex-direction:column;gap:6px">
+      <span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${d.source}</span>
+      <span>${en.source_en}</span>
+    </div>
+    <div class="dharma-text" style="font-family:'Noto Serif TC',serif;font-size:18px;letter-spacing:0.03em">${en.text_en}</div>
+    <div class="dharma-reflection"><strong>REFLECTION</strong>${en.reflection_en}</div>`;
+}
+
+async function renderTodayDharma() {
+  const d = _todayDharma;
+  const btn = document.getElementById('langToggleBtn');
+  if (!_dharmaEnMode) {
+    document.getElementById('dharmaBody').innerHTML = renderDharmaEntry(d, null);
+    btn.textContent = 'EN';
+    btn.classList.remove('en-mode');
+  } else {
+    btn.textContent = '中';
+    btn.classList.add('en-mode');
+    document.getElementById('dharmaBody').innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
+    const { data: en } = await anonDb.from('dharma_en').select('*').eq('source', d.source).maybeSingle();
+    if (en) {
+      document.getElementById('dharmaBody').innerHTML = renderDharmaEntryEn(d, en);
+    } else {
+      document.getElementById('dharmaBody').innerHTML = `
+        <div style="text-align:center;padding:40px 20px;font-family:'Noto Sans TC',sans-serif;color:var(--ink-faint);font-size:12px;line-height:2.4;letter-spacing:2px">
+          English translation coming soon.<br>
+          <button style="margin-top:16px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);background:none;border:1px solid rgba(184,149,42,0.4);padding:6px 18px;border-radius:1px;cursor:pointer" onclick="toggleDharmaLang()">切換回中文</button>
+        </div>`;
+    }
+  }
+}
 
 // Helpers
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
