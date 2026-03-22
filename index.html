@@ -303,6 +303,7 @@ body::before {
     <div class="dharma-tabs">
       <button class="dharma-tab active" id="dtab-today" onclick="switchDharmaTab('today')">今日主題</button>
       <button class="dharma-tab" id="dtab-history" onclick="switchDharmaTab('history')">過往主題</button>
+      <button class="dharma-tab" id="dtab-en-history" onclick="switchDharmaTab('en-history')" style="font-family:'Cinzel',serif;letter-spacing:2px">Previous Dharma</button>
     </div>
     <div class="card" id="dharma-today-card" style="animation-delay:0.15s">
       <div class="card-header"><span style="font-size:19px">🪷</span><div class="card-label">TODAY · 今日佛典</div><button class="btn-lang" id="langToggleBtn" onclick="toggleDharmaLang()">EN</button></div>
@@ -312,6 +313,12 @@ body::before {
       <div class="card" style="animation-delay:0.15s">
         <div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">ARCHIVE · 過往主題</div></div>
         <div class="card-body" id="historyBody"></div>
+      </div>
+    </div>
+    <div id="dharma-en-history-wrap" style="display:none">
+      <div class="card" style="animation-delay:0.15s">
+        <div class="card-header"><span style="font-size:19px">📜</span><div class="card-label" style="font-family:'Cinzel',serif;letter-spacing:3px">PREVIOUS DHARMA</div></div>
+        <div class="card-body" id="enHistoryBody"></div>
       </div>
     </div>
   </div>
@@ -524,6 +531,7 @@ const ADMIN_PASSWORD = 'dharma2026';
 
 const anonDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 let isAdmin = false;
+let _dharmaEnMode = false;
 // All writes use anonDb; admin status is gated by UI password only.
 
 // ════════════════════════════════════════
@@ -690,9 +698,12 @@ async function recordToday() {
 function switchDharmaTab(tab) {
   document.getElementById('dtab-today').classList.toggle('active', tab==='today');
   document.getElementById('dtab-history').classList.toggle('active', tab==='history');
+  document.getElementById('dtab-en-history').classList.toggle('active', tab==='en-history');
   document.getElementById('dharma-today-card').style.display = tab==='today' ? 'block' : 'none';
   document.getElementById('dharma-history-wrap').style.display = tab==='history' ? 'block' : 'none';
+  document.getElementById('dharma-en-history-wrap').style.display = tab==='en-history' ? 'block' : 'none';
   if (tab === 'history') renderDharmaHistory();
+  if (tab === 'en-history') renderDharmaEnHistory();
 }
 
 async function renderDharmaHistory() {
@@ -721,6 +732,49 @@ function showDharmaDetail(iso) {
   document.getElementById('historyBody').innerHTML =
     `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回過往主題</button>
      ${renderDharmaEntry(d, formatDate(iso))}`;
+}
+
+async function renderDharmaEnHistory() {
+  const body = document.getElementById('enHistoryBody');
+  body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
+  const [{ data: rows }, { data: enRows }] = await Promise.all([
+    anonDb.from('dharma_history').select('*').order('date', {ascending: false}),
+    anonDb.from('dharma_en').select('*')
+  ]);
+  if (!rows || !rows.length) {
+    body.innerHTML = `<div class="history-empty">No records yet.<br>Visit the site daily and your history will appear here.</div>`;
+    return;
+  }
+  const enMap = {};
+  if (enRows) enRows.forEach(e => enMap[e.source] = e);
+  const todayK = todayKey();
+  body.innerHTML = rows.map(e => {
+    const isT = e.date === todayK;
+    const en = enMap[e.source];
+    const srcDisplay = en ? en.source_en : e.source;
+    const txtDisplay = en ? en.text_en : e.text;
+    return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')">
+      <div class="history-date">${formatDate(e.date)}${isT?'<span class="today-badge">Today</span>':''}</div>
+      <div><div class="history-source">${srcDisplay}</div><div class="history-quote">${txtDisplay}</div></div>
+      <div class="history-arrow">›</div></div>`;
+  }).join('');
+}
+
+async function showDharmaEnDetail(iso) {
+  const d = getDharmaByDate(iso);
+  const body = document.getElementById('enHistoryBody');
+  body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
+  const { data: en } = await anonDb.from('dharma_en').select('*').eq('source', d.source).maybeSingle();
+  if (en) {
+    body.innerHTML =
+      `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
+       ${renderDharmaEntryEn(d, en)}`;
+  } else {
+    body.innerHTML =
+      `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
+       ${renderDharmaEntry(d, formatDate(iso))}
+       <div style="margin-top:14px;font-family:'Noto Sans TC',sans-serif;font-size:11px;color:var(--ink-faint);letter-spacing:1px">English translation coming soon.</div>`;
+  }
 }
 
 // Init dharma
@@ -1070,8 +1124,6 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox
 // ════════════════════════════════════════
 // ④ ENGLISH TOGGLE
 // ════════════════════════════════════════
-let _dharmaEnMode = false;
-
 function toggleDharmaLang() {
   _dharmaEnMode = !_dharmaEnMode;
   renderTodayDharma();
