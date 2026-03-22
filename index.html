@@ -627,6 +627,10 @@ function formatDate(iso) {
   const [y,m,d] = iso.split('-').map(Number);
   return new Date(y,m-1,d).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
 }
+function formatDateEn(iso) {
+  const [y,m,d] = iso.split('-').map(Number);
+  return `${y}.${m}.${d}`;
+}
 function getDharmaByDate(iso) {
   const d = new Date(iso);
   const start = new Date(d.getFullYear(),0,0);
@@ -754,7 +758,7 @@ async function renderDharmaEnHistory() {
     const srcDisplay = en ? en.source_en : e.source;
     const txtDisplay = en ? en.text_en : e.text;
     return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')">
-      <div class="history-date">${formatDate(e.date)}${isT?'<span class="today-badge">Today</span>':''}</div>
+      <div class="history-date">${formatDateEn(e.date)}${isT?'<span class="today-badge">Today</span>':''}</div>
       <div><div class="history-source">${srcDisplay}</div><div class="history-quote">${txtDisplay}</div></div>
       <div class="history-arrow">›</div></div>`;
   }).join('');
@@ -768,11 +772,11 @@ async function showDharmaEnDetail(iso) {
   if (en) {
     body.innerHTML =
       `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
-       ${renderDharmaEntryEn(d, en)}`;
+       ${renderDharmaEntryEn(d, en, formatDateEn(iso))}`;
   } else {
     body.innerHTML =
       `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
-       ${renderDharmaEntry(d, formatDate(iso))}
+       ${renderDharmaEntry(d, formatDateEn(iso))}
        <div style="margin-top:14px;font-family:'Noto Sans TC',sans-serif;font-size:11px;color:var(--ink-faint);letter-spacing:1px">English translation coming soon.</div>`;
   }
 }
@@ -1129,8 +1133,9 @@ function toggleDharmaLang() {
   renderTodayDharma();
 }
 
-function renderDharmaEntryEn(d, en) {
+function renderDharmaEntryEn(d, en, dateLbl) {
   return `
+    ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
     <div class="dharma-source" style="flex-direction:column;gap:6px">
       <span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${d.source}</span>
       <span>${en.source_en}</span>
