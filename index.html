@@ -538,13 +538,23 @@ body::before {
 const SUPABASE_URL = 'https://qstspcvkaznwvhsuavoo.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_5NFAn4Ur369Jysuk_Y_AHw_KHI3IoGS';
 
-// Admin password (change this to something only you know)
-const ADMIN_PASSWORD = 'dharma2026';
-
 const anonDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-let isAdmin = false;
+const ADMIN_TOKEN_KEY = 'bf_admin_token';
+let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
-// All writes use anonDb; admin status is gated by UI password only.
+// All writes use anonDb; admin controls are gated by login state.
+
+function applyAdminState() {
+  document.getElementById('adminNavBtn').textContent = isAdmin ? '登出' : '管理員';
+  document.getElementById('adminNavBtn').classList.toggle('logged-in', isAdmin);
+  document.getElementById('essayAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('mantraAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('galleryAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
+  const activePage = document.querySelector('.page.active')?.id.replace('page-','');
+  if (activePage === 'essays') renderEssayList();
+  if (activePage === 'mantras') renderMantraList();
+  if (activePage === 'gallery') renderGallery();
+}
 
 // ════════════════════════════════════════
 // ADMIN AUTH (client-side password gate)
@@ -560,38 +570,31 @@ function handleAdminClick() {
   }
 }
 
-function doLogin() {
+async function doLogin() {
   const pw = document.getElementById('adminPassword').value;
-  if (pw === ADMIN_PASSWORD) {
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || '登入失敗');
     isAdmin = true;
+    sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
     closeModal('loginModal');
-    document.getElementById('adminNavBtn').textContent = '登出';
-    document.getElementById('adminNavBtn').classList.add('logged-in');
-    // Show admin toolbars
-    document.getElementById('essayAdminToolbar').style.display = 'flex';
-    document.getElementById('mantraAdminToolbar').style.display = 'flex';
-    document.getElementById('galleryAdminToolbar').style.display = 'flex';
-    // Re-render current page with admin controls
-    const activePage = document.querySelector('.page.active').id.replace('page-','');
-    if (activePage === 'essays') renderEssayList();
-    if (activePage === 'mantras') renderMantraList();
-    if (activePage === 'gallery') renderGallery();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
+    applyAdminState();
+  } catch (_err) {
+    errEl.style.display = 'block';
   }
 }
 
 function doLogout() {
   isAdmin = false;
-  document.getElementById('adminNavBtn').textContent = '管理員';
-  document.getElementById('adminNavBtn').classList.remove('logged-in');
-  document.getElementById('essayAdminToolbar').style.display = 'none';
-  document.getElementById('mantraAdminToolbar').style.display = 'none';
-  document.getElementById('galleryAdminToolbar').style.display = 'none';
-  const activePage = document.querySelector('.page.active').id.replace('page-','');
-  if (activePage === 'essays') renderEssayList();
-  if (activePage === 'mantras') renderMantraList();
-  if (activePage === 'gallery') renderGallery();
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  applyAdminState();
 }
 
 // ════════════════════════════════════════
@@ -795,6 +798,7 @@ async function showDharmaEnDetail(iso) {
 
 // Init dharma
 const _todayDharma = getDharmaByDate(todayKey());
+applyAdminState();
 renderTodayDharma();
 recordToday();
 

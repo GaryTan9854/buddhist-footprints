@@ -11,6 +11,17 @@ REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 cd "$REPO_DIR"
 
+if [[ -f "$REPO_DIR/.env" ]]; then
+  set -a
+  source "$REPO_DIR/.env"
+  set +a
+fi
+
+if [[ -z "${APP_PASSWORD:-}" ]]; then
+  echo "APP_PASSWORD is not set. Add it to $REPO_DIR/.env before deploying."
+  exit 1
+fi
+
 HTML_VERSION="$(perl -ne 'print "$1\n" if /<span class="site-version">v([^<]+)<\/span>/' index.html | head -n 1)"
 SERVER_VERSION="$(perl -ne "print qq{\$1\n} if /APP_VERSION \|\| '([^']+)'/" server.js | head -n 1)"
 
@@ -42,7 +53,10 @@ echo "Syncing files to ${REMOTE_HOST}:${REMOTE_DIR}..."
 scp "$REPO_DIR/index.html" "$REMOTE_HOST:$REMOTE_DIR/index.html"
 scp "$REPO_DIR/server.js" "$REMOTE_HOST:$REMOTE_DIR/server.js"
 
+echo "Updating remote APP_PASSWORD..."
+ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && touch .env && if grep -q \"^APP_PASSWORD=\" .env; then perl -0pi -e \"s/^APP_PASSWORD=.*/APP_PASSWORD=$APP_PASSWORD/m\" .env; else printf \"\\nAPP_PASSWORD=$APP_PASSWORD\\n\" >> .env; fi'"
+
 echo "Restarting PM2 app: $PM2_APP_NAME"
-ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && APP_VERSION=$VERSION pm2 restart $PM2_APP_NAME --update-env && sleep 2 && curl -fsSL $HEALTH_URL'"
+ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && set -a && source .env && set +a && APP_VERSION=$VERSION pm2 restart $PM2_APP_NAME --update-env && sleep 2 && curl -fsSL $HEALTH_URL'"
 
 echo "Deploy complete for Buddhist Footprints v$VERSION."
