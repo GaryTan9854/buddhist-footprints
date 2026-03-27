@@ -54,6 +54,17 @@ body::before {
 .site-logo { display:flex;align-items:baseline;gap:12px; }
 .site-logo-main { font-family:'Noto Serif TC',serif;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:4px; }
 .site-logo-sub { font-family:'Cinzel',serif;font-size:9px;letter-spacing:5px;color:var(--gold); }
+.site-version {
+  display:inline-flex;align-items:center;
+  padding:3px 8px;
+  font-family:'Cinzel',serif;
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--gold);
+  background:rgba(184,149,42,0.08);
+  border:1px solid rgba(184,149,42,0.26);
+  border-radius:999px;
+}
 .site-nav { display:flex;align-items:center;gap:8px; }
 .nav-btn {
   padding:8px 20px;
@@ -281,6 +292,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
+    <span class="site-version">v1.1</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -374,7 +386,7 @@ body::before {
   </div>
 </div>
 
-<footer class="site-footer">日日是好日 · 念念不離當下<br><span style="opacity:0.6;letter-spacing:2px">v1.0</span></footer>
+<footer class="site-footer">日日是好日 · 念念不離當下</footer>
 
 <!-- ══ LOGIN MODAL ══ -->
 <div class="modal-overlay" id="loginModal">
