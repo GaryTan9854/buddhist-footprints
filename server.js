@@ -28,8 +28,9 @@ loadEnvFile(path.join(__dirname, '.env'));
 
 const PORT    = parseInt(process.env.PORT || '3001', 10);
 const APP     = process.env.APP_NAME || 'buddhist-footprints';
-const VERSION = process.env.APP_VERSION || '1.2.0';
-const DISPLAY_VERSION = String(VERSION).replace(/\.0$/, '');
+const { version: PKG_VERSION } = require('./package.json');
+const VERSION = PKG_VERSION || '1.2.0';
+const DISPLAY_VERSION = String(VERSION).replace(/\.0$/, ''); // 1.3.0 → 1.3
 const ROOT    = __dirname;
 
 const APP_PASSWORD = process.env.APP_PASSWORD || '';
