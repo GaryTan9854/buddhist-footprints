@@ -1,3 +1,15 @@
 .DS_Store
 *.log
-supabase-keepalive.log
+.env
+.env.*
+node_modules/
+*.pem
+*.key
+*.p12
+*.crt
+credentials.json
+
+# SQLite DB files (live in ~/db/ on MBP, never committed)
+*.db
+*.db-shm
+*.db-wal

@@ -38,7 +38,7 @@ fi
 VERSION="$HTML_VERSION"
 
 echo "Staging deploy files for Buddhist Footprints v$VERSION..."
-git add index.html server.js deploy.sh
+git add index.html server.js deploy.sh db.js
 
 if ! git diff --cached --quiet; then
   git commit -m "Deploy Buddhist Footprints v$VERSION"
@@ -51,7 +51,11 @@ git push origin main
 
 echo "Syncing files to ${REMOTE_HOST}:${REMOTE_DIR}..."
 scp "$REPO_DIR/index.html" "$REMOTE_HOST:$REMOTE_DIR/index.html"
-scp "$REPO_DIR/server.js" "$REMOTE_HOST:$REMOTE_DIR/server.js"
+scp "$REPO_DIR/server.js"  "$REMOTE_HOST:$REMOTE_DIR/server.js"
+scp "$REPO_DIR/db.js"      "$REMOTE_HOST:$REMOTE_DIR/db.js"
+
+echo "Ensuring ~/db/buddhist-footprints/ exists on MBP..."
+ssh "$REMOTE_HOST" "mkdir -p ~/db/buddhist-footprints"
 
 echo "Updating remote APP_PASSWORD..."
 ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && touch .env && if grep -q \"^APP_PASSWORD=\" .env; then perl -0pi -e \"s/^APP_PASSWORD=.*/APP_PASSWORD=$APP_PASSWORD/m\" .env; else printf \"\\nAPP_PASSWORD=$APP_PASSWORD\\n\" >> .env; fi'"

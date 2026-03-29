@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>佛法足跡</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- local SQLite backend — no Supabase SDK needed -->
 <style>
 :root {
   --ink:       #1a1612;
@@ -292,7 +292,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version">v1.1</span>
+    <span class="site-version">v1.2</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -533,16 +533,38 @@ body::before {
 
 <script>
 // ════════════════════════════════════════
-// SUPABASE INIT
+// LOCAL API HELPERS  (replaces Supabase)
 // ════════════════════════════════════════
-const SUPABASE_URL = 'https://qstspcvkaznwvhsuavoo.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_5NFAn4Ur369Jysuk_Y_AHw_KHI3IoGS';
-
-const anonDb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
 let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
-// All writes use anonDb; admin controls are gated by login state.
+
+function _authHeaders() {
+  const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+async function apiFetch(path, options = {}) {
+  return fetch(path, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ..._authHeaders(), ...(options.headers || {}) }
+  });
+}
+async function apiGet(path) {
+  const r = await fetch(path);
+  return r.ok ? r.json() : null;
+}
+async function apiPost(path, body) {
+  const r = await apiFetch(path, { method: 'POST', body: JSON.stringify(body) });
+  return { ok: r.ok, data: await r.json() };
+}
+async function apiPut(path, body) {
+  const r = await apiFetch(path, { method: 'PUT', body: JSON.stringify(body) });
+  return { ok: r.ok, data: await r.json() };
+}
+async function apiDelete(path) {
+  const r = await apiFetch(path, { method: 'DELETE' });
+  return r.ok;
+}
 
 function applyAdminState() {
   document.getElementById('adminNavBtn').textContent = isAdmin ? '登出' : '管理員';
@@ -671,8 +693,7 @@ function renderDharmaEntry(d, dateLbl) {
 // 心得按鈕點擊處理（async，依狀態決定行為）
 async function handleEssayClick(source, btn) {
   btn.disabled = true;
-  const { data: essays } = await anonDb
-    .from('essays').select('*').eq('dharma_source', source).limit(1);
+  const essays = await apiGet('/api/essays?dharma_source=' + encodeURIComponent(source));
   btn.disabled = false;
   if (essays && essays.length) {
     showEssayModal(essays[0], source);
@@ -700,18 +721,16 @@ function showEssayModal(essay, source) {
 
 async function unlinkEssayFromDharma() {
   if (!confirm('確定移除此文章與佛法主題的連結？文章本身不會被刪除。')) return;
-  await anonDb.from('essays').update({dharma_source: null}).eq('id', _essayModalId);
+  await apiPut('/api/essays/' + _essayModalId, { dharma_source: null });
   closeModal('essayViewModal');
 }
 
-// Dharma history via Supabase
+// Dharma history via local API
 async function recordToday() {
   const key = todayKey();
-  const { data } = await anonDb.from('dharma_history').select('date').eq('date', key).maybeSingle();
-  if (!data) {
-    const d = getDharmaByDate(key);
-    await anonDb.from('dharma_history').insert({date: key, source: d.source, text: d.text});
-  }
+  const d = getDharmaByDate(key);
+  // POST is INSERT OR IGNORE on server — safe to call every page load
+  await apiPost('/api/dharma/history', { date: key, source: d.source, text: d.text });
 }
 
 function switchDharmaTab(tab) {
@@ -728,9 +747,8 @@ function switchDharmaTab(tab) {
 async function renderDharmaHistory() {
   const body = document.getElementById('historyBody');
   body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-  const { data: rows, error } = await anonDb
-    .from('dharma_history').select('*').order('date', {ascending: false});
-  if (error || !rows) {
+  const rows = await apiGet('/api/dharma/history');
+  if (!rows) {
     body.innerHTML = `<div class="history-empty">載入失敗，請重新整理。</div>`; return;
   }
   if (!rows.length) {
@@ -756,9 +774,9 @@ function showDharmaDetail(iso) {
 async function renderDharmaEnHistory() {
   const body = document.getElementById('enHistoryBody');
   body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
-  const [{ data: rows }, { data: enRows }] = await Promise.all([
-    anonDb.from('dharma_history').select('*').order('date', {ascending: false}),
-    anonDb.from('dharma_en').select('*')
+  const [rows, enRows] = await Promise.all([
+    apiGet('/api/dharma/history'),
+    apiGet('/api/dharma/en')
   ]);
   if (!rows || !rows.length) {
     body.innerHTML = `<div class="history-empty">No records yet.<br>Visit the site daily and your history will appear here.</div>`;
@@ -783,7 +801,8 @@ async function showDharmaEnDetail(iso) {
   const d = getDharmaByDate(iso);
   const body = document.getElementById('enHistoryBody');
   body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
-  const { data: en } = await anonDb.from('dharma_en').select('*').eq('source', d.source).maybeSingle();
+  const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
+  const en = (enArr && enArr.length) ? enArr[0] : null;
   if (en) {
     body.innerHTML =
       `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
@@ -803,7 +822,7 @@ renderTodayDharma();
 recordToday();
 
 // ════════════════════════════════════════
-// ② ESSAYS (Supabase)
+// ② ESSAYS (local API)
 // ════════════════════════════════════════
 async function renderEssayList() {
   document.getElementById('essayListWrap').style.display = 'block';
@@ -811,13 +830,9 @@ async function renderEssayList() {
   const wrap = document.getElementById('essayListWrap');
   wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
 
-  const { data: essays, error } = await anonDb
-    .from('essays')
-    .select('*')
-    .not('type', 'eq', 'mantra')
-    .order('created_at', {ascending: false});
+  const essays = await apiGet('/api/essays');
 
-  if (error || !essays) {
+  if (!essays) {
     wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div>載入失敗，請重新整理頁面。</div>`;
     return;
   }
@@ -850,7 +865,7 @@ async function renderEssayList() {
 }
 
 async function showEssayDetail(id) {
-  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  const e = await apiGet('/api/essays/' + id);
   if (!e) return;
   document.getElementById('essayListWrap').style.display = 'none';
   const dw = document.getElementById('essayDetailWrap');
@@ -893,31 +908,31 @@ async function saveEssay() {
   const dharma_source = document.getElementById('essayDharmaSource').value.trim() || null;
   if (!title || !content) { alert('請填寫標題和內文。'); return; }
 
-  let error;
+  let r;
   if (id) {
-    ({ error } = await anonDb.from('essays').update({title, tag, content, dharma_source}).eq('id', id));
+    r = await apiPut('/api/essays/' + id, {title, tag, content, dharma_source});
   } else {
-    ({ error } = await anonDb.from('essays').insert({title, tag, content, dharma_source}));
+    r = await apiPost('/api/essays', {title, tag, content, dharma_source});
   }
-  if (error) { alert('儲存失敗：' + error.message); return; }
+  if (!r.ok) { alert('儲存失敗：' + (r.data?.error || '未知錯誤')); return; }
   closeModal('essayModal');
   renderEssayList();
 }
 
 async function editEssay(id) {
-  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  const e = await apiGet('/api/essays/' + id);
   openEssayEditor(e);
 }
 
 async function deleteEssay(id) {
   if (!isAdmin) return;
   if (!confirm('確定刪除這篇心得？')) return;
-  await anonDb.from('essays').delete().eq('id', id);
+  await apiDelete('/api/essays/' + id);
   renderEssayList();
 }
 
 // ════════════════════════════════════════
-// ②-B MANTRAS (Supabase, type='mantra')
+// ②-B MANTRAS (local API, type='mantra')
 // ════════════════════════════════════════
 async function renderMantraList() {
   document.getElementById('mantraListWrap').style.display = 'block';
@@ -925,13 +940,9 @@ async function renderMantraList() {
   const wrap = document.getElementById('mantraListWrap');
   wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
 
-  const { data: mantras, error } = await anonDb
-    .from('essays')
-    .select('*')
-    .eq('type', 'mantra')
-    .order('created_at', {ascending: false});
+  const mantras = await apiGet('/api/mantras');
 
-  if (error || !mantras) {
+  if (!mantras) {
     wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div>載入失敗，請重新整理頁面。</div>`;
     return;
   }
@@ -964,7 +975,7 @@ async function renderMantraList() {
 }
 
 async function showMantraDetail(id) {
-  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  const e = await apiGet('/api/essays/' + id);
   if (!e) return;
   document.getElementById('mantraListWrap').style.display = 'none';
   const dw = document.getElementById('mantraDetailWrap');
@@ -1005,31 +1016,31 @@ async function saveMantra() {
   const content = document.getElementById('mantraContentInput').value.trim();
   if (!title || !content) { alert('請填寫名稱和內文。'); return; }
 
-  let error;
+  let r;
   if (id) {
-    ({ error } = await anonDb.from('essays').update({title, tag, content}).eq('id', id));
+    r = await apiPut('/api/essays/' + id, {title, tag, content});
   } else {
-    ({ error } = await anonDb.from('essays').insert({title, tag, content, type: 'mantra'}));
+    r = await apiPost('/api/mantras', {title, tag, content});
   }
-  if (error) { alert('儲存失敗：' + error.message); return; }
+  if (!r.ok) { alert('儲存失敗：' + (r.data?.error || '未知錯誤')); return; }
   closeModal('mantraModal');
   renderMantraList();
 }
 
 async function editMantra(id) {
-  const { data: e } = await anonDb.from('essays').select('*').eq('id', id).single();
+  const e = await apiGet('/api/essays/' + id);
   openMantraEditor(e);
 }
 
 async function deleteMantra(id) {
   if (!isAdmin) return;
   if (!confirm('確定刪除這則佛咒？')) return;
-  await anonDb.from('essays').delete().eq('id', id);
+  await apiDelete('/api/essays/' + id);
   renderMantraList();
 }
 
 // ════════════════════════════════════════
-// ③ GALLERY (Supabase)
+// ③ GALLERY (local API)
 // ════════════════════════════════════════
 let pendingImageData = null;
 
@@ -1037,10 +1048,7 @@ async function renderGallery() {
   const grid = document.getElementById('galleryGrid');
   grid.innerHTML = `<div class="loading-spinner" style="grid-column:1/-1"><div class="spinner"></div>載入中…</div>`;
 
-  const { data: items } = await anonDb
-    .from('gallery')
-    .select('*')
-    .order('created_at', {ascending: false});
+  const items = await apiGet('/api/gallery');
 
   if (!items || !items.length) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
@@ -1110,9 +1118,9 @@ async function saveGalleryItem() {
   if (!pendingImageData) { alert('請選擇圖片。'); return; }
 
   if (id) {
-    await anonDb.from('gallery').update({title, caption, image_url: pendingImageData}).eq('id', id);
+    await apiPut('/api/gallery/' + id, {title, caption, image_url: pendingImageData});
   } else {
-    await anonDb.from('gallery').insert({title, caption, image_url: pendingImageData});
+    await apiPost('/api/gallery', {title, caption, image_url: pendingImageData});
   }
   closeModal('galleryModal');
   pendingImageData = null;
@@ -1120,14 +1128,14 @@ async function saveGalleryItem() {
 }
 
 async function editGalleryItem(id) {
-  const { data: it } = await anonDb.from('gallery').select('*').eq('id', id).single();
+  const it = await apiGet('/api/gallery/' + id);
   openGalleryUpload(it);
 }
 
 async function deleteGalleryItem(id) {
   if (!isAdmin) return;
   if (!confirm('確定刪除此圖片？')) return;
-  await anonDb.from('gallery').delete().eq('id', id);
+  await apiDelete('/api/gallery/' + id);
   renderGallery();
 }
 
@@ -1171,7 +1179,8 @@ async function renderTodayDharma() {
     btn.textContent = '中';
     btn.classList.add('en-mode');
     document.getElementById('dharmaBody').innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-    const { data: en } = await anonDb.from('dharma_en').select('*').eq('source', d.source).maybeSingle();
+    const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
+    const en = (enArr && enArr.length) ? enArr[0] : null;
     if (en) {
       document.getElementById('dharmaBody').innerHTML = renderDharmaEntryEn(d, en);
     } else {
