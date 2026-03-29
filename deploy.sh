@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REMOTE_HOST="mbp"
-REMOTE_DIR="buddhist-dist"
+REMOTE_DIR="buddhist-footprints-dist"
 PM2_APP_NAME="buddhist"
 HEALTH_URL="https://buddhist.visadelab.xyz/api/health"
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
