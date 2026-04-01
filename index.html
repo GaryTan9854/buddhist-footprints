@@ -196,6 +196,20 @@ body::before {
 .lightbox img{max-width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);}
 .lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;cursor:pointer;color:rgba(244,239,230,0.5);font-size:24px;}
 
+/* ── ESSAY VIEW MODAL ── */
+.modal-overlay" id="essayViewModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header"><div class="modal-title" id="essayViewTitle"></div><button class="modal-close" onclick="closeModal('essayViewModal')">✕</button></div>
+    <div class="modal-body"><div id="essayViewUnlink" style="display:none"><button class="btn-unlink" onclick="unlinkEssayFromDharma()">✕ 移除連結</button></div><div id="essayViewMeta"></div><div class="essay-view-body" id="essayViewContent"></div></div>
+  </div>
+</div>
+
+/* ── LOADING ── */
+.loading-spinner { text-align:center;padding:48px;font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint); }
+.spinner { width:24px;height:24px;border:2px solid rgba(184,149,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px; }
+
+.site-footer { text-align:center;padding:32px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);opacity:0.45;border-top:1px solid var(--border);margin-top:40px; }
+
 @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
@@ -210,7 +224,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v1.13</span>
+    <span class="site-version" id="versionBadge">v1.14</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -221,7 +235,6 @@ body::before {
   </nav>
 </header>
 
-<!-- DHARMA PAGE -->
 <div class="page active" id="page-dharma">
   <div class="page-hero">
     <div class="page-hero-en">DAILY DHARMA</div>
@@ -247,12 +260,10 @@ body::before {
   </div>
 </div>
 
-<!-- OTHER PAGES (Dynamic content) -->
 <div class="page" id="page-essays"><div class="content-wrap" id="essayContent"></div></div>
 <div class="page" id="page-mantras"><div class="content-wrap" id="mantraContent"></div></div>
 <div class="page" id="page-gallery"><div class="content-wrap" id="galleryContent"></div></div>
 
-<!-- MODALS -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal" style="max-width:400px">
     <div class="modal-header"><div class="modal-title">管理員登入</div><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
@@ -321,8 +332,33 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function todayKey() { return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'}); }
-function formatDate(iso) { const [y,m,d] = iso.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',weekday:'long'}); }
-function formatDateEn(iso) { return iso.replaceAll('-','.'); }
+
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  // Handle "2026-04-01 12:34:56" or ISO
+  const cleanStr = dateStr.replace(' ', 'T');
+  const d = new Date(cleanStr);
+  if (isNaN(d.getTime())) {
+    // Manual parse for "YYYY-MM-DD"
+    const [y, m, day] = dateStr.split('-').map(Number);
+    return new Date(y, m - 1, day);
+  }
+  return d;
+}
+
+function formatDate(iso) {
+  const d = parseDate(iso);
+  if (!d) return '日期不詳';
+  return d.toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
+}
+function formatDateEn(iso) {
+  const d = parseDate(iso);
+  if (!d) return 'Unknown Date';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
+}
 
 async function fetchTodayDharma() { _todayDharma = await apiGet('/api/dharma/history/' + todayKey()); renderTodayDharma(); }
 
@@ -330,8 +366,8 @@ function renderDharmaEntry(zh, en, dateLbl, mode) {
   const alts = (zh.alt_links ? JSON.parse(zh.alt_links) : []).map(l => `<a class="more-link" href="${l.url}" target="_blank">↗ ${l.label}</a>`).join('');
   if (mode === 'en') {
     return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
-      <div class="dharma-source" style="flex-direction:column;gap:6px"><span style="font-size:10px;color:var(--ink-faint)">${zh.source}</span><span>${en ? en.source_en : zh.source}</span></div>
-      <div class="dharma-text" style="font-size:18px">${en ? en.text_en : zh.text}</div>
+      <div class="dharma-source" style="flex-direction:column;gap:6px"><span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${zh.source}</span><span>${en ? en.source_en : zh.source}</span></div>
+      <div class="dharma-text" style="font-family:'Noto Serif TC',serif;font-size:18px;letter-spacing:0.03em">${en ? en.text_en : zh.text}</div>
       <div class="dharma-reflection"><strong>REFLECTION</strong>${en ? en.reflection_en : 'Translation pending.'}</div>
       <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
   } else {
@@ -376,7 +412,7 @@ async function renderDharmaHistory() {
   const tk = todayKey();
   body.innerHTML = rows.map(e => `<div class="history-item" onclick="showDharmaDetail('${e.date}')"><div class="history-date">${formatDate(e.date)}${e.date===tk?'<span class="today-badge">今日</span>':''}</div><div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh')}`; }
+async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回過往主題</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh')}`; }
 
 async function renderDharmaEnHistory() {
   const [rows, enRows] = await Promise.all([apiGet('/api/dharma/history'), apiGet('/api/dharma/en')]);
@@ -389,14 +425,14 @@ async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/hi
 async function renderEssayList() {
   const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayContent');
   wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') + 
-    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at.split('T')[0])}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
+    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
 }
 async function showEssayPageDetail(id) {
   const e = await apiGet('/api/essays/'+id); const wrap = document.getElementById('essayContent');
   wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList()">‹ 返回列表</button>
     <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button></div>`:''}</div></div>`;
 }
-function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; openModal('essayModal'); }
+function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
 async function saveEssay() { const id=document.getElementById('essayEditId').value; const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value}; const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body); if(r.ok){ closeModal('essayModal'); renderEssayList(); } }
 async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssayEditor(e); }
 async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
@@ -412,12 +448,13 @@ async function showMantraPageDetail(id) {
     <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button></div>`:''}</div></div>`;
 }
 function openMantraEditor(m) { document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
-async function saveMantra() { /* share logic with saveEssay but check endpoint if needed or use same */ }
+async function editMantra(id) { const e=await apiGet('/api/essays/'+id); openMantraEditor(e); }
+async function deleteMantra(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderMantraList(); } }
 
 async function renderGallery() {
   const items = await apiGet('/api/gallery'); const wrap = document.getElementById('galleryContent');
   wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>`:'') + 
-    `<div class="gallery-grid">${(items||[]).map(it => `<div class="gallery-item"><div class="gallery-img-wrap" onclick="openLightbox('','${it.image_url}')"><img src="${it.image_url}"></div><div class="gallery-info"><div>${it.title}</div>${isAdmin?`<button onclick="deleteGalleryItem('${it.id}')">刪除</button>`:''}</div></div>`).join('')}</div>`;
+    `<div class="gallery-grid">${(items||[]).map(it => `<div class="gallery-item"><div class="gallery-img-wrap" onclick="openLightbox('','${it.image_url}')"><img src="${it.image_url}"></div><div class="gallery-info"><div>${it.title}</div>${isAdmin?`<button class="btn-outline btn-sm" onclick="deleteGalleryItem('${it.id}')">刪除</button>`:''}</div></div>`).join('')}</div>`;
 }
 function openGalleryUpload() { openModal('galleryModal'); }
 function handleImageSelect(e) { const file=e.target.files[0]; const r=new FileReader(); r.onload=ev=>{ pendingImageData=ev.target.result; document.getElementById('galleryPreviewImg').src=pendingImageData; document.getElementById('galleryPreviewImg').style.display='block'; }; r.readAsDataURL(file); }
