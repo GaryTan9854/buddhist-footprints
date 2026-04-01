@@ -477,7 +477,7 @@ async function autoRecordToday() {
         text_en = excluded.text_en,
         reflection_en = excluded.reflection_en
     `, [dharma.s, dharma.se, dharma.te, dharma.re]);
-    console.log(\`[cron] Daily dharma recorded: \${today}\`);
+    console.log('[cron] Daily dharma recorded: ' + today);
   } catch(e) { console.error('[cron] Error:', e.message); }
 }
 
