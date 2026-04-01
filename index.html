@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>佛法足跡</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<!-- local SQLite backend — no Supabase SDK needed -->
 <style>
 :root {
   --ink:       #1a1612;
@@ -41,7 +40,6 @@ body::before {
   pointer-events:none;z-index:0;
 }
 
-/* ── HEADER ── */
 .site-header {
   position:sticky;top:0;z-index:100;
   background:rgba(244,239,230,0.94);
@@ -81,7 +79,6 @@ body::before {
 .nav-btn.active{color:var(--gold);}
 .nav-btn.active::after{transform:scaleX(1);}
 
-/* Admin button in nav */
 .admin-nav-btn {
   padding:6px 16px;
   font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;
@@ -94,7 +91,6 @@ body::before {
 .admin-nav-btn:hover{color:var(--gold);border-color:var(--gold);}
 .admin-nav-btn.logged-in{color:var(--gold);border-color:var(--gold);background:var(--gold-pale);}
 
-/* ── PAGE ── */
 .page{display:none;position:relative;z-index:1;}
 .page.active{display:block;}
 
@@ -112,7 +108,6 @@ body::before {
 
 .content-wrap { max-width:860px;margin:0 auto;padding:0 32px 80px; }
 
-/* ── CARD ── */
 .card {
   background:var(--mist);border:1px solid var(--border);border-radius:2px;
   box-shadow:0 3px 20px var(--shadow),inset 0 1px 0 rgba(255,255,255,0.5);
@@ -122,7 +117,6 @@ body::before {
 .card-label { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:4px;color:var(--gold); }
 .card-body { padding:26px 30px; }
 
-/* ── BUTTONS ── */
 .btn-primary {
   display:inline-flex;align-items:center;gap:8px;padding:9px 22px;
   background:var(--gold);color:var(--rice);
@@ -141,7 +135,6 @@ body::before {
 .btn-danger{border-color:var(--verm);color:var(--verm);}
 .btn-danger:hover{background:var(--verm);color:var(--rice);}
 
-/* ── DHARMA ── */
 .dharma-tabs { display:flex;gap:0;margin-bottom:28px;border-bottom:1px solid var(--border); }
 .dharma-tab {
   padding:10px 26px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;color:var(--ink-faint);
@@ -181,13 +174,7 @@ body::before {
 .detail-back { display:inline-flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-faint);cursor:pointer;margin-bottom:22px;padding:6px 0;border:none;background:none;transition:color 0.2s; }
 .detail-back:hover{color:var(--gold);}
 .detail-date-label { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);margin-bottom:18px; }
-.dharma-essay-row { display:flex;gap:8px;margin-top:10px;flex-wrap:wrap; }
-.btn-essay-link { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold);background:var(--gold-pale);border:1px solid rgba(184,149,42,0.3);border-radius:2px;padding:4px 12px;cursor:pointer;transition:all 0.18s;text-decoration:none; }
-.btn-essay-link:hover { background:rgba(184,149,42,0.22);border-color:var(--gold); }
-.btn-essay-add { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-faint);background:transparent;border:1px dashed rgba(184,149,42,0.25);border-radius:2px;padding:4px 12px;cursor:pointer;transition:all 0.18s; }
-.btn-essay-add:hover { color:var(--gold);border-color:var(--gold); }
 
-/* ── ESSAYS ── */
 .section-toolbar { display:flex;justify-content:flex-end;margin-bottom:24px; }
 .essay-list { display:flex;flex-direction:column;gap:16px; }
 .essay-card { background:var(--mist);border:1px solid var(--border);border-radius:2px;padding:24px 28px;box-shadow:0 2px 14px var(--shadow);cursor:pointer;transition:all 0.22s; }
@@ -209,7 +196,6 @@ body::before {
 .empty-state { text-align:center;padding:60px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2.2; }
 .empty-icon { font-size:32px;margin-bottom:16px; }
 
-/* ── GALLERY ── */
 .gallery-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
 .gallery-item { background:var(--mist);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;transition:all 0.25s;box-shadow:0 2px 12px var(--shadow); }
 .gallery-item:hover { border-color:rgba(184,149,42,0.4);transform:translateY(-3px);box-shadow:0 8px 28px rgba(26,22,18,0.15); }
@@ -221,7 +207,6 @@ body::before {
 .gallery-item-caption { font-family:'Noto Sans TC',sans-serif;font-size:11px;line-height:1.8;color:var(--ink-faint); }
 .gallery-admin-btns { margin-top:10px;display:flex;gap:8px; }
 
-/* ── MODAL ── */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(26,22,18,0.55);z-index:200;align-items:center;justify-content:center;padding:24px; }
 .modal-overlay.open{display:flex;}
 .modal { background:var(--rice);border:1px solid var(--border);border-radius:2px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,22,18,0.3);animation:modalIn 0.3s ease forwards; }
@@ -238,18 +223,15 @@ body::before {
 .form-textarea { width:100%;min-height:280px;padding:14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:1px;font-family:'Noto Serif TC',serif;font-size:14px;line-height:2;color:var(--ink);outline:none;resize:vertical;transition:border-color 0.2s; }
 .form-textarea:focus{border-color:rgba(184,149,42,0.6);}
 
-/* Login modal */
 .login-modal { max-width:400px; }
 .login-error { color:var(--verm);font-family:'Noto Sans TC',sans-serif;font-size:12px;margin-top:8px;display:none; }
 
-/* Gallery upload */
 .gallery-upload-area { border:1.5px dashed rgba(184,149,42,0.35);border-radius:2px;padding:48px 20px;text-align:center;cursor:pointer;transition:all 0.22s;background:rgba(255,255,255,0.25); }
 .gallery-upload-area:hover{border-color:var(--gold);background:var(--gold-pale);}
 .upload-icon{font-size:28px;margin-bottom:12px;}
 .upload-text{font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint);line-height:2;}
 .gallery-modal-img{width:100%;max-height:220px;object-fit:contain;background:var(--rice-deep);margin-bottom:16px;border-radius:1px;}
 
-/* ── LIGHTBOX ── */
 .lightbox { display:none;position:fixed;inset:0;background:rgba(15,12,10,0.88);z-index:300;align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:16px; }
 .lightbox.open{display:flex;}
 .lightbox img{max-width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);}
@@ -259,11 +241,9 @@ body::before {
 .lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;cursor:pointer;color:rgba(244,239,230,0.5);font-size:24px;transition:color 0.2s;}
 .lightbox-close:hover{color:var(--gold);}
 
-/* ── LOADING ── */
 .loading-spinner { text-align:center;padding:48px;font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint); }
 .spinner { width:24px;height:24px;border:2px solid rgba(184,149,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px; }
 
-/* ── FOOTER ── */
 .site-footer { text-align:center;padding:32px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);opacity:0.45;border-top:1px solid var(--border);margin-top:40px; }
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
@@ -287,12 +267,11 @@ body::before {
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
 <header class="site-header">
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version">v1.5</span>
+    <span class="site-version">v1.6</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -303,7 +282,6 @@ body::before {
   </nav>
 </header>
 
-<!-- ══ PAGE: 每日佛典 ══ -->
 <div class="page active" id="page-dharma">
   <div class="page-hero">
     <div class="page-hero-en">DAILY DHARMA</div>
@@ -336,7 +314,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ PAGE: 佛法心得 ══ -->
 <div class="page" id="page-essays">
   <div class="page-hero">
     <div class="page-hero-en">DHARMA REFLECTIONS</div>
@@ -353,7 +330,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ PAGE: 佛咒 ══ -->
 <div class="page" id="page-mantras">
   <div class="page-hero">
     <div class="page-hero-en">DHARMA MANTRAS</div>
@@ -370,7 +346,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ PAGE: 佛法圖集 ══ -->
 <div class="page" id="page-gallery">
   <div class="page-hero">
     <div class="page-hero-en">DHARMA GALLERY</div>
@@ -388,7 +363,6 @@ body::before {
 
 <footer class="site-footer">日日是好日 · 念念不離當下</footer>
 
-<!-- ══ LOGIN MODAL ══ -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal login-modal">
     <div class="modal-header">
@@ -409,7 +383,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ ESSAY EDITOR MODAL ══ -->
 <div class="modal-overlay" id="essayModal">
   <div class="modal">
     <div class="modal-header">
@@ -439,7 +412,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ MANTRA EDITOR MODAL ══ -->
 <div class="modal-overlay" id="mantraModal">
   <div class="modal">
     <div class="modal-header">
@@ -468,7 +440,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ GALLERY UPLOAD MODAL ══ -->
 <div class="modal-overlay" id="galleryModal">
   <div class="modal">
     <div class="modal-header">
@@ -501,8 +472,6 @@ body::before {
   </div>
 </div>
 
-<!-- ══ LIGHTBOX ══ -->
-<!-- ══ ESSAY VIEW MODAL (from dharma entry) ══ -->
 <div class="modal-overlay" id="essayViewModal">
   <div class="modal" style="max-width:560px">
     <div class="modal-header">
@@ -532,12 +501,10 @@ body::before {
 </div>
 
 <script>
-// ════════════════════════════════════════
-// LOCAL API HELPERS  (replaces Supabase)
-// ════════════════════════════════════════
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
 let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
+let _todayDharma = null;
 
 function _authHeaders() {
   const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
@@ -572,19 +539,10 @@ function applyAdminState() {
   document.getElementById('essayAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('mantraAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
   document.getElementById('galleryAdminToolbar').style.display = isAdmin ? 'flex' : 'none';
-  const activePage = document.querySelector('.page.active')?.id.replace('page-','');
-  if (activePage === 'essays') renderEssayList();
-  if (activePage === 'mantras') renderMantraList();
-  if (activePage === 'gallery') renderGallery();
 }
 
-// ════════════════════════════════════════
-// ADMIN AUTH (client-side password gate)
-// ════════════════════════════════════════
 function handleAdminClick() {
-  if (isAdmin) {
-    doLogout();
-  } else {
+  if (isAdmin) { doLogout(); } else {
     document.getElementById('adminPassword').value = '';
     document.getElementById('loginError').style.display = 'none';
     openModal('loginModal');
@@ -595,7 +553,6 @@ function handleAdminClick() {
 async function doLogin() {
   const pw = document.getElementById('adminPassword').value;
   const errEl = document.getElementById('loginError');
-  errEl.style.display = 'none';
   try {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -608,9 +565,7 @@ async function doLogin() {
     sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
     closeModal('loginModal');
     applyAdminState();
-  } catch (_err) {
-    errEl.style.display = 'block';
-  }
+  } catch (_err) { errEl.style.display = 'block'; }
 }
 
 function doLogout() {
@@ -619,9 +574,6 @@ function doLogout() {
   applyAdminState();
 }
 
-// ════════════════════════════════════════
-// PAGE ROUTING
-// ════════════════════════════════════════
 function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -635,172 +587,6 @@ function showPage(name, btn) {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// ════════════════════════════════════════
-// ① DHARMA (unchanged - date-based)
-// ════════════════════════════════════════
-const dharmaPool = [
-  {
-    source:'《金剛般若波羅蜜經》第十品',
-    sourceEn:'The Diamond Prajñāpāramitā Sūtra · Chapter 10',
-    text:'應無所住而生其心。',
-    textEn:'Abide nowhere, and thus give rise to the mind.',
-    reflection:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。',
-    reflectionEn:'All attachments are fetters. To observe without clinging is true freedom. Today, try facing all situations with a mind that "abides nowhere"—letting all things arise without being bound by them.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cbetaLabel:'金剛經全文 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93'}]
-  },
-  {
-    source:'《般若波羅蜜多心經》',
-    sourceEn:'The Heart of the Prajñāpāramitā Sūtra',
-    text:'色不異空，空不異色；色即是空，空即是色。',
-    textEn:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.',
-    reflection:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。',
-    reflectionEn:'All phenomena are transient and ever-changing, yet emptiness is not nothingness—it is the field of infinite possibility. Seeing emptiness allows us to remain unclouded by appearances or temporary gains and losses.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cbetaLabel:'心經全文 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93'}]
-  },
-  {
-    source:'《六祖壇經》行由品第一',
-    sourceEn:'The Platform Sutra of the Sixth Patriarch · Chapter 1',
-    text:'本來無一物，何處惹塵埃。',
-    textEn:'Originally there is not a single thing; where could any dust alight?',
-    reflection:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。',
-    reflectionEn:'Master Huineng attained enlightenment through this verse. A pure mind is not about continuous cleaning, but about realizing that our fundamental nature was never defiled to begin with.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%55%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]
-  },
-  {
-    source:'《維摩詰所說經》佛國品第一',
-    sourceEn:'The Vimalakīrti Nirdeśa Sūtra · Chapter 1',
-    text:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。',
-    textEn:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind. As the mind is purified, the Buddha-land is purified.',
-    reflection:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？',
-    reflectionEn:'The purity of our environment stems from the purity of our inner state. The world we see is often a projection of our mind. Today, ask yourself: is my mind clear or clouded in this moment?',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cbetaLabel:'維摩詰經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93'}]
-  },
-  {
-    source:'《臨濟錄》示眾',
-    sourceEn:'The Record of Linji · Sermons',
-    text:'隨處作主，立處皆真。',
-    textEn:'At all times and in all places, be the master; then wherever you stand is the truth.',
-    reflection:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。',
-    reflectionEn:'Regardless of your circumstances, if you can remain master of yourself, every place becomes a place of practice. Every present moment today is an opportunity for cultivation.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cbetaLabel:'臨濟錄 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84'}]
-  },
-  {
-    source:'《妙法蓮華經》方便品第二',
-    sourceEn:'The Lotus Sūtra · Chapter 2: Expedient Means',
-    text:'諸法從本來，常自寂滅相。',
-    textEn:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.',
-    reflection:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。',
-    reflectionEn:'Beneath the surface of change and noise, all things are inherently at peace. Today, try to find that stillness amidst the bustle—it has always been there, never leaving.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cbetaLabel:'法華經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93'}]
-  },
-  {
-    source:'《趙州錄》公案',
-    sourceEn:'The Record of Zhao Zhou · Gōng\'àn',
-    text:'吃茶去。',
-    textEn:'Go drink some tea.',
-    reflection:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。',
-    reflectionEn:'Zhao Zhou guided many students with these four words. The "ordinary mind" is the Way; the simple act of drinking tea contains the entirety of practice.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cbetaLabel:'趙州錄 · CBETA',
-    altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16400'}]
-  },
-  {
-    source:'《大佛頂首楞嚴經》卷一',
-    sourceEn:'The Śūraṅgama Sūtra · Volume 1',
-    text:'一切浮塵諸幻化相，當處出生，隨處滅盡。',
-    textEn:'All drifting dust and illusory appearances arise where they are and vanish right there.',
-    reflection:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。',
-    reflectionEn:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness. Understanding this, one is neither elated by temporary peaks nor despaired by troughs.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cbetaLabel:'楞嚴經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93'}]
-  },
-  {
-    source:'黃檗希運禪師《傳心法要》',
-    sourceEn:'Zen Master Huangbo Xiyun: Essentials of Transmitting the Mind',
-    text:'無心是道。',
-    textEn:'Non-mind is the Way.',
-    reflection:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。',
-    reflectionEn:'"Non-mind" is not numbness, but a state free from discriminatory attachment. Only by observing the world with a mind free of fabrications can we see the true face of reality.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cbetaLabel:'傳心法要 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81'}]
-  },
-  {
-    source:'《六祖壇經》般若品第二',
-    sourceEn:'The Platform Sutra of the Sixth Patriarch · Chapter 2: Prajna',
-    text:'菩提自性，本來清淨；但用此心，直了成佛。',
-    textEn:'The nature of Bodhi is originally pure; simply use this mind to directly attain Buddhahood.',
-    reflection:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。',
-    reflectionEn:'Pure wisdom is our inherent nature, not something to be sought externally. Today, trust the natural clarity that resides within you.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%55%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]
-  },
-  {
-    source:'《阿彌陀經》（姚秦鳩摩羅什譯）',
-    sourceEn:'The Amitābha Sūtra (Translated by Kumārajīva)',
-    text:'不可以少善根福德因緣，得生彼國。',
-    textEn:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.',
-    reflection:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。',
-    reflectionEn:'The law of cause and effect is the fundamental language of the universe. Every result is a convergence of many conditions; it is not achieved by a single effort at a single moment.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cbetaLabel:'阿彌陀經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AC%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93'}]
-  },
-  {
-    source:'《永嘉證道歌》玄覺禪師',
-    sourceEn:'Song of Enlightenment by Chan Master Yongjia Xuanjue',
-    text:'夢裡明明有六趣，覺後空空無大千。',
-    textEn:'In a dream, the six realms are clearly seen; after awakening, the great universe is empty.',
-    reflection:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。',
-    reflectionEn:'The joys and sorrows of a dream are empty upon waking. Yet, while in the dream, one must still live earnestly. The emptiness after awakening is a "Great Emptiness" that encompasses everything.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cbetaLabel:'證道歌 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C'}]
-  },
-  {
-    source:'《普賢行願品》',
-    sourceEn:'The Vows of Samantabhadra',
-    text:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。',
-    textEn:'When the realm of space is exhausted, my vows will be exhausted; but because the realm of space is inexhaustible, my great vows have no end.',
-    reflection:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。',
-    reflectionEn:'The ten great vows of Samantabhadra are as vast as infinite space. With such a great resolve, our actions find a support that transcends personal gain or loss.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0293_040',cbetaLabel:'普賢行願品 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93'}]
-  },
-  {
-    source:'雲門文偃禪師語錄',
-    sourceEn:'The Record of Zen Master Yunmen Wenyan',
-    text:'函蓋乾坤，截斷眾流，隨波逐浪。',
-    textEn:'It covers heaven and earth; it cuts off all flows; it follows the waves and surges with the tide.',
-    reflection:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。',
-    reflectionEn:'Yunmen\'s three phrases: embrace all with a holistic view; decisively cut off discriminatory thoughts; and flexibly follow the flow of conditions. Combined, they are harmonious and unobstructed.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cbetaLabel:'雲門廣錄 · CBETA',
-    altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16401'}]
-  },
-  {
-    source:'《圓覺經》',
-    sourceEn:'The Sūtra of Perfect Enlightenment',
-    text:'知幻即離，不作方便；離幻即覺，亦無漸次。',
-    textEn:'Recognizing illusion, one is instantly free, without needing expedient means; free from illusion, one is enlightened, without gradual stages.',
-    reflection:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。',
-    reflectionEn:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition. Today, try to recognize one illusion you have long believed in.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cbetaLabel:'圓覺經 · CBETA',
-    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93'}]
-  },
-  {
-    source:'洞山良价禪師《寶鏡三昧》',
-    sourceEn:'Song of the Precious Mirror Samādhi by Chan Master Dongshan Liangjie',
-    text:'如是之法，佛祖密付；汝今得之，宜善保護。',
-    textEn:'This teaching has been transmitted in secret by all Buddhas and patriarchs. Now that you have received it, guard it well.',
-    reflection:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。',
-    reflectionEn:'The phrase "guard it well" means that after receiving insight, one must carefully protect it in daily life, ensuring it is not washed away by worldly currents.',
-    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cbetaLabel:'洞山語錄 · CBETA',
-    altLinks:[{label:'曹洞宗',url:'https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97'}]
-  }
-];
-
 function todayKey() {
   return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'});
 }
@@ -812,79 +598,70 @@ function formatDateEn(iso) {
   const [y,m,d] = iso.split('-').map(Number);
   return `${y}.${m}.${d}`;
 }
-function getDharmaByDate(iso) {
-  const d = new Date(iso);
-  const start = new Date(d.getFullYear(),0,0);
-  const day = Math.floor((d - start) / 86400000);
-  return dharmaPool[day % dharmaPool.length];
+
+async function fetchTodayDharma() {
+  const key = todayKey();
+  const res = await apiGet('/api/dharma/history/' + key);
+  if (res) {
+    _todayDharma = res;
+    renderTodayDharma();
+  }
 }
 
 function renderDharmaEntry(d, dateLbl) {
-  const alts = d.altLinks.map(l =>
-    `<a class="more-link" href="${l.url}" target="_blank" rel="noopener">↗ ${l.label}</a>`
-  ).join('');
   return `
     ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
     <div class="dharma-source">
       <span>出處：${d.source}</span>
-      <a class="dharma-link" href="${d.cbetaUrl}" target="_blank" rel="noopener">☸ ${d.cbetaLabel}</a>
     </div>
     <div class="dharma-text">${d.text}</div>
-    <div class="dharma-reflection"><strong>今日思索 · REFLECTION</strong>${d.reflection}</div>
-    <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(d.source)}',this)">心得</button></div>`;
+    <div id="dharmaExtra"></div>`;
 }
 
-// 心得按鈕點擊處理（async，依狀態決定行為）
-async function handleEssayClick(source, btn) {
-  btn.disabled = true;
-  const essays = await apiGet('/api/essays?dharma_source=' + encodeURIComponent(source));
-  btn.disabled = false;
-  if (essays && essays.length) {
-    showEssayModal(essays[0], source);
-    btn.classList.add('linked');
-  } else if (isAdmin) {
-    openEssayEditor(null, source);
-  }
-  // non-admin + no essay: do nothing silently
+function renderDharmaEntryEn(zh, en, dateLbl) {
+  return `
+    ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
+    <div class="dharma-source" style="flex-direction:column;gap:6px">
+      <span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${zh.source}</span>
+      <span>${en.source_en}</span>
+    </div>
+    <div class="dharma-text" style="font-family:'Noto Serif TC',serif;font-size:18px;letter-spacing:0.03em">${en.text_en}</div>
+    <div class="dharma-reflection"><strong>REFLECTION</strong>${en.reflection_en}</div>`;
 }
 
-// 心得彈窗（從佛法主題開啟）
-let _essayModalId = null, _essayModalSource = null;
-function showEssayModal(essay, source) {
-  _essayModalId = essay.id;
-  _essayModalSource = source;
-  const dateStr = new Date(essay.created_at).toLocaleDateString('zh-Hant-TW',
-    {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
-  document.getElementById('essayViewTitle').textContent = essay.title;
-  document.getElementById('essayViewMeta').innerHTML =
-    `<span style="font-family:'Noto Sans TC',sans-serif;font-size:11px;color:var(--ink-faint);letter-spacing:1px">${dateStr}${essay.tag ? ' · ' + essay.tag : ''}</span>`;
-  document.getElementById('essayViewContent').textContent = essay.content;
-  document.getElementById('essayViewUnlink').style.display = isAdmin ? 'block' : 'none';
-  openModal('essayViewModal');
-}
-
-async function unlinkEssayFromDharma() {
-  if (!confirm('確定移除此文章與佛法主題的連結？文章本身不會被刪除。')) return;
-  await apiPut('/api/essays/' + _essayModalId, { dharma_source: null });
-  closeModal('essayViewModal');
-}
-
-// Dharma history via local API
-async function recordToday() {
-  const key = todayKey();
-  const d = getDharmaByDate(key);
-  // 1. 記錄中文歷史 (POST is INSERT OR IGNORE)
-  await apiPost('/api/dharma/history', { date: key, source: d.source, text: d.text });
+async function renderTodayDharma() {
+  if (!_todayDharma) return;
+  const d = _todayDharma;
+  const btn = document.getElementById('langToggleBtn');
+  const body = document.getElementById('dharmaBody');
   
-  // 2. 如果池中有英文翻譯，同步寫入 dharma_en (確保歷史紀錄能讀到)
-  if (d.sourceEn && d.textEn) {
-    await apiPost('/api/dharma/en', {
-      source: d.source,
-      source_en: d.sourceEn,
-      text_en: d.textEn,
-      reflection_en: d.reflectionEn
-    });
+  if (!_dharmaEnMode) {
+    btn.textContent = 'EN';
+    btn.classList.remove('en-mode');
+    body.innerHTML = renderDharmaEntry(d, null);
+    // Fetch reflection from EN table (it's shared in DB)
+    const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
+    const en = (enArr && enArr.length) ? enArr[0] : null;
+    if (en) {
+      document.getElementById('dharmaExtra').innerHTML = `<div class="dharma-reflection"><strong>今日思索</strong>${en.reflection_en || '載入中…'}</div>`;
+    }
+  } else {
+    btn.textContent = '中';
+    btn.classList.add('en-mode');
+    body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
+    const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
+    const en = (enArr && enArr.length) ? enArr[0] : null;
+    if (en) {
+      body.innerHTML = renderDharmaEntryEn(d, en);
+    } else {
+      body.innerHTML = `<div style="text-align:center;padding:40px 20px;font-family:'Noto Sans TC',sans-serif;color:var(--ink-faint);font-size:12px;line-height:2.4;letter-spacing:2px">English translation coming soon.</div>`;
+    }
   }
+}
+
+function toggleDharmaLang() {
+  _dharmaEnMode = !_dharmaEnMode;
+  renderTodayDharma();
 }
 
 function switchDharmaTab(tab) {
@@ -902,446 +679,117 @@ async function renderDharmaHistory() {
   const body = document.getElementById('historyBody');
   body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
   const rows = await apiGet('/api/dharma/history');
-  if (!rows) {
-    body.innerHTML = `<div class="history-empty">載入失敗，請重新整理。</div>`; return;
-  }
-  if (!rows.length) {
-    body.innerHTML = `<div class="history-empty">尚無過往紀錄。<br>每日開啟此頁面，今日主題將自動記錄於此。</div>`; return;
-  }
+  if (!rows || !rows.length) { body.innerHTML = `<div class="history-empty">尚無紀錄。</div>`; return; }
   const todayK = todayKey();
-  body.innerHTML = rows.map(e => {
-    const isT = e.date === todayK;
-    return `<div class="history-item" onclick="showDharmaDetail('${e.date}')">
-      <div class="history-date">${formatDate(e.date)}${isT?'<span class="today-badge">今日</span>':''}</div>
+  body.innerHTML = rows.map(e => `
+    <div class="history-item" onclick="showDharmaDetail('${e.date}')">
+      <div class="history-date">${formatDate(e.date)}${e.date===todayK?'<span class="today-badge">今日</span>':''}</div>
       <div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div>
-      <div class="history-arrow">›</div></div>`;
-  }).join('');
+      <div class="history-arrow">›</div></div>`).join('');
 }
 
-function showDharmaDetail(iso) {
-  const d = getDharmaByDate(iso);
-  document.getElementById('historyBody').innerHTML =
-    `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回過往主題</button>
-     ${renderDharmaEntry(d, formatDate(iso))}`;
+async function showDharmaDetail(iso) {
+  const d = await apiGet('/api/dharma/history/' + iso);
+  const body = document.getElementById('historyBody');
+  body.innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回過往主題</button>${renderDharmaEntry(d, formatDate(iso))}`;
+  const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
+  if (enArr && enArr[0]) {
+    document.getElementById('dharmaExtra').innerHTML = `<div class="dharma-reflection"><strong>今日思索</strong>${enArr[0].reflection_en}</div>`;
+  }
 }
 
 async function renderDharmaEnHistory() {
   const body = document.getElementById('enHistoryBody');
   body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
-  const [rows, enRows] = await Promise.all([
-    apiGet('/api/dharma/history'),
-    apiGet('/api/dharma/en')
-  ]);
-  if (!rows || !rows.length) {
-    body.innerHTML = `<div class="history-empty">No records yet.<br>Visit the site daily and your history will appear here.</div>`;
-    return;
-  }
+  const [rows, enRows] = await Promise.all([apiGet('/api/dharma/history'), apiGet('/api/dharma/en')]);
+  if (!rows || !rows.length) { body.innerHTML = `<div class="history-empty">No records yet.</div>`; return; }
   const enMap = {};
   if (enRows) enRows.forEach(e => enMap[e.source] = e);
   const todayK = todayKey();
   body.innerHTML = rows.map(e => {
-    const isT = e.date === todayK;
     const en = enMap[e.source];
-    const srcDisplay = en ? en.source_en : e.source;
-    const txtDisplay = en ? en.text_en : e.text;
     return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')">
-      <div class="history-date">${formatDateEn(e.date)}${isT?'<span class="today-badge">Today</span>':''}</div>
-      <div><div class="history-source">${srcDisplay}</div><div class="history-quote">${txtDisplay}</div></div>
+      <div class="history-date">${formatDateEn(e.date)}${e.date===todayK?'<span class="today-badge">Today</span>':''}</div>
+      <div><div class="history-source">${en ? en.source_en : e.source}</div><div class="history-quote">${en ? en.text_en : e.text}</div></div>
       <div class="history-arrow">›</div></div>`;
   }).join('');
 }
 
 async function showDharmaEnDetail(iso) {
-  const d = getDharmaByDate(iso);
+  const zh = await apiGet('/api/dharma/history/' + iso);
   const body = document.getElementById('enHistoryBody');
-  body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
-  const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
-  const en = (enArr && enArr.length) ? enArr[0] : null;
-  if (en) {
-    body.innerHTML =
-      `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
-       ${renderDharmaEntryEn(d, en, formatDateEn(iso))}`;
-  } else {
-    body.innerHTML =
-      `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>
-       ${renderDharmaEntry(d, formatDateEn(iso))}
-       <div style="margin-top:14px;font-family:'Noto Sans TC',sans-serif;font-size:11px;color:var(--ink-faint);letter-spacing:1px">English translation coming soon.</div>`;
-  }
+  const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(zh.source));
+  const en = enArr?.[0];
+  body.innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Previous Dharma</button>` + 
+    (en ? renderDharmaEntryEn(zh, en, formatDateEn(iso)) : renderDharmaEntry(zh, formatDateEn(iso)) + `<div style="margin-top:14px;font-size:11px;color:var(--ink-faint)">English translation coming soon.</div>`);
 }
 
-// ② ESSAYS (local API)
 async function renderEssayList() {
-  document.getElementById('essayListWrap').style.display = 'block';
-  document.getElementById('essayDetailWrap').style.display = 'none';
   const wrap = document.getElementById('essayListWrap');
   wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-
   const essays = await apiGet('/api/essays');
-
-  if (!essays) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div>載入失敗，請重新整理頁面。</div>`;
-    return;
-  }
-  if (!essays.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div>尚未發表任何心得。<br>${isAdmin ? '點擊右上角「新增心得」，記錄你的修行體悟。' : '敬請期待。'}</div>`;
-    return;
-  }
-
-  wrap.innerHTML = `<div class="essay-list">${essays.map(e => {
-    const excerpt = e.content.length > 120 ? e.content.slice(0,120) + '…' : e.content;
-    const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
-    const adminBtns = isAdmin ? `
-      <div class="essay-actions">
-        <button class="btn-outline btn-sm" onclick="event.stopPropagation();editEssay('${e.id}')">編輯</button>
-        <button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteEssay('${e.id}')">刪除</button>
-      </div>` : '';
-    return `<div class="essay-card" onclick="showEssayDetail('${e.id}')">
-      <div class="essay-card-meta">
-        <span class="essay-date">${dateStr}</span>
-        ${e.tag ? `<span class="essay-tag">${e.tag}</span>` : ''}
-      </div>
+  if (!essays || !essays.length) { wrap.innerHTML = `<div class="empty-state">尚未發表任何心得。</div>`; return; }
+  wrap.innerHTML = `<div class="essay-list">${essays.map(e => `
+    <div class="essay-card" onclick="showEssayDetail('${e.id}')">
+      <div class="essay-card-meta"><span class="essay-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}</span></div>
       <div class="essay-title">${e.title}</div>
-      <div class="essay-excerpt">${excerpt.replace(/\n/g,' ')}</div>
-      <div class="essay-card-footer">
-        <span class="essay-read-more">閱讀全文 →</span>
-        ${adminBtns}
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+      <div class="essay-excerpt">${e.content.slice(0,100)}…</div>
+    </div>`).join('')}</div>`;
 }
 
 async function showEssayDetail(id) {
   const e = await apiGet('/api/essays/' + id);
-  if (!e) return;
-  document.getElementById('essayListWrap').style.display = 'none';
   const dw = document.getElementById('essayDetailWrap');
+  document.getElementById('essayListWrap').style.display = 'none';
   dw.style.display = 'block';
-  const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
-  const adminBtns = isAdmin ? `
-    <div style="margin-top:28px;display:flex;gap:12px">
-      <button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>
-      <button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>
-    </div>` : '';
-  dw.innerHTML = `
-    <button class="essay-detail-back" onclick="renderEssayList()">‹ 返回心得列表</button>
-    <div class="card">
-      <div class="card-body">
-        <div class="essay-detail-date">${dateStr}${e.tag ? ' · ' + e.tag : ''}</div>
-        <div class="essay-detail-title">${e.title}</div>
-        <div class="essay-detail-divider"></div>
-        <div class="essay-detail-body">${escHtml(e.content)}</div>
-        ${adminBtns}
-      </div>
-    </div>`;
+  dw.innerHTML = `<button class="essay-detail-back" onclick="renderEssayList()">‹ 返回</button>
+    <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${e.content}</div></div></div>`;
 }
 
-function openEssayEditor(essay, dharmaSource) {
-  document.getElementById('essayEditId').value = essay ? essay.id : '';
-  document.getElementById('essayDharmaSource').value = dharmaSource || (essay ? (essay.dharma_source || '') : '');
-  document.getElementById('essayModalTitle').textContent = essay ? 'EDIT · 編輯心得' : 'NEW ESSAY · 新增心得';
-  document.getElementById('essayTitleInput').value = essay ? essay.title : '';
-  document.getElementById('essayTagInput').value = essay ? (essay.tag || '') : '';
-  document.getElementById('essayContentInput').value = essay ? essay.content : '';
-  openModal('essayModal');
-}
-
-async function saveEssay() {
-  if (!isAdmin) { alert('請先登入管理員。'); return; }
-  const id = document.getElementById('essayEditId').value;
-  const title = document.getElementById('essayTitleInput').value.trim();
-  const tag = document.getElementById('essayTagInput').value.trim();
-  const content = document.getElementById('essayContentInput').value.trim();
-  const dharma_source = document.getElementById('essayDharmaSource').value.trim() || null;
-  if (!title || !content) { alert('請填寫標題和內文。'); return; }
-
-  let r;
-  if (id) {
-    r = await apiPut('/api/essays/' + id, {title, tag, content, dharma_source});
-  } else {
-    r = await apiPost('/api/essays', {title, tag, content, dharma_source});
-  }
-  if (!r.ok) { alert('儲存失敗：' + (r.data?.error || '未知錯誤')); return; }
-  closeModal('essayModal');
-  renderEssayList();
-}
-
-async function editEssay(id) {
-  const e = await apiGet('/api/essays/' + id);
-  openEssayEditor(e);
-}
-
-async function deleteEssay(id) {
-  if (!isAdmin) return;
-  if (!confirm('確定刪除這篇心得？')) return;
-  await apiDelete('/api/essays/' + id);
-  renderEssayList();
-}
-
-// ②-B MANTRAS (local API, type='mantra')
 async function renderMantraList() {
-  document.getElementById('mantraListWrap').style.display = 'block';
-  document.getElementById('mantraDetailWrap').style.display = 'none';
   const wrap = document.getElementById('mantraListWrap');
   wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-
   const mantras = await apiGet('/api/mantras');
-
-  if (!mantras) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div>載入失敗，請重新整理頁面。</div>`;
-    return;
-  }
-  if (!mantras.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">☸</div>尚未新增任何佛咒。<br>${isAdmin ? '點擊右上角「新增佛咒」開始建立。' : '敬請期待。'}</div>`;
-    return;
-  }
-
-  wrap.innerHTML = `<div class="essay-list">${mantras.map(e => {
-    const excerpt = e.content.length > 120 ? e.content.slice(0,120) + '…' : e.content;
-    const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
-    const adminBtns = isAdmin ? `
-      <div class="essay-actions">
-        <button class="btn-outline btn-sm" onclick="event.stopPropagation();editMantra('${e.id}')">編輯</button>
-        <button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteMantra('${e.id}')">刪除</button>
-      </div>` : '';
-    return `<div class="essay-card" onclick="showMantraDetail('${e.id}')">
-      <div class="essay-card-meta">
-        <span class="essay-date">${dateStr}</span>
-        ${e.tag ? `<span class="essay-tag">${e.tag}</span>` : ''}
-      </div>
+  if (!mantras || !mantras.length) { wrap.innerHTML = `<div class="empty-state">尚未新增佛咒。</div>`; return; }
+  wrap.innerHTML = `<div class="essay-list">${mantras.map(e => `
+    <div class="essay-card" onclick="showMantraDetail('${e.id}')">
       <div class="essay-title">${e.title}</div>
-      <div class="essay-excerpt">${excerpt.replace(/\n/g,' ')}</div>
-      <div class="essay-card-footer">
-        <span class="essay-read-more">閱讀全文 →</span>
-        ${adminBtns}
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+      <div class="essay-excerpt">${e.content.slice(0,100)}…</div>
+    </div>`).join('')}</div>`;
 }
 
 async function showMantraDetail(id) {
   const e = await apiGet('/api/essays/' + id);
-  if (!e) return;
-  document.getElementById('mantraListWrap').style.display = 'none';
   const dw = document.getElementById('mantraDetailWrap');
+  document.getElementById('mantraListWrap').style.display = 'none';
   dw.style.display = 'block';
-  const dateStr = new Date(e.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
-  const adminBtns = isAdmin ? `
-    <div style="margin-top:28px;display:flex;gap:12px">
-      <button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button>
-      <button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button>
-    </div>` : '';
-  dw.innerHTML = `
-    <button class="essay-detail-back" onclick="renderMantraList()">‹ 返回佛咒列表</button>
-    <div class="card">
-      <div class="card-body">
-        <div class="essay-detail-date">${dateStr}${e.tag ? ' · ' + e.tag : ''}</div>
-        <div class="essay-detail-title">${e.title}</div>
-        <div class="essay-detail-divider"></div>
-        <div class="essay-detail-body">${escHtml(e.content)}</div>
-        ${adminBtns}
-      </div>
-    </div>`;
+  dw.innerHTML = `<button class="essay-detail-back" onclick="renderMantraList()">‹ 返回</button>
+    <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${e.content}</div></div></div>`;
 }
-
-function openMantraEditor(mantra) {
-  document.getElementById('mantraEditId').value = mantra ? mantra.id : '';
-  document.getElementById('mantraModalTitle').textContent = mantra ? 'EDIT · 編輯佛咒' : 'NEW MANTRA · 新增佛咒';
-  document.getElementById('mantraTitleInput').value = mantra ? mantra.title : '';
-  document.getElementById('mantraTagInput').value = mantra ? (mantra.tag || '') : '';
-  document.getElementById('mantraContentInput').value = mantra ? mantra.content : '';
-  openModal('mantraModal');
-}
-
-async function saveMantra() {
-  if (!isAdmin) { alert('請先登入管理員。'); return; }
-  const id = document.getElementById('mantraEditId').value;
-  const title = document.getElementById('mantraTitleInput').value.trim();
-  const tag = document.getElementById('mantraTagInput').value.trim();
-  const content = document.getElementById('mantraContentInput').value.trim();
-  if (!title || !content) { alert('請填寫名稱和內文。'); return; }
-
-  let r;
-  if (id) {
-    r = await apiPut('/api/essays/' + id, {title, tag, content});
-  } else {
-    r = await apiPost('/api/mantras', {title, tag, content});
-  }
-  if (!r.ok) { alert('儲存失敗：' + (r.data?.error || '未知錯誤')); return; }
-  closeModal('mantraModal');
-  renderMantraList();
-}
-
-async function editMantra(id) {
-  const e = await apiGet('/api/essays/' + id);
-  openMantraEditor(e);
-}
-
-async function deleteMantra(id) {
-  if (!isAdmin) return;
-  if (!confirm('確定刪除這則佛咒？')) return;
-  await apiDelete('/api/essays/' + id);
-  renderMantraList();
-}
-
-// ③ GALLERY (local API)
-let pendingImageData = null;
 
 async function renderGallery() {
   const grid = document.getElementById('galleryGrid');
-  grid.innerHTML = `<div class="loading-spinner" style="grid-column:1/-1"><div class="spinner"></div>載入中…</div>`;
-
+  grid.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
   const items = await apiGet('/api/gallery');
-
-  if (!items || !items.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <div class="empty-icon">🖼</div>
-      尚未上傳任何圖片。<br>${isAdmin ? '點擊右上角「上傳圖片」開始建立你的佛法圖集。' : '敬請期待。'}
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = items.map(it => {
-    const adminBtns = isAdmin ? `
-      <div class="gallery-admin-btns">
-        <button class="btn-outline btn-sm" onclick="event.stopPropagation();editGalleryItem('${it.id}')">編輯</button>
-        <button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteGalleryItem('${it.id}')">刪除</button>
-      </div>` : '';
-    return `<div class="gallery-item">
-      <div class="gallery-img-wrap" onclick="openLightbox('${it.id}','${escAttr(it.image_url)}','${escAttr(it.title)}','${escAttr(it.caption||'')}')">
-        <img src="${it.image_url}" alt="${it.title}" loading="lazy">
-      </div>
-      <div class="gallery-info">
-        <div class="gallery-item-title">${it.title}</div>
-        ${it.caption ? `<div class="gallery-item-caption">${it.caption}</div>` : ''}
-        ${adminBtns}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openGalleryUpload(item) {
-  pendingImageData = item ? item.image_url : null;
-  document.getElementById('galleryEditId').value = item ? item.id : '';
-  document.getElementById('galleryTitleInput').value = item ? item.title : '';
-  document.getElementById('galleryCaptionInput').value = item ? (item.caption || '') : '';
-  const prev = document.getElementById('galleryPreviewWrap');
-  const trigger = document.getElementById('uploadTrigger');
-  if (item) {
-    document.getElementById('galleryPreviewImg').src = item.image_url;
-    prev.style.display = 'block'; trigger.style.display = 'none';
-  } else {
-    prev.style.display = 'none'; trigger.style.display = 'block';
-  }
-  document.getElementById('galleryFileInput').value = '';
-  openModal('galleryModal');
-}
-
-function handleImageSelect(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    pendingImageData = ev.target.result;
-    document.getElementById('galleryPreviewImg').src = pendingImageData;
-    document.getElementById('galleryPreviewWrap').style.display = 'block';
-    document.getElementById('uploadTrigger').style.display = 'none';
-    if (!document.getElementById('galleryTitleInput').value) {
-      document.getElementById('galleryTitleInput').value = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-async function saveGalleryItem() {
-  if (!isAdmin) return;
-  const id = document.getElementById('galleryEditId').value;
-  const title = document.getElementById('galleryTitleInput').value.trim();
-  const caption = document.getElementById('galleryCaptionInput').value.trim();
-  if (!title) { alert('請填寫圖片標題。'); return; }
-  if (!pendingImageData) { alert('請選擇圖片。'); return; }
-
-  if (id) {
-    await apiPut('/api/gallery/' + id, {title, caption, image_url: pendingImageData});
-  } else {
-    await apiPost('/api/gallery', {title, caption, image_url: pendingImageData});
-  }
-  closeModal('galleryModal');
-  pendingImageData = null;
-  renderGallery();
-}
-
-async function editGalleryItem(id) {
-  const it = await apiGet('/api/gallery/' + id);
-  openGalleryUpload(it);
-}
-
-async function deleteGalleryItem(id) {
-  if (!isAdmin) return;
-  if (!confirm('確定刪除此圖片？')) return;
-  await apiDelete('/api/gallery/' + id);
-  renderGallery();
+  if (!items || !items.length) { grid.innerHTML = `<div class="empty-state">尚未上傳圖片。</div>`; return; }
+  grid.innerHTML = items.map(it => `
+    <div class="gallery-item" onclick="openLightbox('${it.id}','${it.image_url}','${it.title}','')">
+      <div class="gallery-img-wrap"><img src="${it.image_url}" loading="lazy"></div>
+      <div class="gallery-info"><div class="gallery-item-title">${it.title}</div></div>
+    </div>`).join('');
 }
 
 function openLightbox(id, src, title, caption) {
   document.getElementById('lightboxImg').src = src;
   document.getElementById('lightboxTitle').textContent = title;
-  document.getElementById('lightboxCaption').textContent = caption;
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
-document.getElementById('lightbox').addEventListener('click', function(e) { if(e.target===this) closeLightbox(); });
-document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox(); } });
 
-// ④ ENGLISH TOGGLE
-function toggleDharmaLang() {
-  _dharmaEnMode = !_dharmaEnMode;
-  renderTodayDharma();
-}
-
-function renderDharmaEntryEn(d, en, dateLbl) {
-  return `
-    ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
-    <div class="dharma-source" style="flex-direction:column;gap:6px">
-      <span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${d.source}</span>
-      <span>${en.source_en}</span>
-    </div>
-    <div class="dharma-text" style="font-family:'Noto Serif TC',serif;font-size:18px;letter-spacing:0.03em">${en.text_en}</div>
-    <div class="dharma-reflection"><strong>REFLECTION</strong>${en.reflection_en}</div>`;
-}
-
-async function renderTodayDharma() {
-  const d = _todayDharma;
-  const btn = document.getElementById('langToggleBtn');
-  if (!_dharmaEnMode) {
-    document.getElementById('dharmaBody').innerHTML = renderDharmaEntry(d, null);
-    btn.textContent = 'EN';
-    btn.classList.remove('en-mode');
-  } else {
-    btn.textContent = '中';
-    btn.classList.add('en-mode');
-    document.getElementById('dharmaBody').innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-    const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(d.source));
-    const en = (enArr && enArr.length) ? enArr[0] : null;
-    if (en) {
-      document.getElementById('dharmaBody').innerHTML = renderDharmaEntryEn(d, en);
-    } else {
-      document.getElementById('dharmaBody').innerHTML = `
-        <div style="text-align:center;padding:40px 20px;font-family:'Noto Sans TC',sans-serif;color:var(--ink-faint);font-size:12px;line-height:2.4;letter-spacing:2px">
-          English translation coming soon.<br>
-          <button style="margin-top:16px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--gold);background:none;border:1px solid rgba(184,149,42,0.4);padding:6px 18px;border-radius:1px;cursor:pointer" onclick="toggleDharmaLang()">切換回中文</button>
-        </div>`;
-    }
-  }
-}
-
-// Init dharma
-const _todayDharma = getDharmaByDate(todayKey());
-applyAdminState();
-renderTodayDharma();
-recordToday();
-
-// Helpers
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escAttr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
+document.addEventListener('DOMContentLoaded', () => {
+  applyAdminState();
+  fetchTodayDharma();
+});
 </script>
 </body>
 </html>
