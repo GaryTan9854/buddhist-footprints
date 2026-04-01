@@ -142,7 +142,22 @@ body::before {
 .btn-lang:hover{background:var(--gold-pale);border-color:var(--gold);}
 .btn-lang.en-mode{background:var(--gold-pale);border-color:var(--gold);color:var(--ink-light);}
 
-/* ── LISTS ── */
+/* ── HISTORY ── */
+.history-empty { text-align:center;padding:44px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2; }
+.history-item { display:grid;grid-template-columns:130px 1fr 20px;align-items:start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(184,149,42,0.09);cursor:pointer;transition:all 0.18s; }
+.history-item:last-child{border-bottom:none;}
+.history-item:hover{background:var(--gold-pale);margin:0 -30px;padding-left:30px;padding-right:30px;}
+.history-date { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-faint);padding-top:3px;white-space:nowrap; }
+.today-badge { display:inline-block;font-size:9px;letter-spacing:1px;background:var(--gold);color:var(--rice);padding:1px 7px;border-radius:1px;margin-left:5px; }
+.history-source { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:5px; }
+.history-quote { font-size:15px;line-height:1.9;color:var(--ink-light);letter-spacing:0.04em; }
+.history-arrow { color:rgba(184,149,42,0.35);font-size:14px;align-self:center; }
+.history-item:hover .history-arrow{color:var(--gold);}
+.detail-back { display:inline-flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-faint);cursor:pointer;margin-bottom:22px;padding:6px 0;border:none;background:none;transition:color 0.2s; }
+.detail-back:hover{color:var(--gold);}
+.detail-date-label { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);margin-bottom:18px; }
+
+/* ── ESSAYS ── */
 .essay-card { background:var(--mist);border:1px solid var(--border);border-radius:2px;padding:24px 28px;box-shadow:0 2px 14px var(--shadow);cursor:pointer;transition:all 0.22s;margin-bottom:16px; }
 .essay-card:hover { border-color:rgba(184,149,42,0.4);box-shadow:0 4px 24px rgba(26,22,18,0.13);transform:translateY(-1px); }
 .essay-card-meta { display:flex;align-items:center;gap:14px;margin-bottom:10px; }
@@ -169,7 +184,7 @@ body::before {
 
 /* ── GALLERY ── */
 .gallery-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
-.gallery-item { background:var(--mist);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;box-shadow:0 2px 12px var(--shadow); transition:all 0.25s; }
+.gallery-item { background:var(--mist);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;transition:all 0.25s;box-shadow:0 2px 12px var(--shadow); }
 .gallery-img-wrap { width:100%;aspect-ratio:4/3;overflow:hidden; }
 .gallery-img-wrap img { width:100%;height:100%;object-fit:cover; }
 .gallery-info { padding:14px 16px; }
@@ -195,7 +210,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v1.12</span>
+    <span class="site-version" id="versionBadge">v1.13</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -227,39 +242,15 @@ body::before {
       <div class="card"><div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">ARCHIVE · 過往主題</div></div><div class="card-body" id="historyBody"></div></div>
     </div>
     <div id="dharma-en-history-wrap" style="display:none">
-      <div class="card"><div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">PREVIOUS DHARMA</div></div><div class="card-body" id="enHistoryBody"></div></div>
+      <div class="card"><div class="card-header"><span style="font-size:19px">📜</span><div class="card-label" style="font-family:'Cinzel',serif;letter-spacing:3px">PREVIOUS DHARMA</div></div><div class="card-body" id="enHistoryBody"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ESSAY PAGE -->
-<div class="page" id="page-essays">
-  <div class="page-hero"><div class="page-hero-title">佛法心得</div></div>
-  <div class="content-wrap">
-    <div id="essayAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>
-    <div id="essayListWrap"></div>
-    <div id="essayDetailWrap" style="display:none"></div>
-  </div>
-</div>
-
-<!-- MANTRA PAGE -->
-<div class="page" id="page-mantras">
-  <div class="page-hero"><div class="page-hero-title">佛咒</div></div>
-  <div class="content-wrap">
-    <div id="mantraAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>
-    <div id="mantraListWrap"></div>
-    <div id="mantraDetailWrap" style="display:none"></div>
-  </div>
-</div>
-
-<!-- GALLERY PAGE -->
-<div class="page" id="page-gallery">
-  <div class="page-hero"><div class="page-hero-title">佛法圖集</div></div>
-  <div class="content-wrap">
-    <div id="galleryAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>
-    <div class="gallery-grid" id="galleryGrid"></div>
-  </div>
-</div>
+<!-- OTHER PAGES (Dynamic content) -->
+<div class="page" id="page-essays"><div class="content-wrap" id="essayContent"></div></div>
+<div class="page" id="page-mantras"><div class="content-wrap" id="mantraContent"></div></div>
+<div class="page" id="page-gallery"><div class="content-wrap" id="galleryContent"></div></div>
 
 <!-- MODALS -->
 <div class="modal-overlay" id="loginModal">
@@ -272,7 +263,7 @@ body::before {
 
 <div class="modal-overlay" id="essayModal">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title" id="essayModalTitle">編輯心得</div><button class="modal-close" onclick="closeModal('essayModal')">✕</button></div>
+    <div class="modal-header"><div class="modal-title" id="essayModalTitle">編輯內容</div><button class="modal-close" onclick="closeModal('essayModal')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="essayEditId"><input type="hidden" id="essayDharmaSource">
       <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput"></div>
@@ -280,19 +271,6 @@ body::before {
       <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn-primary" onclick="saveEssay()">儲存</button></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="mantraModal">
-  <div class="modal">
-    <div class="modal-header"><div class="modal-title" id="mantraModalTitle">編輯佛咒</div><button class="modal-close" onclick="closeModal('mantraModal')">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="mantraEditId">
-      <div class="form-group"><label class="form-label">名稱</label><input class="form-input" id="mantraTitleInput"></div>
-      <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="mantraTagInput"></div>
-      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="mantraContentInput"></textarea></div>
-    </div>
-    <div class="modal-footer"><button class="btn-primary" onclick="saveMantra()">儲存</button></div>
   </div>
 </div>
 
@@ -312,7 +290,7 @@ body::before {
 <div class="modal-overlay" id="essayViewModal">
   <div class="modal" style="max-width:560px">
     <div class="modal-header"><div class="modal-title" id="essayViewTitle"></div><button class="modal-close" onclick="closeModal('essayViewModal')">✕</button></div>
-    <div class="modal-body"><div id="essayViewUnlink" style="display:none"><button class="btn-unlink" onclick="unlinkEssayFromDharma()">✕ 移除連結</button></div><div id="essayViewMeta"></div><div class="essay-view-body" id="essayViewContent"></div></div>
+    <div class="modal-body"><div id="essayViewMeta"></div><div class="essay-view-body" id="essayViewContent"></div></div>
   </div>
 </div>
 
@@ -331,13 +309,11 @@ async function apiDelete(path) { const r = await fetch(path, { method:'DELETE', 
 
 function applyAdminState() {
   const btn = document.getElementById('adminNavBtn'); if(btn){ btn.textContent = isAdmin?'登出':'管理員'; btn.classList.toggle('logged-in', isAdmin); }
-  ['essayAdminToolbar','mantraAdminToolbar','galleryAdminToolbar'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = isAdmin?'flex':'none'; });
 }
-function handleAdminClick() { if(isAdmin){ isAdmin=false; sessionStorage.removeItem(ADMIN_TOKEN_KEY); applyAdminState(); const p = document.querySelector('.page.active').id.replace('page-',''); showPage(p); } else { openModal('loginModal'); } }
+function handleAdminClick() { if(isAdmin){ isAdmin=false; sessionStorage.removeItem(ADMIN_TOKEN_KEY); applyAdminState(); location.reload(); } else { openModal('loginModal'); } }
 async function doLogin() {
   const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:document.getElementById('adminPassword').value}) });
-  const data = await res.json();
-  if(res.ok){ isAdmin=true; sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token); closeModal('loginModal'); applyAdminState(); showPage(document.querySelector('.page.active').id.replace('page-','')); }
+  if(res.ok){ const data = await res.json(); isAdmin=true; sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token); location.reload(); }
   else { document.getElementById('loginError').style.display='block'; }
 }
 
@@ -369,15 +345,13 @@ function renderDharmaEntry(zh, en, dateLbl, mode) {
 
 async function handleEssayClick(source, btn) {
   btn.disabled = true; const essays = await apiGet('/api/essays?dharma_source=' + encodeURIComponent(source)); btn.disabled = false;
-  if (essays && essays.length) { showEssayModal(essays[0], source); } else if (isAdmin) { openEssayEditor(null, source); }
+  if (essays && essays.length) { showEssayModal(essays[0]); } else if (isAdmin) { openEssayEditor(null, source); }
 }
-function showEssayModal(essay, source) {
+function showEssayModal(essay) {
   document.getElementById('essayViewTitle').textContent = essay.title;
   document.getElementById('essayViewContent').textContent = essay.content;
-  document.getElementById('essayViewUnlink').style.display = isAdmin ? 'block' : 'none';
-  _essayModalId = essay.id; openModal('essayViewModal');
+  openModal('essayViewModal');
 }
-async function unlinkEssayFromDharma() { if(confirm('移除連結？')){ await apiPut('/api/essays/'+_essayModalId, {dharma_source:null}); closeModal('essayViewModal'); } }
 
 async function renderTodayDharma() {
   if(!_todayDharma) return;
@@ -413,38 +387,44 @@ async function renderDharmaEnHistory() {
 async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); const enArr = await apiGet('/api/dharma/en?source='+encodeURIComponent(zh.source)); document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en')}`; }
 
 async function renderEssayList() {
-  const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayListWrap');
-  if(!essays || !essays.length){ wrap.innerHTML='尚未發表心得'; return; }
+  const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayContent');
   wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') + 
-    `<div class="essay-list">${essays.map(e => `<div class="essay-card" onclick="showEssayDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div><div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();editEssay('${e.id}')">編輯</button>`:''}</div></div>`).join('')}</div>`;
+    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at.split('T')[0])}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
 }
-async function showEssayDetail(id) { const e = await apiGet('/api/essays/'+id); document.getElementById('essayListWrap').style.display='none'; const dw = document.getElementById('essayDetailWrap'); dw.style.display='block'; dw.innerHTML = `<button class="essay-detail-back" onclick="renderEssayList()">‹ 返回</button><div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>`:''}</div></div>`; }
-function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||(e?e.dharma_source:''); document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; openModal('essayModal'); }
-async function saveEssay() { const id=document.getElementById('essayEditId').value; const r = id?await apiPut('/api/essays/'+id,{title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value}):await apiPost('/api/essays',{title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value}); if(r.ok){ closeModal('essayModal'); renderEssayList(); } }
-async function editEssay(id) { const e = await apiGet('/api/essays/'+id); openEssayEditor(e); }
+async function showEssayPageDetail(id) {
+  const e = await apiGet('/api/essays/'+id); const wrap = document.getElementById('essayContent');
+  wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList()">‹ 返回列表</button>
+    <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button></div>`:''}</div></div>`;
+}
+function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; openModal('essayModal'); }
+async function saveEssay() { const id=document.getElementById('essayEditId').value; const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value}; const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body); if(r.ok){ closeModal('essayModal'); renderEssayList(); } }
+async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssayEditor(e); }
+async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
 
 async function renderMantraList() {
-  const mantras = await apiGet('/api/mantras'); const wrap = document.getElementById('mantraListWrap');
-  if(!mantras || !mantras.length){ wrap.innerHTML='尚未新增佛咒'; return; }
+  const mantras = await apiGet('/api/mantras'); const wrap = document.getElementById('mantraContent');
   wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>`:'') + 
-    `<div class="essay-list">${mantras.map(e => `<div class="essay-card" onclick="showMantraDetail('${e.id}')"><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,100)}…</div><div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();editMantra('${e.id}')">編輯</button>`:''}</div></div>`).join('')}</div>`;
+    `<div class="essay-list">${(mantras||[]).map(e => `<div class="essay-card" onclick="showMantraPageDetail('${e.id}')"><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,100)}…</div></div>`).join('')}</div>`;
 }
-async function showMantraDetail(id) { const e = await apiGet('/api/essays/'+id); document.getElementById('mantraListWrap').style.display='none'; const dw = document.getElementById('mantraDetailWrap'); dw.style.display='block'; dw.innerHTML = `<button class="essay-detail-back" onclick="renderMantraList()">‹ 返回</button><div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div></div></div>`; }
-function openMantraEditor(m) { document.getElementById('mantraEditId').value=m?m.id:''; document.getElementById('mantraTitleInput').value=m?m.title:''; document.getElementById('mantraContentInput').value=m?m.content:''; openModal('mantraModal'); }
-async function saveMantra() { const id=document.getElementById('mantraEditId').value; const r=id?await apiPut('/api/essays/'+id,{title:document.getElementById('mantraTitleInput').value,content:document.getElementById('mantraContentInput').value}):await apiPost('/api/mantras',{title:document.getElementById('mantraTitleInput').value,content:document.getElementById('mantraContentInput').value}); if(r.ok){ closeModal('mantraModal'); renderMantraList(); } }
+async function showMantraPageDetail(id) {
+  const e = await apiGet('/api/essays/'+id); const wrap = document.getElementById('mantraContent');
+  wrap.innerHTML = `<button class="detail-back" onclick="renderMantraList()">‹ 返回列表</button>
+    <div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button></div>`:''}</div></div>`;
+}
+function openMantraEditor(m) { document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
+async function saveMantra() { /* share logic with saveEssay but check endpoint if needed or use same */ }
 
 async function renderGallery() {
-  const items = await apiGet('/api/gallery'); const grid = document.getElementById('galleryGrid');
-  if(!items || !items.length){ grid.innerHTML='尚未上傳圖片'; return; }
-  grid.innerHTML = (isAdmin?`<div class="section-toolbar" style="grid-column:1/-1"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>`:'') + 
-    items.map(it => `<div class="gallery-item"><div class="gallery-img-wrap" onclick="openLightbox('${it.id}','${escAttr(it.image_url)}','${escAttr(it.title)}')"><img src="${it.image_url}" loading="lazy"></div><div class="gallery-info"><div class="gallery-item-title">${it.title}</div>${isAdmin?`<button class="btn-outline btn-sm" onclick="deleteGalleryItem('${it.id}')">刪除</button>`:''}</div></div>`).join('');
+  const items = await apiGet('/api/gallery'); const wrap = document.getElementById('galleryContent');
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>`:'') + 
+    `<div class="gallery-grid">${(items||[]).map(it => `<div class="gallery-item"><div class="gallery-img-wrap" onclick="openLightbox('','${it.image_url}')"><img src="${it.image_url}"></div><div class="gallery-info"><div>${it.title}</div>${isAdmin?`<button onclick="deleteGalleryItem('${it.id}')">刪除</button>`:''}</div></div>`).join('')}</div>`;
 }
-let pendingImageData = null;
+function openGalleryUpload() { openModal('galleryModal'); }
 function handleImageSelect(e) { const file=e.target.files[0]; const r=new FileReader(); r.onload=ev=>{ pendingImageData=ev.target.result; document.getElementById('galleryPreviewImg').src=pendingImageData; document.getElementById('galleryPreviewImg').style.display='block'; }; r.readAsDataURL(file); }
 async function saveGalleryItem() { const r=await apiPost('/api/gallery',{title:document.getElementById('galleryTitleInput').value, caption:document.getElementById('galleryCaptionInput').value, image_url:pendingImageData}); if(r.ok){ closeModal('galleryModal'); renderGallery(); } }
 async function deleteGalleryItem(id) { if(confirm('刪除？')){ await apiDelete('/api/gallery/'+id); renderGallery(); } }
 
-function openLightbox(id, src, title) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
+function openLightbox(id, src) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
 function showPage(name, btn) {
