@@ -27,10 +27,7 @@
 ::-webkit-scrollbar-thumb{background:rgba(184,149,42,0.3);border-radius:3px}
 
 body {
-  background:var(--rice);
-  color:var(--ink);
-  font-family:'Noto Serif TC',serif;
-  min-height:100vh;
+  background:var(--rice); color:var(--ink); font-family:'Noto Serif TC',serif; min-height:100vh;
 }
 body::before {
   content:'';position:fixed;inset:0;
@@ -43,31 +40,22 @@ body::before {
 /* ── HEADER ── */
 .site-header {
   position:sticky;top:0;z-index:100;
-  background:rgba(244,239,230,0.94);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
-  padding:0 48px;
-  display:flex;align-items:center;justify-content:space-between;
-  height:64px;
+  background:rgba(244,239,230,0.94); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border); padding:0 48px;
+  display:flex;align-items:center;justify-content:space-between; height:64px;
 }
 .site-logo { display:flex;align-items:baseline;gap:12px; }
 .site-logo-main { font-family:'Noto Serif TC',serif;font-size:18px;font-weight:500;color:var(--ink);letter-spacing:4px; }
 .site-logo-sub { font-family:'Cinzel',serif;font-size:9px;letter-spacing:5px;color:var(--gold); }
 .site-version {
-  display:inline-flex;align-items:center;
-  padding:3px 8px;
-  font-family:'Cinzel',serif;
-  font-size:10px;
-  letter-spacing:2px;
-  color:var(--gold);
-  background:rgba(184,149,42,0.08);
-  border:1px solid rgba(184,149,42,0.26);
-  border-radius:999px;
+  display:inline-flex;align-items:center; padding:3px 8px;
+  font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px;
+  color:var(--gold); background:rgba(184,149,42,0.08);
+  border:1px solid rgba(184,149,42,0.26); border-radius:999px;
 }
 .site-nav { display:flex;align-items:center;gap:8px; }
 .nav-btn {
-  padding:8px 20px;
-  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
+  padding:8px 20px; font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
   color:var(--ink-faint);background:none;border:none;cursor:pointer;
   position:relative;transition:color 0.2s;
 }
@@ -81,13 +69,9 @@ body::before {
 .nav-btn.active::after{transform:scaleX(1);}
 
 .admin-nav-btn {
-  padding:6px 16px;
-  font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;
-  color:var(--ink-faint);
-  background:none;
-  border:1px solid rgba(107,93,80,0.25);
-  border-radius:1px;cursor:pointer;transition:all 0.2s;
-  margin-left:8px;
+  padding:6px 16px; font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;
+  color:var(--ink-faint); background:none; border:1px solid rgba(107,93,80,0.25);
+  border-radius:1px;cursor:pointer;transition:all 0.2s; margin-left:8px;
 }
 .admin-nav-btn:hover{color:var(--gold);border-color:var(--gold);}
 .admin-nav-btn.logged-in{color:var(--gold);border-color:var(--gold);background:var(--gold-pale);}
@@ -96,10 +80,7 @@ body::before {
 .page{display:none;position:relative;z-index:1;}
 .page.active{display:block;}
 
-.page-hero {
-  text-align:center;padding:56px 32px 40px;
-  animation:fadeDown 0.7s ease forwards;
-}
+.page-hero { text-align:center;padding:56px 32px 40px; animation:fadeDown 0.7s ease forwards; }
 .page-hero-en { font-family:'Cinzel',serif;font-size:10px;letter-spacing:8px;color:var(--gold);margin-bottom:10px; }
 .page-hero-title { font-size:26px;font-weight:300;letter-spacing:8px;color:var(--ink);margin-bottom:8px; }
 .page-hero-desc { font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint); }
@@ -122,17 +103,14 @@ body::before {
 
 /* ── BUTTONS ── */
 .btn-primary {
-  display:inline-flex;align-items:center;gap:8px;padding:9px 22px;
-  background:var(--gold);color:var(--rice);
-  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
-  border:none;cursor:pointer;border-radius:1px;transition:all 0.22s;
+  display:inline-flex;align-items:center;gap:8px;padding:9px 22px; background:var(--gold);color:var(--rice);
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px; border:none;cursor:pointer;border-radius:1px;transition:all 0.22s;
 }
 .btn-primary:hover{background:var(--gold-lt);}
 .btn-outline {
   display:inline-flex;align-items:center;gap:8px;padding:8px 20px;
   background:transparent;color:var(--gold);border:1px solid var(--gold);
-  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
-  cursor:pointer;border-radius:1px;transition:all 0.22s;
+  font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px; cursor:pointer;border-radius:1px;transition:all 0.22s;
 }
 .btn-outline:hover{background:var(--gold);color:var(--rice);}
 .btn-sm{padding:5px 14px;font-size:10px;letter-spacing:2px;}
@@ -158,32 +136,14 @@ body::before {
 .more-link:hover{color:var(--ink);border-color:var(--gold);background:var(--gold-pale);}
 .btn-essay { display:inline-flex;align-items:center;gap:4px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.2);padding:4px 11px;border-radius:1px;cursor:pointer;transition:all 0.2s; }
 .btn-essay:hover{color:var(--ink);border-color:var(--gold);background:var(--gold-pale);}
-.btn-essay.linked{color:#4f8c6b;border-color:rgba(79,140,107,0.4);}
-.btn-essay.linked:hover{background:rgba(79,140,107,0.08);border-color:#4f8c6b;}
+.btn-essay.linked{color:#4f8c6b;border-color:rgba(79,140,107,0.4);background:rgba(79,140,107,0.05);}
+.btn-essay.linked:hover{background:rgba(79,140,107,0.1);}
 .btn-lang { margin-left:auto;padding:5px 16px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--gold);background:transparent;border:1px solid rgba(184,149,42,0.35);border-radius:1px;cursor:pointer;transition:all 0.2s; }
 .btn-lang:hover{background:var(--gold-pale);border-color:var(--gold);}
 .btn-lang.en-mode{background:var(--gold-pale);border-color:var(--gold);color:var(--ink-light);}
-.essay-view-body { font-family:'Noto Serif TC',serif;font-size:15px;line-height:2;color:var(--ink-light);white-space:pre-wrap;padding:16px 0; }
-.btn-unlink { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--verm);background:none;border:1px solid rgba(155,58,42,0.3);border-radius:1px;padding:4px 12px;cursor:pointer;margin-bottom:16px;transition:all 0.2s; }
-.btn-unlink:hover{background:rgba(155,58,42,0.06);border-color:var(--verm);}
-.history-empty { text-align:center;padding:44px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2; }
-.history-item { display:grid;grid-template-columns:130px 1fr 20px;align-items:start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(184,149,42,0.09);cursor:pointer;transition:all 0.18s; }
-.history-item:last-child{border-bottom:none;}
-.history-item:hover{background:var(--gold-pale);margin:0 -30px;padding-left:30px;padding-right:30px;}
-.history-date { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-faint);padding-top:3px;white-space:nowrap; }
-.today-badge { display:inline-block;font-size:9px;letter-spacing:1px;background:var(--gold);color:var(--rice);padding:1px 7px;border-radius:1px;margin-left:5px; }
-.history-source { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:5px; }
-.history-quote { font-size:15px;line-height:1.9;color:var(--ink-light);letter-spacing:0.04em; }
-.history-arrow { color:rgba(184,149,42,0.35);font-size:14px;align-self:center; }
-.history-item:hover .history-arrow{color:var(--gold);}
-.detail-back { display:inline-flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-faint);cursor:pointer;margin-bottom:22px;padding:6px 0;border:none;background:none;transition:color 0.2s; }
-.detail-back:hover{color:var(--gold);}
-.detail-date-label { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);margin-bottom:18px; }
 
-/* ── ESSAYS ── */
-.section-toolbar { display:flex;justify-content:flex-end;margin-bottom:24px; }
-.essay-list { display:flex;flex-direction:column;gap:16px; }
-.essay-card { background:var(--mist);border:1px solid var(--border);border-radius:2px;padding:24px 28px;box-shadow:0 2px 14px var(--shadow);cursor:pointer;transition:all 0.22s; }
+/* ── LISTS ── */
+.essay-card { background:var(--mist);border:1px solid var(--border);border-radius:2px;padding:24px 28px;box-shadow:0 2px 14px var(--shadow);cursor:pointer;transition:all 0.22s;margin-bottom:16px; }
 .essay-card:hover { border-color:rgba(184,149,42,0.4);box-shadow:0 4px 24px rgba(26,22,18,0.13);transform:translateY(-1px); }
 .essay-card-meta { display:flex;align-items:center;gap:14px;margin-bottom:10px; }
 .essay-date { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--gold); }
@@ -192,107 +152,40 @@ body::before {
 .essay-excerpt { font-family:'Noto Sans TC',sans-serif;font-size:12px;line-height:2;color:var(--ink-faint);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
 .essay-card-footer { display:flex;justify-content:space-between;align-items:center;margin-top:14px; }
 .essay-read-more { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--gold); }
-.essay-actions { display:flex;gap:8px; }
-.essay-detail-back { display:inline-flex;align-items:center;gap:8px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-faint);cursor:pointer;margin-bottom:24px;background:none;border:none;transition:color 0.2s; }
-.essay-detail-back:hover{color:var(--gold);}
-.essay-detail-date { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:12px; }
-.essay-detail-title { font-size:24px;font-weight:400;letter-spacing:4px;color:var(--ink);margin-bottom:8px;line-height:1.7; }
-.essay-detail-divider { height:1px;background:linear-gradient(to right,var(--gold),transparent);margin:20px 0;width:120px; }
-.essay-detail-body { font-family:'Noto Serif TC',serif;font-size:15px;line-height:2.4;color:var(--ink-light);white-space:pre-wrap; }
-.empty-state { text-align:center;padding:60px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2.2; }
-.empty-icon { font-size:32px;margin-bottom:16px; }
-
-/* ── GALLERY ── */
-.gallery-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
-.gallery-item { background:var(--mist);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;transition:all 0.25s;box-shadow:0 2px 12px var(--shadow); }
-.gallery-item:hover { border-color:rgba(184,149,42,0.4);transform:translateY(-3px);box-shadow:0 8px 28px rgba(26,22,18,0.15); }
-.gallery-img-wrap { width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--rice-deep);display:flex;align-items:center;justify-content:center; }
-.gallery-img-wrap img { width:100%;height:100%;object-fit:cover;transition:transform 0.4s; }
-.gallery-item:hover .gallery-img-wrap img{transform:scale(1.04);}
-.gallery-info { padding:14px 16px; }
-.gallery-item-title { font-size:13px;font-weight:500;letter-spacing:2px;color:var(--ink);margin-bottom:5px; }
-.gallery-item-caption { font-family:'Noto Sans TC',sans-serif;font-size:11px;line-height:1.8;color:var(--ink-faint); }
-.gallery-admin-btns { margin-top:10px;display:flex;gap:8px; }
 
 /* ── MODAL ── */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(26,22,18,0.55);z-index:200;align-items:center;justify-content:center;padding:24px; }
 .modal-overlay.open{display:flex;}
-.modal { background:var(--rice);border:1px solid var(--border);border-radius:2px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,22,18,0.3);animation:modalIn 0.3s ease forwards; }
+.modal { background:var(--rice);border:1px solid var(--border);border-radius:2px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,22,18,0.3); }
 .modal-header { display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--border); }
 .modal-title { font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:4px;color:var(--gold); }
-.modal-close { background:none;border:none;cursor:pointer;font-size:18px;color:var(--ink-faint);transition:color 0.2s; }
-.modal-close:hover{color:var(--ink);}
+.modal-close { background:none;border:none;cursor:pointer;font-size:18px;color:var(--ink-faint); }
 .modal-body { padding:28px; }
 .modal-footer { display:flex;justify-content:flex-end;gap:12px;padding:16px 28px 24px; }
 .form-group { margin-bottom:20px; }
 .form-label { display:block;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:8px; }
-.form-input { width:100%;padding:10px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:1px;font-family:'Noto Serif TC',serif;font-size:14px;color:var(--ink);outline:none;transition:border-color 0.2s; }
-.form-input:focus{border-color:rgba(184,149,42,0.6);}
-.form-textarea { width:100%;min-height:280px;padding:14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:1px;font-family:'Noto Serif TC',serif;font-size:14px;line-height:2;color:var(--ink);outline:none;resize:vertical;transition:border-color 0.2s; }
-.form-textarea:focus{border-color:rgba(184,149,42,0.6);}
+.form-input, .form-textarea { width:100%;padding:10px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:1px;font-family:'Noto Serif TC',serif;color:var(--ink);outline:none; }
+.form-textarea { min-height:280px;line-height:2; }
 
-/* Login modal */
-.login-modal { max-width:400px; }
-.login-error { color:var(--verm);font-family:'Noto Sans TC',sans-serif;font-size:12px;margin-top:8px;display:none; }
-
-/* Gallery upload */
-.gallery-upload-area { border:1.5px dashed rgba(184,149,42,0.35);border-radius:2px;padding:48px 20px;text-align:center;cursor:pointer;transition:all 0.22s;background:rgba(255,255,255,0.25); }
-.gallery-upload-area:hover{border-color:var(--gold);background:var(--gold-pale);}
-.upload-icon{font-size:28px;margin-bottom:12px;}
-.upload-text{font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint);line-height:2;}
-.gallery-modal-img{width:100%;max-height:220px;object-fit:contain;background:var(--rice-deep);margin-bottom:16px;border-radius:1px;}
+/* ── GALLERY ── */
+.gallery-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
+.gallery-item { background:var(--mist);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;box-shadow:0 2px 12px var(--shadow); transition:all 0.25s; }
+.gallery-img-wrap { width:100%;aspect-ratio:4/3;overflow:hidden; }
+.gallery-img-wrap img { width:100%;height:100%;object-fit:cover; }
+.gallery-info { padding:14px 16px; }
+.gallery-item-title { font-size:13px;font-weight:500;letter-spacing:2px;color:var(--ink);margin-bottom:5px; }
 
 /* ── LIGHTBOX ── */
-.lightbox { display:none;position:fixed;inset:0;background:rgba(15,12,10,0.88);z-index:300;align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:16px; }
+.lightbox { display:none;position:fixed;inset:0;background:rgba(15,12,10,0.88);z-index:300;align-items:center;justify-content:center;padding:24px;flex-direction:column; }
 .lightbox.open{display:flex;}
 .lightbox img{max-width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);}
-.lightbox-info{text-align:center;}
-.lightbox-title{font-size:16px;letter-spacing:3px;color:var(--rice);margin-bottom:6px;}
-.lightbox-caption{font-family:'Noto Sans TC',sans-serif;font-size:12px;color:rgba(244,239,230,0.6);}
-.lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;cursor:pointer;color:rgba(244,239,230,0.5);font-size:24px;transition:color 0.2s;}
-.lightbox-close:hover{color:var(--gold);}
-
-/* ── ESSAY VIEW MODAL (from dharma entry) ── */
-.modal-overlay" id="essayViewModal">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <div class="modal-title" id="essayViewTitle"></div>
-      <button class="modal-close" onclick="closeModal('essayViewModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="essayViewUnlink" style="display:none">
-        <button class="btn-unlink" onclick="unlinkEssayFromDharma()">✕ 移除文章連結</button>
-      </div>
-      <div id="essayViewMeta"></div>
-      <div class="essay-view-body" id="essayViewContent"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('essayViewModal')">關閉</button>
-    </div>
-  </div>
-</div>
-
-/* ── LOADING ── */
-.loading-spinner { text-align:center;padding:48px;font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint); }
-.spinner { width:24px;height:24px;border:2px solid rgba(184,149,42,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px; }
-
-.site-footer { text-align:center;padding:32px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);opacity:0.45;border-top:1px solid var(--border);margin-top:40px; }
+.lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;cursor:pointer;color:rgba(244,239,230,0.5);font-size:24px;}
 
 @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes modalIn{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
-@keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:700px){
-  .site-header{padding:0 20px;}
-  .site-logo-sub{display:none;}
-  .nav-btn{padding:8px 12px;font-size:10px;letter-spacing:2px;}
-  .content-wrap{padding:0 16px 60px;}
-  .dharma-text{font-size:18px;}
-  .history-item{grid-template-columns:100px 1fr 16px;gap:10px;}
-}
-@media(max-width:480px){
-  .gallery-grid{grid-template-columns:1fr;}
+  .site-header{padding:0 20px;} .nav-btn{padding:8px 12px;font-size:10px;} .gallery-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
@@ -302,7 +195,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version">v1.11</span>
+    <span class="site-version" id="versionBadge">v1.12</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -313,223 +206,117 @@ body::before {
   </nav>
 </header>
 
+<!-- DHARMA PAGE -->
 <div class="page active" id="page-dharma">
   <div class="page-hero">
     <div class="page-hero-en">DAILY DHARMA</div>
     <div class="page-hero-title">每日佛典</div>
-    <div class="page-hero-desc">大乘漢傳 · 禪宗語錄 · 每日一篇</div>
     <div class="ornament"><span>☸</span></div>
   </div>
   <div class="content-wrap">
     <div class="dharma-tabs">
       <button class="dharma-tab active" id="dtab-today" onclick="switchDharmaTab('today')">今日主題</button>
       <button class="dharma-tab" id="dtab-history" onclick="switchDharmaTab('history')">過往主題</button>
-      <button class="dharma-tab" id="dtab-en-history" onclick="switchDharmaTab('en-history')" style="font-family:'Cinzel',serif;letter-spacing:2px">Previous Dharma</button>
+      <button class="dharma-tab" id="dtab-en-history" onclick="switchDharmaTab('en-history')">Previous Dharma</button>
     </div>
-    <div class="card" id="dharma-today-card" style="animation-delay:0.15s">
+    <div class="card" id="dharma-today-card">
       <div class="card-header"><span style="font-size:19px">🪷</span><div class="card-label">TODAY · 今日佛典</div><button class="btn-lang" id="langToggleBtn" onclick="toggleDharmaLang()">EN</button></div>
       <div class="card-body" id="dharmaBody"></div>
     </div>
     <div id="dharma-history-wrap" style="display:none">
-      <div class="card" style="animation-delay:0.15s">
-        <div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">ARCHIVE · 過往主題</div></div>
-        <div class="card-body" id="historyBody"></div>
-      </div>
+      <div class="card"><div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">ARCHIVE · 過往主題</div></div><div class="card-body" id="historyBody"></div></div>
     </div>
     <div id="dharma-en-history-wrap" style="display:none">
-      <div class="card" style="animation-delay:0.15s">
-        <div class="card-header"><span style="font-size:19px">📜</span><div class="card-label" style="font-family:'Cinzel',serif;letter-spacing:3px">PREVIOUS DHARMA</div></div>
-        <div class="card-body" id="enHistoryBody"></div>
-      </div>
+      <div class="card"><div class="card-header"><span style="font-size:19px">📜</span><div class="card-label">PREVIOUS DHARMA</div></div><div class="card-body" id="enHistoryBody"></div></div>
     </div>
   </div>
 </div>
 
+<!-- ESSAY PAGE -->
 <div class="page" id="page-essays">
-  <div class="page-hero">
-    <div class="page-hero-en">DHARMA REFLECTIONS</div>
-    <div class="page-hero-title">佛法心得</div>
-    <div class="page-hero-desc">記錄修行路上的所思所感</div>
-    <div class="ornament"><span>✦</span></div>
-  </div>
+  <div class="page-hero"><div class="page-hero-title">佛法心得</div></div>
   <div class="content-wrap">
-    <div id="essayAdminToolbar" style="display:none" class="section-toolbar">
-      <button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button>
-    </div>
+    <div id="essayAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>
     <div id="essayListWrap"></div>
     <div id="essayDetailWrap" style="display:none"></div>
   </div>
 </div>
 
+<!-- MANTRA PAGE -->
 <div class="page" id="page-mantras">
-  <div class="page-hero">
-    <div class="page-hero-en">DHARMA MANTRAS</div>
-    <div class="page-hero-title">佛咒</div>
-    <div class="page-hero-desc">持咒修行 · 攝心入定</div>
-    <div class="ornament"><span>☸</span></div>
-  </div>
+  <div class="page-hero"><div class="page-hero-title">佛咒</div></div>
   <div class="content-wrap">
-    <div id="mantraAdminToolbar" style="display:none" class="section-toolbar">
-      <button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button>
-    </div>
+    <div id="mantraAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>
     <div id="mantraListWrap"></div>
     <div id="mantraDetailWrap" style="display:none"></div>
   </div>
 </div>
 
+<!-- GALLERY PAGE -->
 <div class="page" id="page-gallery">
-  <div class="page-hero">
-    <div class="page-hero-en">DHARMA GALLERY</div>
-    <div class="page-hero-title">佛法圖集</div>
-    <div class="page-hero-desc">以圖象，詮釋法義</div>
-    <div class="ornament"><span>◈</span></div>
-  </div>
+  <div class="page-hero"><div class="page-hero-title">佛法圖集</div></div>
   <div class="content-wrap">
-    <div id="galleryAdminToolbar" style="display:none" class="section-toolbar">
-      <button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button>
-    </div>
+    <div id="galleryAdminToolbar" style="display:none" class="section-toolbar"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>
     <div class="gallery-grid" id="galleryGrid"></div>
   </div>
 </div>
 
-<footer class="site-footer">日日是好日 · 念念不離當下</footer>
-
+<!-- MODALS -->
 <div class="modal-overlay" id="loginModal">
-  <div class="modal login-modal">
-    <div class="modal-header">
-      <div class="modal-title">ADMIN · 管理員登入</div>
-      <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">密碼 PASSWORD</label>
-        <input class="form-input" id="adminPassword" type="password" placeholder="輸入管理員密碼…" onkeydown="if(event.key==='Enter')doLogin()">
-        <div class="login-error" id="loginError">密碼錯誤，請再試一次。</div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('loginModal')">取消</button>
-      <button class="btn-primary" onclick="doLogin()">登入</button>
-    </div>
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">管理員登入</div><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
+    <div class="modal-body"><input class="form-input" id="adminPassword" type="password" placeholder="輸入密碼…" onkeydown="if(event.key==='Enter')doLogin()"><div id="loginError" style="color:var(--verm);font-size:12px;margin-top:10px;display:none">密碼錯誤</div></div>
+    <div class="modal-footer"><button class="btn-primary" onclick="doLogin()">登入</button></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="essayModal">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="essayModalTitle">NEW ESSAY · 新增心得</div>
-      <input type="hidden" id="essayDharmaSource">
-      <button class="modal-close" onclick="closeModal('essayModal')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="essayModalTitle">編輯心得</div><button class="modal-close" onclick="closeModal('essayModal')">✕</button></div>
     <div class="modal-body">
-      <input type="hidden" id="essayEditId">
-      <div class="form-group">
-        <label class="form-label">標題 TITLE</label>
-        <input class="form-input" id="essayTitleInput" type="text" placeholder="心得標題…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">標籤 TAG（選填）</label>
-        <input class="form-input" id="essayTagInput" type="text" placeholder="例：金剛經、禪修、無常…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">內文 CONTENT</label>
-        <textarea class="form-textarea" id="essayContentInput" placeholder="在此貼入或撰寫你的佛法心得…"></textarea>
-      </div>
+      <input type="hidden" id="essayEditId"><input type="hidden" id="essayDharmaSource">
+      <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput"></div>
+      <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="essayTagInput"></div>
+      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('essayModal')">取消</button>
-      <button class="btn-primary" onclick="saveEssay()">儲存發表</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="saveEssay()">儲存</button></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="mantraModal">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="mantraModalTitle">NEW MANTRA · 新增佛咒</div>
-      <button class="modal-close" onclick="closeModal('mantraModal')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="mantraModalTitle">編輯佛咒</div><button class="modal-close" onclick="closeModal('mantraModal')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="mantraEditId">
-      <div class="form-group">
-        <label class="form-label">名稱 NAME</label>
-        <input class="form-input" id="mantraTitleInput" type="text" placeholder="佛咒名稱…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">標籤 TAG（選填）</label>
-        <input class="form-input" id="mantraTagInput" type="text" placeholder="例：消業、護身、心咒…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">內文 CONTENT</label>
-        <textarea class="form-textarea" id="mantraContentInput" placeholder="在此輸入佛咒全文或相關說明…"></textarea>
-      </div>
+      <div class="form-group"><label class="form-label">名稱</label><input class="form-input" id="mantraTitleInput"></div>
+      <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="mantraTagInput"></div>
+      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="mantraContentInput"></textarea></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('mantraModal')">取消</button>
-      <button class="btn-primary" onclick="saveMantra()">儲存發表</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="saveMantra()">儲存</button></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="galleryModal">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">UPLOAD · 上傳圖片</div>
-      <button class="modal-close" onclick="closeModal('galleryModal')">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">上傳圖片</div><button class="modal-close" onclick="closeModal('galleryModal')">✕</button></div>
     <div class="modal-body">
-      <input type="hidden" id="galleryEditId">
-      <div id="galleryPreviewWrap" style="display:none">
-        <img id="galleryPreviewImg" class="gallery-modal-img" src="" alt="">
-      </div>
-      <div class="gallery-upload-area" id="uploadTrigger" onclick="document.getElementById('galleryFileInput').click()">
-        <div class="upload-icon">🖼</div>
-        <div class="upload-text">點擊選擇圖片<br><span style="font-size:10px;opacity:0.6">支援 JPG · PNG · WEBP</span></div>
-      </div>
-      <input type="file" id="galleryFileInput" style="display:none" accept="image/*" onchange="handleImageSelect(event)">
-      <div class="form-group" style="margin-top:20px">
-        <label class="form-label">標題 TITLE</label>
-        <input class="form-input" id="galleryTitleInput" type="text" placeholder="圖片標題…">
-      </div>
-      <div class="form-group">
-        <label class="form-label">說明 CAPTION（選填）</label>
-        <input class="form-input" id="galleryCaptionInput" type="text" placeholder="此圖的佛法義涵或來源說明…">
-      </div>
+      <input type="hidden" id="galleryEditId"><img id="galleryPreviewImg" style="width:100%;max-height:200px;object-fit:contain;display:none;margin-bottom:15px">
+      <input type="file" id="galleryFileInput" accept="image/*" onchange="handleImageSelect(event)">
+      <div class="form-group" style="margin-top:15px"><label class="form-label">標題</label><input class="form-input" id="galleryTitleInput"></div>
+      <div class="form-group"><label class="form-label">說明</label><input class="form-input" id="galleryCaptionInput"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('galleryModal')">取消</button>
-      <button class="btn-primary" onclick="saveGalleryItem()">儲存</button>
-    </div>
+    <div class="modal-footer"><button class="btn-primary" onclick="saveGalleryItem()">儲存</button></div>
   </div>
 </div>
 
 <div class="modal-overlay" id="essayViewModal">
   <div class="modal" style="max-width:560px">
-    <div class="modal-header">
-      <div class="modal-title" id="essayViewTitle"></div>
-      <button class="modal-close" onclick="closeModal('essayViewModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="essayViewUnlink" style="display:none">
-        <button class="btn-unlink" onclick="unlinkEssayFromDharma()">✕ 移除文章連結</button>
-      </div>
-      <div id="essayViewMeta"></div>
-      <div class="essay-view-body" id="essayViewContent"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-outline" onclick="closeModal('essayViewModal')">關閉</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="essayViewTitle"></div><button class="modal-close" onclick="closeModal('essayViewModal')">✕</button></div>
+    <div class="modal-body"><div id="essayViewUnlink" style="display:none"><button class="btn-unlink" onclick="unlinkEssayFromDharma()">✕ 移除連結</button></div><div id="essayViewMeta"></div><div class="essay-view-body" id="essayViewContent"></div></div>
   </div>
 </div>
 
-<div class="lightbox" id="lightbox">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <img id="lightboxImg" src="" alt="">
-  <div class="lightbox-info">
-    <div class="lightbox-title" id="lightboxTitle"></div>
-    <div class="lightbox-caption" id="lightboxCaption"></div>
-  </div>
-</div>
+<div class="lightbox" id="lightbox"><button class="lightbox-close" onclick="closeLightbox()">✕</button><img id="lightboxImg"></div>
 
 <script>
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
@@ -537,396 +324,136 @@ let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
 let _todayDharma = null;
 
-function _authHeaders() {
-  const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
-  return token ? { 'Authorization': 'Bearer ' + token } : {};
-}
-async function apiFetch(path, options = {}) {
-  return fetch(path, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ..._authHeaders(), ...(options.headers || {}) }
-  });
-}
-async function apiGet(path) {
-  const r = await fetch(path);
-  return r.ok ? r.json() : null;
-}
-async function apiPost(path, body) {
-  const r = await apiFetch(path, { method: 'POST', body: JSON.stringify(body) });
-  return { ok: r.ok, data: await r.json() };
-}
-async function apiPut(path, body) {
-  const r = await apiFetch(path, { method: 'PUT', body: JSON.stringify(body) });
-  return { ok: r.ok, data: await r.json() };
-}
-async function apiDelete(path) {
-  const r = await apiFetch(path, { method: 'DELETE' });
-  return r.ok;
-}
+async function apiGet(path) { const r = await fetch(path); return r.ok ? r.json() : null; }
+async function apiPost(path, body) { const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)}, body:JSON.stringify(body) }); return {ok:r.ok, data:await r.json()}; }
+async function apiPut(path, body) { const r = await fetch(path, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)}, body:JSON.stringify(body) }); return {ok:r.ok, data:await r.json()}; }
+async function apiDelete(path) { const r = await fetch(path, { method:'DELETE', headers:{'Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)} }); return r.ok; }
 
 function applyAdminState() {
-  const btn = document.getElementById('adminNavBtn');
-  if (btn) {
-    btn.textContent = isAdmin ? '登出' : '管理員';
-    btn.classList.toggle('logged-in', isAdmin);
-  }
-  const toolbars = ['essayAdminToolbar','mantraAdminToolbar','galleryAdminToolbar'];
-  toolbars.forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.style.display = isAdmin ? 'flex' : 'none';
-  });
+  const btn = document.getElementById('adminNavBtn'); if(btn){ btn.textContent = isAdmin?'登出':'管理員'; btn.classList.toggle('logged-in', isAdmin); }
+  ['essayAdminToolbar','mantraAdminToolbar','galleryAdminToolbar'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = isAdmin?'flex':'none'; });
 }
-
-function handleAdminClick() {
-  if (isAdmin) { doLogout(); } else {
-    document.getElementById('adminPassword').value = '';
-    document.getElementById('loginError').style.display = 'none';
-    openModal('loginModal');
-    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
-  }
-}
-
+function handleAdminClick() { if(isAdmin){ isAdmin=false; sessionStorage.removeItem(ADMIN_TOKEN_KEY); applyAdminState(); const p = document.querySelector('.page.active').id.replace('page-',''); showPage(p); } else { openModal('loginModal'); } }
 async function doLogin() {
-  const pw = document.getElementById('adminPassword').value;
-  const errEl = document.getElementById('loginError');
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: pw })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || '登入失敗');
-    isAdmin = true;
-    sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token);
-    closeModal('loginModal');
-    applyAdminState();
-    const curPage = document.querySelector('.page.active').id.replace('page-','');
-    showPage(curPage);
-  } catch (_err) { errEl.style.display = 'block'; }
+  const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:document.getElementById('adminPassword').value}) });
+  const data = await res.json();
+  if(res.ok){ isAdmin=true; sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token); closeModal('loginModal'); applyAdminState(); showPage(document.querySelector('.page.active').id.replace('page-','')); }
+  else { document.getElementById('loginError').style.display='block'; }
 }
 
-function doLogout() {
-  isAdmin = false;
-  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
-  applyAdminState();
-  const curPage = document.querySelector('.page.active').id.replace('page-','');
-  showPage(curPage);
-}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-function todayKey() {
-  return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'});
-}
-function formatDate(iso) {
-  const [y,m,d] = iso.split('-').map(Number);
-  return new Date(y,m-1,d).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
-}
-function formatDateEn(iso) {
-  const [y,m,d] = iso.split('-').map(Number);
-  return `${y}.${m}.${d}`;
-}
+function todayKey() { return new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'}); }
+function formatDate(iso) { const [y,m,d] = iso.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',weekday:'long'}); }
+function formatDateEn(iso) { return iso.replaceAll('-','.'); }
 
-async function fetchTodayDharma() {
-  const key = todayKey();
-  _todayDharma = await apiGet('/api/dharma/history/' + key);
-  renderTodayDharma();
-}
+async function fetchTodayDharma() { _todayDharma = await apiGet('/api/dharma/history/' + todayKey()); renderTodayDharma(); }
 
 function renderDharmaEntry(zh, en, dateLbl, mode) {
+  const alts = (zh.alt_links ? JSON.parse(zh.alt_links) : []).map(l => `<a class="more-link" href="${l.url}" target="_blank">↗ ${l.label}</a>`).join('');
   if (mode === 'en') {
-    return `
-      ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
-      <div class="dharma-source" style="flex-direction:column;gap:6px">
-        <span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint);letter-spacing:1px">${zh.source}</span>
-        <span>${en ? en.source_en : zh.source}</span>
-      </div>
-      <div class="dharma-text" style="font-family:'Noto Serif TC',serif;font-size:18px;letter-spacing:0.03em">${en ? en.text_en : zh.text}</div>
-      <div class="dharma-reflection"><strong>REFLECTION</strong>${en ? en.reflection_en : 'English translation coming soon.'}</div>
+    return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
+      <div class="dharma-source" style="flex-direction:column;gap:6px"><span style="font-size:10px;color:var(--ink-faint)">${zh.source}</span><span>${en ? en.source_en : zh.source}</span></div>
+      <div class="dharma-text" style="font-size:18px">${en ? en.text_en : zh.text}</div>
+      <div class="dharma-reflection"><strong>REFLECTION</strong>${en ? en.reflection_en : 'Translation pending.'}</div>
       <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
   } else {
-    return `
-      ${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
-      <div class="dharma-source"><span>出處：${zh.source}</span></div>
+    return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
+      <div class="dharma-source"><span>出處：${zh.source}</span>${zh.cbeta_url ? `<a class="dharma-link" href="${zh.cbeta_url}" target="_blank">☸ ${zh.cbeta_label || 'CBETA'}</a>` : ''}</div>
       <div class="dharma-text">${zh.text}</div>
       ${zh.reflection ? `<div class="dharma-reflection"><strong>今日思索</strong>${zh.reflection}</div>` : ''}
-      <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
+      <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
   }
 }
 
 async function handleEssayClick(source, btn) {
-  btn.disabled = true;
-  const essays = await apiGet('/api/essays?dharma_source=' + encodeURIComponent(source));
-  btn.disabled = false;
-  if (essays && essays.length) {
-    showEssayModal(essays[0], source);
-    btn.classList.add('linked');
-  } else if (isAdmin) {
-    openEssayEditor(null, source);
-  }
+  btn.disabled = true; const essays = await apiGet('/api/essays?dharma_source=' + encodeURIComponent(source)); btn.disabled = false;
+  if (essays && essays.length) { showEssayModal(essays[0], source); } else if (isAdmin) { openEssayEditor(null, source); }
 }
-
-let _essayModalId = null, _essayModalSource = null;
 function showEssayModal(essay, source) {
-  _essayModalId = essay.id;
-  _essayModalSource = source;
-  const dateStr = new Date(essay.created_at).toLocaleDateString('zh-Hant-TW', {year:'numeric',month:'long',day:'numeric',timeZone:'Asia/Kuala_Lumpur'});
   document.getElementById('essayViewTitle').textContent = essay.title;
-  document.getElementById('essayViewMeta').innerHTML = `<span style="font-family:'Noto Sans TC',sans-serif;font-size:11px;color:var(--ink-faint);letter-spacing:1px">${dateStr}${essay.tag ? ' · ' + essay.tag : ''}</span>`;
   document.getElementById('essayViewContent').textContent = essay.content;
   document.getElementById('essayViewUnlink').style.display = isAdmin ? 'block' : 'none';
-  openModal('essayViewModal');
+  _essayModalId = essay.id; openModal('essayViewModal');
 }
-
-async function unlinkEssayFromDharma() {
-  if (!confirm('確定移除此文章與佛法主題的連結？')) return;
-  await apiPut('/api/essays/' + _essayModalId, { dharma_source: null });
-  closeModal('essayViewModal');
-}
+async function unlinkEssayFromDharma() { if(confirm('移除連結？')){ await apiPut('/api/essays/'+_essayModalId, {dharma_source:null}); closeModal('essayViewModal'); } }
 
 async function renderTodayDharma() {
-  if (!_todayDharma) return;
-  const btn = document.getElementById('langToggleBtn');
-  const body = document.getElementById('dharmaBody');
-  if (!_dharmaEnMode) {
-    btn.textContent = 'EN';
-    btn.classList.remove('en-mode');
-    body.innerHTML = renderDharmaEntry(_todayDharma, null, null, 'zh');
-  } else {
-    btn.textContent = '中';
-    btn.classList.add('en-mode');
-    body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
-    const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(_todayDharma.source));
-    body.innerHTML = renderDharmaEntry(_todayDharma, enArr?.[0], null, 'en');
-  }
+  if(!_todayDharma) return;
+  const btn = document.getElementById('langToggleBtn'); const body = document.getElementById('dharmaBody');
+  if(!_dharmaEnMode){ btn.textContent='EN'; btn.classList.remove('en-mode'); body.innerHTML = renderDharmaEntry(_todayDharma, null, null, 'zh'); }
+  else { btn.textContent='中'; btn.classList.add('en-mode'); const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(_todayDharma.source)); body.innerHTML = renderDharmaEntry(_todayDharma, enArr?.[0], null, 'en'); }
 }
-
 function toggleDharmaLang() { _dharmaEnMode = !_dharmaEnMode; renderTodayDharma(); }
 
 function switchDharmaTab(tab) {
-  document.getElementById('dtab-today').classList.toggle('active', tab==='today');
-  document.getElementById('dtab-history').classList.toggle('active', tab==='history');
-  document.getElementById('dtab-en-history').classList.toggle('active', tab==='en-history');
-  document.getElementById('dharma-today-card').style.display = tab==='today' ? 'block' : 'none';
-  document.getElementById('dharma-history-wrap').style.display = tab==='history' ? 'block' : 'none';
-  document.getElementById('dharma-en-history-wrap').style.display = tab==='en-history' ? 'block' : 'none';
-  if (tab === 'today') renderTodayDharma();
-  if (tab === 'history') renderDharmaHistory();
-  if (tab === 'en-history') renderDharmaEnHistory();
+  ['dtab-today','dtab-history','dtab-en-history'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('dtab-'+tab).classList.add('active');
+  document.getElementById('dharma-today-card').style.display = tab==='today'?'block':'none';
+  document.getElementById('dharma-history-wrap').style.display = tab==='history'?'block':'none';
+  document.getElementById('dharma-en-history-wrap').style.display = tab==='en-history'?'block':'none';
+  if(tab==='today') renderTodayDharma(); else if(tab==='history') renderDharmaHistory(); else renderDharmaEnHistory();
 }
 
 async function renderDharmaHistory() {
-  const body = document.getElementById('historyBody');
-  body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-  const rows = await apiGet('/api/dharma/history');
-  if (!rows || !rows.length) { body.innerHTML = `<div class="history-empty">尚無紀錄。</div>`; return; }
-  const todayK = todayKey();
-  body.innerHTML = rows.map(e => `
-    <div class="history-item" onclick="showDharmaDetail('${e.date}')">
-      <div class="history-date">${formatDate(e.date)}${e.date===todayK?'<span class="today-badge">今日</span>':''}</div>
-      <div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div>
-      <div class="history-arrow">›</div></div>`).join('');
+  const rows = await apiGet('/api/dharma/history'); const body = document.getElementById('historyBody');
+  if(!rows || !rows.length){ body.innerHTML='尚無紀錄'; return; }
+  const tk = todayKey();
+  body.innerHTML = rows.map(e => `<div class="history-item" onclick="showDharmaDetail('${e.date}')"><div class="history-date">${formatDate(e.date)}${e.date===tk?'<span class="today-badge">今日</span>':''}</div><div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-
-async function showDharmaDetail(iso) {
-  const zh = await apiGet('/api/dharma/history/' + iso);
-  document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh')}`;
-}
+async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh')}`; }
 
 async function renderDharmaEnHistory() {
-  const body = document.getElementById('enHistoryBody');
-  body.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>Loading…</div>`;
   const [rows, enRows] = await Promise.all([apiGet('/api/dharma/history'), apiGet('/api/dharma/en')]);
-  if (!rows || !rows.length) { body.innerHTML = `<div class="history-empty">No records yet.</div>`; return; }
-  const enMap = {};
-  if (enRows) enRows.forEach(e => enMap[e.source] = e);
-  const todayK = todayKey();
-  body.innerHTML = rows.map(e => {
-    const en = enMap[e.source];
-    return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')">
-      <div class="history-date">${formatDateEn(e.date)}${e.date===todayK?'<span class="today-badge">Today</span>':''}</div>
-      <div><div class="history-source">${en ? en.source_en : e.source}</div><div class="history-quote">${en ? en.text_en : e.text}</div></div>
-      <div class="history-arrow">›</div></div>`;
-  }).join('');
+  const enMap = {}; if(enRows) enRows.forEach(e => enMap[e.source]=e);
+  const body = document.getElementById('enHistoryBody'); const tk = todayKey();
+  body.innerHTML = rows.map(e => { const en = enMap[e.source]; return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')"><div class="history-date">${formatDateEn(e.date)}${e.date===tk?'<span class="today-badge">Today</span>':''}</div><div><div class="history-source">${en?en.source_en:e.source}</div><div class="history-quote">${en?en.text_en:e.text}</div></div><div class="history-arrow">›</div></div>`; }).join('');
 }
-
-async function showDharmaEnDetail(iso) {
-  const zh = await apiGet('/api/dharma/history/' + iso);
-  const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(zh.source));
-  document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en')}`;
-}
+async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); const enArr = await apiGet('/api/dharma/en?source='+encodeURIComponent(zh.source)); document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en')}`; }
 
 async function renderEssayList() {
-  document.getElementById('essayListWrap').style.display = 'block';
-  document.getElementById('essayDetailWrap').style.display = 'none';
-  const wrap = document.getElementById('essayListWrap');
-  wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-  const essays = await apiGet('/api/essays');
-  if (!essays || !essays.length) { wrap.innerHTML = `<div class="empty-state">尚未發表任何心得。</div>`; return; }
-  wrap.innerHTML = `<div id="essayAdminToolbar" style="display:${isAdmin?'flex':'none'}" class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>
-    <div class="essay-list">${essays.map(e => `
-    <div class="essay-card" onclick="showEssayDetail('${e.id}')">
-      <div class="essay-card-meta"><span class="essay-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div>
-      <div class="essay-title">${e.title}</div>
-      <div class="essay-excerpt">${e.content.slice(0,120).replace(/\n/g,' ')}…</div>
-      <div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<div class="essay-actions"><button class="btn-outline btn-sm" onclick="event.stopPropagation();editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteEssay('${e.id}')">刪除</button></div>`:''}</div>
-    </div>`).join('')}</div>`;
+  const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayListWrap');
+  if(!essays || !essays.length){ wrap.innerHTML='尚未發表心得'; return; }
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') + 
+    `<div class="essay-list">${essays.map(e => `<div class="essay-card" onclick="showEssayDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div><div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();editEssay('${e.id}')">編輯</button>`:''}</div></div>`).join('')}</div>`;
 }
-
-async function showEssayDetail(id) {
-  const e = await apiGet('/api/essays/' + id);
-  const dw = document.getElementById('essayDetailWrap');
-  document.getElementById('essayListWrap').style.display = 'none';
-  dw.style.display = 'block';
-  dw.innerHTML = `<button class="essay-detail-back" onclick="renderEssayList()">‹ 返回列表</button>
-    <div class="card"><div class="card-body"><div class="essay-detail-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}${e.tag?' · '+e.tag:''}</div><div class="essay-detail-title">${e.title}</div><div class="essay-detail-divider"></div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:28px;display:flex;gap:12px"><button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button></div>`:''}</div></div>`;
-}
-
-function openEssayEditor(essay, dharmaSource) {
-  document.getElementById('essayEditId').value = essay ? essay.id : '';
-  document.getElementById('essayDharmaSource').value = dharmaSource || (essay ? (essay.dharma_source || '') : '');
-  document.getElementById('essayModalTitle').textContent = essay ? 'EDIT · 編輯心得' : 'NEW ESSAY · 新增心得';
-  document.getElementById('essayTitleInput').value = essay ? essay.title : '';
-  document.getElementById('essayTagInput').value = essay ? (essay.tag || '') : '';
-  document.getElementById('essayContentInput').value = essay ? essay.content : '';
-  openModal('essayModal');
-}
-
-async function saveEssay() {
-  const id = document.getElementById('essayEditId').value;
-  const title = document.getElementById('essayTitleInput').value.trim();
-  const tag = document.getElementById('essayTagInput').value.trim();
-  const content = document.getElementById('essayContentInput').value.trim();
-  const dharma_source = document.getElementById('essayDharmaSource').value.trim() || null;
-  if (!title || !content) return alert('請填寫完整');
-  const r = id ? await apiPut('/api/essays/' + id, {title, tag, content, dharma_source}) : await apiPost('/api/essays', {title, tag, content, dharma_source});
-  if (r.ok) { closeModal('essayModal'); renderEssayList(); }
-}
-
-async function editEssay(id) { const e = await apiGet('/api/essays/' + id); openEssayEditor(e); }
-async function deleteEssay(id) { if(confirm('確定刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
+async function showEssayDetail(id) { const e = await apiGet('/api/essays/'+id); document.getElementById('essayListWrap').style.display='none'; const dw = document.getElementById('essayDetailWrap'); dw.style.display='block'; dw.innerHTML = `<button class="essay-detail-back" onclick="renderEssayList()">‹ 返回</button><div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>`:''}</div></div>`; }
+function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||(e?e.dharma_source:''); document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; openModal('essayModal'); }
+async function saveEssay() { const id=document.getElementById('essayEditId').value; const r = id?await apiPut('/api/essays/'+id,{title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value}):await apiPost('/api/essays',{title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value}); if(r.ok){ closeModal('essayModal'); renderEssayList(); } }
+async function editEssay(id) { const e = await apiGet('/api/essays/'+id); openEssayEditor(e); }
 
 async function renderMantraList() {
-  document.getElementById('mantraListWrap').style.display = 'block';
-  document.getElementById('mantraDetailWrap').style.display = 'none';
-  const wrap = document.getElementById('mantraListWrap');
-  wrap.innerHTML = `<div class="loading-spinner"><div class="spinner"></div>載入中…</div>`;
-  const mantras = await apiGet('/api/mantras');
-  if (!mantras || !mantras.length) { wrap.innerHTML = `<div class="empty-state">尚未新增佛咒。</div>`; return; }
-  wrap.innerHTML = `<div id="mantraAdminToolbar" style="display:${isAdmin?'flex':'none'}" class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>
-    <div class="essay-list">${mantras.map(e => `
-    <div class="essay-card" onclick="showMantraDetail('${e.id}')">
-      <div class="essay-card-meta"><span class="essay-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div>
-      <div class="essay-title">${e.title}</div>
-      <div class="essay-excerpt">${e.content.slice(0,120).replace(/\n/g,' ')}…</div>
-      <div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<div class="essay-actions"><button class="btn-outline btn-sm" onclick="event.stopPropagation();editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="event.stopPropagation();deleteMantra('${e.id}')">刪除</button></div>`:''}</div>
-    </div>`).join('')}</div>`;
+  const mantras = await apiGet('/api/mantras'); const wrap = document.getElementById('mantraListWrap');
+  if(!mantras || !mantras.length){ wrap.innerHTML='尚未新增佛咒'; return; }
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>`:'') + 
+    `<div class="essay-list">${mantras.map(e => `<div class="essay-card" onclick="showMantraDetail('${e.id}')"><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,100)}…</div><div class="essay-card-footer"><span class="essay-read-more">閱讀全文 →</span>${isAdmin?`<button class="btn-outline btn-sm" onclick="event.stopPropagation();editMantra('${e.id}')">編輯</button>`:''}</div></div>`).join('')}</div>`;
 }
-
-async function showMantraDetail(id) {
-  const e = await apiGet('/api/essays/' + id);
-  const dw = document.getElementById('mantraDetailWrap');
-  document.getElementById('mantraListWrap').style.display = 'none';
-  dw.style.display = 'block';
-  dw.innerHTML = `<button class="essay-detail-back" onclick="renderMantraList()">‹ 返回列表</button>
-    <div class="card"><div class="card-body"><div class="essay-detail-date">${new Date(e.created_at).toLocaleDateString('zh-Hant-TW')}${e.tag?' · '+e.tag:''}</div><div class="essay-detail-title">${e.title}</div><div class="essay-detail-divider"></div><div class="essay-detail-body">${escHtml(e.content)}</div>${isAdmin?`<div style="margin-top:28px;display:flex;gap:12px"><button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button></div>`:''}</div></div>`;
-}
-
-function openMantraEditor(m) {
-  document.getElementById('mantraEditId').value = m ? m.id : '';
-  document.getElementById('mantraModalTitle').textContent = m ? 'EDIT · 編輯佛咒' : 'NEW MANTRA · 新增佛咒';
-  document.getElementById('mantraTitleInput').value = m ? m.title : '';
-  document.getElementById('mantraTagInput').value = m ? (m.tag || '') : '';
-  document.getElementById('mantraContentInput').value = m ? m.content : '';
-  openModal('mantraModal');
-}
-
-async function saveMantra() {
-  const id = document.getElementById('mantraEditId').value;
-  const title = document.getElementById('mantraTitleInput').value.trim();
-  const tag = document.getElementById('mantraTagInput').value.trim();
-  const content = document.getElementById('mantraContentInput').value.trim();
-  if (!title || !content) return alert('請填寫完整');
-  const r = id ? await apiPut('/api/essays/' + id, {title, tag, content}) : await apiPost('/api/mantras', {title, tag, content});
-  if (r.ok) { closeModal('mantraModal'); renderMantraList(); }
-}
-
-async function editMantra(id) { const e = await apiGet('/api/essays/'+id); openMantraEditor(e); }
-async function deleteMantra(id) { if(confirm('確定？')){ await apiDelete('/api/essays/'+id); renderMantraList(); } }
+async function showMantraDetail(id) { const e = await apiGet('/api/essays/'+id); document.getElementById('mantraListWrap').style.display='none'; const dw = document.getElementById('mantraDetailWrap'); dw.style.display='block'; dw.innerHTML = `<button class="essay-detail-back" onclick="renderMantraList()">‹ 返回</button><div class="card"><div class="card-body"><div class="essay-detail-title">${e.title}</div><div class="essay-detail-body">${escHtml(e.content)}</div></div></div>`; }
+function openMantraEditor(m) { document.getElementById('mantraEditId').value=m?m.id:''; document.getElementById('mantraTitleInput').value=m?m.title:''; document.getElementById('mantraContentInput').value=m?m.content:''; openModal('mantraModal'); }
+async function saveMantra() { const id=document.getElementById('mantraEditId').value; const r=id?await apiPut('/api/essays/'+id,{title:document.getElementById('mantraTitleInput').value,content:document.getElementById('mantraContentInput').value}):await apiPost('/api/mantras',{title:document.getElementById('mantraTitleInput').value,content:document.getElementById('mantraContentInput').value}); if(r.ok){ closeModal('mantraModal'); renderMantraList(); } }
 
 async function renderGallery() {
-  const grid = document.getElementById('galleryGrid');
-  grid.innerHTML = `<div class="loading-spinner" style="grid-column:1/-1"><div class="spinner"></div>載入中…</div>`;
-  const items = await apiGet('/api/gallery');
-  if (!items || !items.length) { grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">尚未上傳圖片。</div>`; return; }
-  grid.innerHTML = (isAdmin?`<div id="galleryAdminToolbar" class="section-toolbar" style="grid-column:1/-1"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>`:'') + 
-    items.map(it => `
-    <div class="gallery-item">
-      <div class="gallery-img-wrap" onclick="openLightbox('${it.id}','${escAttr(it.image_url)}','${escAttr(it.title)}','')">
-        <img src="${it.image_url}" loading="lazy">
-      </div>
-      <div class="gallery-info"><div class="gallery-item-title">${it.title}</div>${isAdmin?`<div class="gallery-admin-btns"><button class="btn-outline btn-sm" onclick="editGalleryItem('${it.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteGalleryItem('${it.id}')">刪除</button></div>`:''}</div>
-    </div>`).join('');
+  const items = await apiGet('/api/gallery'); const grid = document.getElementById('galleryGrid');
+  if(!items || !items.length){ grid.innerHTML='尚未上傳圖片'; return; }
+  grid.innerHTML = (isAdmin?`<div class="section-toolbar" style="grid-column:1/-1"><button class="btn-primary" onclick="openGalleryUpload()">＋ 上傳圖片</button></div>`:'') + 
+    items.map(it => `<div class="gallery-item"><div class="gallery-img-wrap" onclick="openLightbox('${it.id}','${escAttr(it.image_url)}','${escAttr(it.title)}')"><img src="${it.image_url}" loading="lazy"></div><div class="gallery-info"><div class="gallery-item-title">${it.title}</div>${isAdmin?`<button class="btn-outline btn-sm" onclick="deleteGalleryItem('${it.id}')">刪除</button>`:''}</div></div>`).join('');
 }
-
 let pendingImageData = null;
-function openGalleryUpload(item) {
-  pendingImageData = item ? item.image_url : null;
-  document.getElementById('galleryEditId').value = item ? item.id : '';
-  document.getElementById('galleryTitleInput').value = item ? item.title : '';
-  document.getElementById('galleryCaptionInput').value = item ? (item.caption || '') : '';
-  const prev = document.getElementById('galleryPreviewWrap');
-  const trigger = document.getElementById('uploadTrigger');
-  if (item) { document.getElementById('galleryPreviewImg').src = item.image_url; prev.style.display = 'block'; trigger.style.display = 'none'; }
-  else { prev.style.display = 'none'; trigger.style.display = 'block'; }
-  openModal('galleryModal');
-}
+function handleImageSelect(e) { const file=e.target.files[0]; const r=new FileReader(); r.onload=ev=>{ pendingImageData=ev.target.result; document.getElementById('galleryPreviewImg').src=pendingImageData; document.getElementById('galleryPreviewImg').style.display='block'; }; r.readAsDataURL(file); }
+async function saveGalleryItem() { const r=await apiPost('/api/gallery',{title:document.getElementById('galleryTitleInput').value, caption:document.getElementById('galleryCaptionInput').value, image_url:pendingImageData}); if(r.ok){ closeModal('galleryModal'); renderGallery(); } }
+async function deleteGalleryItem(id) { if(confirm('刪除？')){ await apiDelete('/api/gallery/'+id); renderGallery(); } }
 
-function handleImageSelect(e) {
-  const file = e.target.files[0]; if(!file) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    pendingImageData = ev.target.result;
-    document.getElementById('galleryPreviewImg').src = pendingImageData;
-    document.getElementById('galleryPreviewWrap').style.display = 'block';
-    document.getElementById('uploadTrigger').style.display = 'none';
-    if(!document.getElementById('galleryTitleInput').value) document.getElementById('galleryTitleInput').value = file.name.replace(/\.[^.]+$/,'');
-  };
-  r.readAsDataURL(file);
-}
-
-async function saveGalleryItem() {
-  const id = document.getElementById('galleryEditId').value;
-  const title = document.getElementById('galleryTitleInput').value.trim();
-  const caption = document.getElementById('galleryCaptionInput').value.trim();
-  if(!title || !pendingImageData) return alert('請填寫');
-  if(id) await apiPut('/api/gallery/'+id, {title, caption, image_url:pendingImageData});
-  else await apiPost('/api/gallery', {title, caption, image_url:pendingImageData});
-  closeModal('galleryModal'); renderGallery();
-}
-
-async function editGalleryItem(id) { const it = await apiGet('/api/gallery/'+id); openGalleryUpload(it); }
-async function deleteGalleryItem(id) { if(confirm('確定？')){ await apiDelete('/api/gallery/'+id); renderGallery(); } }
-
-function openLightbox(id, src, title, caption) {
-  document.getElementById('lightboxImg').src = src;
-  document.getElementById('lightboxTitle').textContent = title;
-  document.getElementById('lightbox').classList.add('open');
-}
+function openLightbox(id, src, title) { document.getElementById('lightboxImg').src=src; document.getElementById('lightbox').classList.add('open'); }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
 function showPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  if(name==='essays') renderEssayList();
-  if(name==='mantras') renderMantraList();
-  if(name==='gallery') renderGallery();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active'); if(btn) btn.classList.add('active');
+  if(name==='essays') renderEssayList(); else if(name==='mantras') renderMantraList(); else if(name==='gallery') renderGallery();
 }
-
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
-
 document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); });
 </script>
 </body>
