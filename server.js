@@ -236,6 +236,24 @@ async function handleApi(req, res) {
     return sendJson(res, 200, rows);
   }
 
+  // POST /api/dharma/en  — save translation (Upsert)
+  if (pathname === '/api/dharma/en' && method === 'POST') {
+    try {
+      const { source, source_en, text_en, reflection_en } = await readBody(req);
+      if (!source) return sendJson(res, 400, { error: '缺少 source' });
+      // SQLite Upsert logic (requires node:sqlite context)
+      query(`
+        INSERT INTO dharma_en (source, source_en, text_en, reflection_en)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(source) DO UPDATE SET
+          source_en = excluded.source_en,
+          text_en = excluded.text_en,
+          reflection_en = excluded.reflection_en
+      `, [source, source_en, text_en, reflection_en]);
+      return sendJson(res, 200, { ok: true });
+    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
+  }
+
   // ── Gallery ───────────────────────────────────────────────────────────────
   // GET /api/gallery
   if (pathname === '/api/gallery' && method === 'GET') {

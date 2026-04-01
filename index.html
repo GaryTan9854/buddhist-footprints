@@ -292,7 +292,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version">v1.4</span>
+    <span class="site-version">v1.5</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -639,22 +639,166 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 // ① DHARMA (unchanged - date-based)
 // ════════════════════════════════════════
 const dharmaPool = [
-  {source:'《金剛般若波羅蜜經》第十品',text:'應無所住而生其心。',reflection:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cbetaLabel:'金剛經全文 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93'}]},
-  {source:'《般若波羅蜜多心經》',text:'色不異空，空不異色；色即是空，空即是色。',reflection:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cbetaLabel:'心經全文 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93'}]},
-  {source:'《六祖壇經》行由品第一',text:'本來無一物，何處惹塵埃。',reflection:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%85%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]},
-  {source:'《維摩詰所說經》佛國品第一',text:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。',reflection:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cbetaLabel:'維摩詰經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93'}]},
-  {source:'《臨濟錄》示眾',text:'隨處作主，立處皆真。',reflection:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cbetaLabel:'臨濟錄 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84'}]},
-  {source:'《妙法蓮華經》方便品第二',text:'諸法從本來，常自寂滅相。',reflection:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cbetaLabel:'法華經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93'}]},
-  {source:'《趙州錄》公案',text:'吃茶去。',reflection:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cbetaLabel:'趙州錄 · CBETA',altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16400'}]},
-  {source:'《大佛頂首楞嚴經》卷一',text:'一切浮塵諸幻化相，當處出生，隨處滅盡。',reflection:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cbetaLabel:'楞嚴經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93'}]},
-  {source:'黃檗希運禪師《傳心法要》',text:'無心是道。',reflection:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cbetaLabel:'傳心法要 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81'}]},
-  {source:'《六祖壇經》般若品第二',text:'菩提自性，本來清淨；但用此心，直了成佛。',reflection:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%85%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]},
-  {source:'《阿彌陀經》（姚秦鳩摩羅什譯）',text:'不可以少善根福德因緣，得生彼國。',reflection:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cbetaLabel:'阿彌陀經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AC%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93'}]},
-  {source:'《永嘉證道歌》玄覺禪師',text:'夢裡明明有六趣，覺後空空無大千。',reflection:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cbetaLabel:'證道歌 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C'}]},
-  {source:'《普賢行願品》',text:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。',reflection:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0293_040',cbetaLabel:'普賢行願品 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93'}]},
-  {source:'雲門文偃禪師語錄',text:'函蓋乾坤，截斷眾流，隨波逐浪。',reflection:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cbetaLabel:'雲門廣錄 · CBETA',altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16401'}]},
-  {source:'《圓覺經》',text:'知幻即離，不作方便；離幻即覺，亦無漸次。',reflection:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cbetaLabel:'圓覺經 · CBETA',altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93'}]},
-  {source:'洞山良价禪師《寶鏡三昧》',text:'如是之法，佛祖密付；汝今得之，宜善保護。',reflection:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。',cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cbetaLabel:'洞山語錄 · CBETA',altLinks:[{label:'曹洞宗',url:'https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97'}]}
+  {
+    source:'《金剛般若波羅蜜經》第十品',
+    sourceEn:'The Diamond Prajñāpāramitā Sūtra · Chapter 10',
+    text:'應無所住而生其心。',
+    textEn:'Abide nowhere, and thus give rise to the mind.',
+    reflection:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。',
+    reflectionEn:'All attachments are fetters. To observe without clinging is true freedom. Today, try facing all situations with a mind that "abides nowhere"—letting all things arise without being bound by them.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cbetaLabel:'金剛經全文 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93'}]
+  },
+  {
+    source:'《般若波羅蜜多心經》',
+    sourceEn:'The Heart of the Prajñāpāramitā Sūtra',
+    text:'色不異空，空不異色；色即是空，空即是色。',
+    textEn:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.',
+    reflection:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。',
+    reflectionEn:'All phenomena are transient and ever-changing, yet emptiness is not nothingness—it is the field of infinite possibility. Seeing emptiness allows us to remain unclouded by appearances or temporary gains and losses.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cbetaLabel:'心經全文 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93'}]
+  },
+  {
+    source:'《六祖壇經》行由品第一',
+    sourceEn:'The Platform Sutra of the Sixth Patriarch · Chapter 1',
+    text:'本來無一物，何處惹塵埃。',
+    textEn:'Originally there is not a single thing; where could any dust alight?',
+    reflection:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。',
+    reflectionEn:'Master Huineng attained enlightenment through this verse. A pure mind is not about continuous cleaning, but about realizing that our fundamental nature was never defiled to begin with.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%55%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]
+  },
+  {
+    source:'《維摩詰所說經》佛國品第一',
+    sourceEn:'The Vimalakīrti Nirdeśa Sūtra · Chapter 1',
+    text:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。',
+    textEn:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind. As the mind is purified, the Buddha-land is purified.',
+    reflection:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？',
+    reflectionEn:'The purity of our environment stems from the purity of our inner state. The world we see is often a projection of our mind. Today, ask yourself: is my mind clear or clouded in this moment?',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cbetaLabel:'維摩詰經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93'}]
+  },
+  {
+    source:'《臨濟錄》示眾',
+    sourceEn:'The Record of Linji · Sermons',
+    text:'隨處作主，立處皆真。',
+    textEn:'At all times and in all places, be the master; then wherever you stand is the truth.',
+    reflection:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。',
+    reflectionEn:'Regardless of your circumstances, if you can remain master of yourself, every place becomes a place of practice. Every present moment today is an opportunity for cultivation.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cbetaLabel:'臨濟錄 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84'}]
+  },
+  {
+    source:'《妙法蓮華經》方便品第二',
+    sourceEn:'The Lotus Sūtra · Chapter 2: Expedient Means',
+    text:'諸法從本來，常自寂滅相。',
+    textEn:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.',
+    reflection:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。',
+    reflectionEn:'Beneath the surface of change and noise, all things are inherently at peace. Today, try to find that stillness amidst the bustle—it has always been there, never leaving.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cbetaLabel:'法華經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93'}]
+  },
+  {
+    source:'《趙州錄》公案',
+    sourceEn:'The Record of Zhao Zhou · Gōng\'àn',
+    text:'吃茶去。',
+    textEn:'Go drink some tea.',
+    reflection:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。',
+    reflectionEn:'Zhao Zhou guided many students with these four words. The "ordinary mind" is the Way; the simple act of drinking tea contains the entirety of practice.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cbetaLabel:'趙州錄 · CBETA',
+    altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16400'}]
+  },
+  {
+    source:'《大佛頂首楞嚴經》卷一',
+    sourceEn:'The Śūraṅgama Sūtra · Volume 1',
+    text:'一切浮塵諸幻化相，當處出生，隨處滅盡。',
+    textEn:'All drifting dust and illusory appearances arise where they are and vanish right there.',
+    reflection:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。',
+    reflectionEn:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness. Understanding this, one is neither elated by temporary peaks nor despaired by troughs.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cbetaLabel:'楞嚴經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93'}]
+  },
+  {
+    source:'黃檗希運禪師《傳心法要》',
+    sourceEn:'Zen Master Huangbo Xiyun: Essentials of Transmitting the Mind',
+    text:'無心是道。',
+    textEn:'Non-mind is the Way.',
+    reflection:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。',
+    reflectionEn:'"Non-mind" is not numbness, but a state free from discriminatory attachment. Only by observing the world with a mind free of fabrications can we see the true face of reality.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cbetaLabel:'傳心法要 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81'}]
+  },
+  {
+    source:'《六祖壇經》般若品第二',
+    sourceEn:'The Platform Sutra of the Sixth Patriarch · Chapter 2: Prajna',
+    text:'菩提自性，本來清淨；但用此心，直了成佛。',
+    textEn:'The nature of Bodhi is originally pure; simply use this mind to directly attain Buddhahood.',
+    reflection:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。',
+    reflectionEn:'Pure wisdom is our inherent nature, not something to be sought externally. Today, trust the natural clarity that resides within you.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2008_001',cbetaLabel:'六祖壇經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%55%AD%E7%A5%96%E5%A3%87%E7%B6%93'}]
+  },
+  {
+    source:'《阿彌陀經》（姚秦鳩摩羅什譯）',
+    sourceEn:'The Amitābha Sūtra (Translated by Kumārajīva)',
+    text:'不可以少善根福德因緣，得生彼國。',
+    textEn:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.',
+    reflection:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。',
+    reflectionEn:'The law of cause and effect is the fundamental language of the universe. Every result is a convergence of many conditions; it is not achieved by a single effort at a single moment.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cbetaLabel:'阿彌陀經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AC%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93'}]
+  },
+  {
+    source:'《永嘉證道歌》玄覺禪師',
+    sourceEn:'Song of Enlightenment by Chan Master Yongjia Xuanjue',
+    text:'夢裡明明有六趣，覺後空空無大千。',
+    textEn:'In a dream, the six realms are clearly seen; after awakening, the great universe is empty.',
+    reflection:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。',
+    reflectionEn:'The joys and sorrows of a dream are empty upon waking. Yet, while in the dream, one must still live earnestly. The emptiness after awakening is a "Great Emptiness" that encompasses everything.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cbetaLabel:'證道歌 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C'}]
+  },
+  {
+    source:'《普賢行願品》',
+    sourceEn:'The Vows of Samantabhadra',
+    text:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。',
+    textEn:'When the realm of space is exhausted, my vows will be exhausted; but because the realm of space is inexhaustible, my great vows have no end.',
+    reflection:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。',
+    reflectionEn:'The ten great vows of Samantabhadra are as vast as infinite space. With such a great resolve, our actions find a support that transcends personal gain or loss.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0293_040',cbetaLabel:'普賢行願品 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93'}]
+  },
+  {
+    source:'雲門文偃禪師語錄',
+    sourceEn:'The Record of Zen Master Yunmen Wenyan',
+    text:'函蓋乾坤，截斷眾流，隨波逐浪。',
+    textEn:'It covers heaven and earth; it cuts off all flows; it follows the waves and surges with the tide.',
+    reflection:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。',
+    reflectionEn:'Yunmen\'s three phrases: embrace all with a holistic view; decisively cut off discriminatory thoughts; and flexibly follow the flow of conditions. Combined, they are harmonious and unobstructed.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cbetaLabel:'雲門廣錄 · CBETA',
+    altLinks:[{label:'佛門網',url:'https://www.buddhistdoor.org/tc/chan/detail/16401'}]
+  },
+  {
+    source:'《圓覺經》',
+    sourceEn:'The Sūtra of Perfect Enlightenment',
+    text:'知幻即離，不作方便；離幻即覺，亦無漸次。',
+    textEn:'Recognizing illusion, one is instantly free, without needing expedient means; free from illusion, one is enlightened, without gradual stages.',
+    reflection:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。',
+    reflectionEn:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition. Today, try to recognize one illusion you have long believed in.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cbetaLabel:'圓覺經 · CBETA',
+    altLinks:[{label:'維基文庫',url:'https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93'}]
+  },
+  {
+    source:'洞山良价禪師《寶鏡三昧》',
+    sourceEn:'Song of the Precious Mirror Samādhi by Chan Master Dongshan Liangjie',
+    text:'如是之法，佛祖密付；汝今得之，宜善保護。',
+    textEn:'This teaching has been transmitted in secret by all Buddhas and patriarchs. Now that you have received it, guard it well.',
+    reflection:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。',
+    reflectionEn:'The phrase "guard it well" means that after receiving insight, one must carefully protect it in daily life, ensuring it is not washed away by worldly currents.',
+    cbetaUrl:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cbetaLabel:'洞山語錄 · CBETA',
+    altLinks:[{label:'曹洞宗',url:'https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97'}]
+  }
 ];
 
 function todayKey() {
@@ -729,8 +873,18 @@ async function unlinkEssayFromDharma() {
 async function recordToday() {
   const key = todayKey();
   const d = getDharmaByDate(key);
-  // POST is INSERT OR IGNORE on server — safe to call every page load
+  // 1. 記錄中文歷史 (POST is INSERT OR IGNORE)
   await apiPost('/api/dharma/history', { date: key, source: d.source, text: d.text });
+  
+  // 2. 如果池中有英文翻譯，同步寫入 dharma_en (確保歷史紀錄能讀到)
+  if (d.sourceEn && d.textEn) {
+    await apiPost('/api/dharma/en', {
+      source: d.source,
+      source_en: d.sourceEn,
+      text_en: d.textEn,
+      reflection_en: d.reflectionEn
+    });
+  }
 }
 
 function switchDharmaTab(tab) {
@@ -815,15 +969,7 @@ async function showDharmaEnDetail(iso) {
   }
 }
 
-// Init dharma
-const _todayDharma = getDharmaByDate(todayKey());
-applyAdminState();
-renderTodayDharma();
-recordToday();
-
-// ════════════════════════════════════════
 // ② ESSAYS (local API)
-// ════════════════════════════════════════
 async function renderEssayList() {
   document.getElementById('essayListWrap').style.display = 'block';
   document.getElementById('essayDetailWrap').style.display = 'none';
@@ -931,9 +1077,7 @@ async function deleteEssay(id) {
   renderEssayList();
 }
 
-// ════════════════════════════════════════
 // ②-B MANTRAS (local API, type='mantra')
-// ════════════════════════════════════════
 async function renderMantraList() {
   document.getElementById('mantraListWrap').style.display = 'block';
   document.getElementById('mantraDetailWrap').style.display = 'none';
@@ -1039,9 +1183,7 @@ async function deleteMantra(id) {
   renderMantraList();
 }
 
-// ════════════════════════════════════════
 // ③ GALLERY (local API)
-// ════════════════════════════════════════
 let pendingImageData = null;
 
 async function renderGallery() {
@@ -1149,9 +1291,7 @@ function closeLightbox() { document.getElementById('lightbox').classList.remove(
 document.getElementById('lightbox').addEventListener('click', function(e) { if(e.target===this) closeLightbox(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape') { closeLightbox(); } });
 
-// ════════════════════════════════════════
 // ④ ENGLISH TOGGLE
-// ════════════════════════════════════════
 function toggleDharmaLang() {
   _dharmaEnMode = !_dharmaEnMode;
   renderTodayDharma();
@@ -1192,6 +1332,12 @@ async function renderTodayDharma() {
     }
   }
 }
+
+// Init dharma
+const _todayDharma = getDharmaByDate(todayKey());
+applyAdminState();
+renderTodayDharma();
+recordToday();
 
 // Helpers
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
