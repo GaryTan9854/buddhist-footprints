@@ -26,9 +26,10 @@ VERSION="$(node <<'EOF'
 const fs = require('fs');
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 const parts = pkg.version.split('.');
-parts[1] = Number(parts[1]) + 1;
-parts[2] = '0';
-const next = parts.join('.');
+const major = Number(parts[0]);
+const minor = Number(parts[1]);
+// When minor hits 20, roll over to next major (e.g. 1.20 → 2.0)
+const next = minor === 20 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
 pkg.version = next;
 fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
 process.stdout.write(next);
