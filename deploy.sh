@@ -21,33 +21,48 @@ if [[ -z "${APP_PASSWORD:-}" ]]; then
   exit 1
 fi
 
-# ── 1. Auto-bump minor version in package.json + update index.html badge ──────
-VERSION="$(node <<'EOF'
-const fs = require('fs');
-const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-const parts = pkg.version.split('.');
-const major = Number(parts[0]);
-const minor = Number(parts[1]);
-// When minor hits 20, roll over to next major (e.g. 1.20 → 2.0)
-const next = minor === 20 ? `${major + 1}.0.0` : `${major}.${minor + 1}.0`;
-pkg.version = next;
-fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
-process.stdout.write(next);
-EOF
-)"
+# ── 1. Auto-bump version (major.minor) ─────────────────────────────────────────
+# Read current version from package.json
+VERSION=$(node -e "console.log(require('./package.json').version)")
 
-DISPLAY="$(node -e "process.stdout.write('$VERSION'.replace(/\\.0\$/, ''))")"  # 1.3.0 → 1.3
+# Calculate NEXT version based on TunaTCM logic: 1.20 -> 2.0, else 1.x -> 1.x+1
+NEXT=$(node -e "
+  const v = '$VERSION'.split('.');
+  let major = parseInt(v[0]);
+  let minor = parseInt(v[1]);
+  if (minor >= 20) {
+    major++;
+    minor = 0;
+  } else {
+    minor++;
+  }
+  process.stdout.write(\`\${major}.\${minor}\`);
+")
 
-# Sync version badge in index.html
-perl -pi -e "s|<span class=\"site-version\">v[^<]+</span>|<span class=\"site-version\">v${DISPLAY}</span>|" index.html
+echo "🔢 Version bump: v$VERSION → v$NEXT"
 
-echo "🚀 Deploying Buddhist Footprints v${DISPLAY}..."
+# Update package.json
+node -e "
+  const fs = require('fs');
+  const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+  pkg.version = '$NEXT';
+  fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+"
+
+# Update server.js (const VERSION = '...')
+perl -pi -e "s/const VERSION = '[^']+';/const VERSION = '$NEXT';/" server.js
+
+# Update index.html (id="versionBadge")
+# Match either <span class="site-version">v...</span> OR <span class="site-version" id="versionBadge">v...</span>
+perl -pi -e "s|<span class=\"site-version\"[^>]*>v[^<]+</span>|<span class=\"site-version\" id=\"versionBadge\">v$NEXT</span>|" index.html
+
+echo "🚀 Deploying Buddhist Footprints v$NEXT..."
 
 # ── 2. Git commit & push ───────────────────────────────────────────────────────
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "📦 Git commit & push..."
   git add -A
-  git commit -m "Deploy Buddhist Footprints v${DISPLAY}"
+  git commit -m "Deploy Buddhist Footprints v$NEXT"
   git push origin main
 else
   echo "✅ Git: 無變更，跳過 commit"
@@ -79,5 +94,5 @@ rsync -az "$REMOTE_HOST:~/db/buddhist-footprints/" "$HOME/Documents/.db-backups/
 echo "   ✓ Backed up to ~/Documents/.db-backups/buddhist-footprints/"
 
 echo ""
-echo "✅ Deploy 完成！v${DISPLAY}"
+echo "✅ Deploy 完成！v$NEXT"
 echo "🌐 https://buddhist.visadelab.xyz"
