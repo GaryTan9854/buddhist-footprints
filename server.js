@@ -351,19 +351,40 @@ const dharmaPool = [
   { s:'寒山詩', t:'吾心似秋月，碧潭清皎潔。', r:'修行者的心境應如秋夜明月，清澈透明，倒映在平靜的潭水中，無有一絲雜染。', se:'The Poetry of Cold Mountain (Hanshan)', te:'My mind is like the autumn moon, shining clear and bright in the green pool.', re:'A practitioner\'s mind should be like the moon on an autumn night—pure and transparent, reflected in a still pool without a single trace of defilement.' }
 ];
 
-function getDharmaForDate(iso) {
-  // 使用種子隨機演算法 (SHA-256 哈希)
+async function getDharmaForDate(iso) {
   const crypto = require('crypto');
-  const hash = crypto.createHash('sha256').update(iso + 'buddhist-salt-2026').digest('hex');
-  // 取哈希值的前 8 位轉換為整數，確保選取的跳轉是非線性的
-  const seedInt = parseInt(hash.substring(0, 8), 16);
-  const index = seedInt % dharmaPool.length;
-  return dharmaPool[index];
+  
+  // 取得過去 7 天的出處清單，用來避重
+  const recentSourcesRows = await query(`
+    SELECT source FROM dharma_history 
+    WHERE date < ? AND date >= date(?, '-7 days')
+  `, [iso, iso]);
+  const recentSources = new Set(recentSourcesRows.map(r => r.source));
+
+  let indexOffset = 0;
+  let selectedDharma = null;
+
+  while (indexOffset < dharmaPool.length) {
+    const hash = crypto.createHash('sha256')
+      .update(iso + 'buddhist-salt-2026' + indexOffset)
+      .digest('hex');
+    const seedInt = parseInt(hash.substring(0, 8), 16);
+    const index = seedInt % dharmaPool.length;
+    const candidate = dharmaPool[index];
+
+    // 如果沒出現在近期紀錄，或是已經試過所有可能（防死循環），就選它
+    if (!recentSources.has(candidate.s) || indexOffset === dharmaPool.length - 1) {
+      selectedDharma = candidate;
+      break;
+    }
+    indexOffset++;
+  }
+  return selectedDharma;
 }
 
 async function autoRecordToday() {
   const today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'});
-  const dharma = getDharmaForDate(today);
+  const dharma = await getDharmaForDate(today); // 改為 await
   try {
     // 1. 記錄歷史 (確保存入中文正文與思索)
     query(`
