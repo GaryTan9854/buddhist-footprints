@@ -317,141 +317,48 @@ async function handleApi(req, res) {
 
 // ── DHARMA POOL & AUTOMATION ──
 const dharmaPool = [
-  { 
-    s:'《金剛般若波羅蜜經》第十品', 
-    t:'應無所住而生其心。', 
-    r:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。',
-    se:'The Diamond Prajñāpāramitā Sūtra · Chapter 10', 
-    te:'Abide nowhere, and thus give rise to the mind.', 
-    re:'All attachments are fetters. To observe without clinging is true freedom. Today, try facing all situations with a mind that "abides nowhere"—letting all things arise without being bound by them.' 
-  },
-  { 
-    s:'《般若波羅蜜多心經》', 
-    t:'色不異空，空不異色；色即是空，空即是色。', 
-    r:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。',
-    se:'The Heart of the Prajñāpāramitā Sūtra', 
-    te:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.', 
-    re:'All phenomena are transient and ever-changing, yet emptiness is not nothingness—it is the field of infinite possibility. Seeing emptiness allows us to remain unclouded by appearances or temporary gains and losses.' 
-  },
-  { 
-    s:'《六祖壇經》行由品第一', 
-    t:'本來無一物，何處惹塵埃。', 
-    r:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。',
-    se:'The Platform Sutra of the Sixth Patriarch · Chapter 1', 
-    te:'Originally there is not a single thing; where could any dust alight?', 
-    re:'Master Huineng attained enlightenment through this verse. A pure mind is not about continuous cleaning, but about realizing that our fundamental nature was never defiled to begin with.' 
-  },
-  { 
-    s:'《維摩詰所說經》佛國品第一', 
-    t:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。', 
-    r:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？',
-    se:'The Vimalakīrti Nirdeśa Sūtra · Chapter 1', 
-    te:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind. As the mind is purified, the Buddha-land is purified.', 
-    re:'The purity of our environment stems from the purity of our inner state. The world we see is often a projection of our mind. Today, ask yourself: is my mind clear or clouded in this moment?' 
-  },
-  { 
-    s:'《臨濟錄》示眾', 
-    t:'隨處作主，立處皆真。', 
-    r:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。',
-    se:'The Record of Linji · Sermons', 
-    te:'At all times and in all places, be the master; then wherever you stand is the truth.', 
-    re:'Regardless of your circumstances, if you can remain master of yourself, every place becomes a place of practice. Every present moment today is an opportunity for cultivation.' 
-  },
-  { 
-    s:'《妙法蓮華經》方便品第二', 
-    t:'諸法從本來，常自寂滅相。', 
-    r:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。',
-    se:'The Lotus Sūtra · Chapter 2: Expedient Means', 
-    te:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.', 
-    re:'Beneath the surface of change and noise, all things are inherently at peace. Today, try to find that stillness amidst the bustle—it has always been there, never leaving.' 
-  },
-  { 
-    s:'《趙州錄》公案', 
-    t:'吃茶去。', 
-    r:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。',
-    se:'The Record of Zhao Zhou · Gōng\'àn', 
-    te:'Go drink some tea.', 
-    re:'Zhao Zhou guided many students with these four words. The "ordinary mind" is the Way; the simple act of drinking tea contains the entirety of practice.' 
-  },
-  { 
-    s:'《大佛頂首楞嚴經》卷一', 
-    t:'一切浮塵諸幻化相，當處出生，隨處滅盡。', 
-    r:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。',
-    se:'The Śūraṅgama Sūtra · Volume 1', 
-    te:'All drifting dust and illusory appearances arise where they are and vanish right there.', 
-    re:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness. Understanding this, one is neither elated by temporary peaks nor despaired by troughs.' 
-  },
-  { 
-    s:'黃檗希運禪師《傳心法要》', 
-    t:'無心是道。', 
-    r:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。',
-    se:'Zen Master Huangbo Xiyun: Essentials of Transmitting the Mind', 
-    te:'Non-mind is the Way.', 
-    re:'"Non-mind" is not numbness, but a state free from discriminatory attachment. Only by observing the world with a mind free of fabrications can we see the true face of reality.' 
-  },
-  { 
-    s:'《六祖壇經》般若品第二', 
-    t:'菩提自性，本來清淨；但用此心，直了成佛。', 
-    r:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。',
-    se:'The Platform Sutra of the Sixth Patriarch · Chapter 2: Prajna', 
-    te:'The nature of Bodhi is originally pure; simply use this mind to directly attain Buddhahood.', 
-    re:'Pure wisdom is our inherent nature, not something to be sought externally. Today, trust the natural clarity that resides within you.' 
-  },
-  { 
-    s:'《阿彌陀經》（姚秦鳩摩羅什譯）', 
-    t:'不可以少善根福德因緣，得生彼國。', 
-    r:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。',
-    se:'The Amitābha Sūtra (Translated by Kumārajīva)', 
-    te:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.', 
-    re:'The law of cause and effect is the fundamental language of the universe. Every result is a convergence of many conditions; it is not achieved by a single effort at a single moment.' 
-  },
-  { 
-    s:'《永嘉證道歌》玄覺禪師', 
-    t:'夢裡明明有六趣，覺後空空無大千。', 
-    r:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。',
-    se:'Song of Enlightenment by Chan Master Yongjia Xuanjue', 
-    te:'In a dream, the six realms are clearly seen; after awakening, the great universe is empty.', 
-    re:'The joys and sorrows of a dream are empty upon waking. Yet, while in the dream, one must still live earnestly. The emptiness after awakening is a "Great Emptiness" that encompasses everything.' 
-  },
-  { 
-    s:'《普賢行願品》', 
-    t:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。', 
-    r:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。',
-    se:'The Vows of Samantabhadra', 
-    te:'When the realm of space is exhausted, my vows will be exhausted; but because the realm of space is inexhaustible, my great vows have no end.', 
-    re:'The ten great vows of Samantabhadra are as vast as infinite space. With such a great resolve, our actions find a support that transcends personal gain or loss.' 
-  },
-  { 
-    s:'雲門文偃禪師語錄', 
-    t:'函蓋乾坤，截斷眾流，隨波逐浪。', 
-    r:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。',
-    se:'The Record of Zen Master Yunmen Wenyan', 
-    te:'It covers heaven and earth; it cuts off all flows; it follows the waves and surges with the tide.', 
-    re:'Yunmen\'s three phrases: embrace all with a holistic view; decisively cut off discriminatory thoughts; and flexibly follow the flow of conditions. Combined, they are harmonious and unobstructed.' 
-  },
-  { 
-    s:'《圓覺經》', 
-    t:'知幻即離，不作方便；離幻即覺，亦無漸次。', 
-    r:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。',
-    se:'The Sūtra of Perfect Enlightenment', 
-    te:'Recognizing illusion, one is instantly free, without needing expedient means; free from illusion, one is enlightened, without gradual stages.', 
-    re:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition. Today, try to recognize one illusion you have long believed in.' 
-  },
-  { 
-    s:'洞山良价禪師《寶鏡三昧》', 
-    t:'如是之法，佛祖密付；汝今得之，宜善保護。', 
-    r:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。',
-    se:'Song of the Precious Mirror Samādhi by Chan Master Dongshan Liangjie', 
-    te:'This teaching has been transmitted in secret by all Buddhas and patriarchs. Now that you have received it, guard it well.', 
-    re:'The phrase "guard it well" means that after receiving insight, one must carefully protect it in daily life, ensuring it is not washed away by worldly currents.' 
-  }
+  { s:'《金剛般若波羅蜜經》第十品', t:'應無所住而生其心。', r:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。', se:'The Diamond Prajñāpāramitā Sūtra · Chapter 10', te:'Abide nowhere, and thus give rise to the mind.', re:'All attachments are fetters. To observe without clinging is true freedom. Today, try facing all situations with a mind that "abides nowhere"—letting all things arise without being bound by them.' },
+  { s:'《般若波羅蜜多心經》', t:'色不異空，空不異色；色即是空，空即是色。', r:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。', se:'The Heart of the Prajñāpāramitā Sūtra', te:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.', re:'All phenomena are transient and ever-changing, yet emptiness is not nothingness—it is the field of infinite possibility. Seeing emptiness allows us to remain unclouded by appearances or temporary gains and losses.' },
+  { s:'《六祖壇經》行由品第一', t:'本來無一物，何處惹塵埃。', r:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。', se:'The Platform Sutra of the Sixth Patriarch · Chapter 1', te:'Originally there is not a single thing; where could any dust alight?', re:'Master Huineng attained enlightenment through this verse. A pure mind is not about continuous cleaning, but about realizing that our fundamental nature was never defiled to begin with.' },
+  { s:'《維摩詰所說經》佛國品第一', t:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。', r:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？', se:'The Vimalakīrti Nirdeśa Sūtra · Chapter 1', te:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind. As the mind is purified, the Buddha-land is purified.', re:'The purity of our environment stems from the purity of our inner state. The world we see is often a projection of our mind. Today, ask yourself: is my mind clear or clouded in this moment?' },
+  { s:'《臨濟錄》示眾', t:'隨處作主，立處皆真。', r:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。', se:'The Record of Linji · Sermons', te:'At all times and in all places, be the master; then wherever you stand is the truth.', re:'Regardless of your circumstances, if you can remain master of yourself, every place becomes a place of practice. Every present moment today is an opportunity for cultivation.' },
+  { s:'《妙法蓮華經》方便品第二', t:'諸法從本來，常自寂滅相。', r:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。', se:'The Lotus Sūtra · Chapter 2: Expedient Means', te:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.', re:'Beneath the surface of change and noise, all things are inherently at peace. Today, try to find that stillness amidst the bustle—it has always been there, never leaving.' },
+  { s:'《趙州錄》公案', t:'吃茶去。', r:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。', se:'The Record of Zhao Zhou · Gōng\'àn', te:'Go drink some tea.', re:'Zhao Zhou guided many students with these four words. The "ordinary mind" is the Way; the simple act of drinking tea contains the entirety of practice.' },
+  { s:'《大佛頂首楞嚴經》卷一', t:'一切浮塵諸幻化相，當處出生，隨處滅盡。', r:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。', se:'The Śūraṅgama Sūtra · Volume 1', te:'All drifting dust and illusory appearances arise where they are and vanish right there.', re:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness. Understanding this, one is neither elated by temporary peaks nor despaired by troughs.' },
+  { s:'黃檗希運禪師《傳心法要》', t:'無心是道。', r:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。', se:'Zen Master Huangbo Xiyun: Essentials of Transmitting the Mind', te:'Non-mind is the Way.', re:'"Non-mind" is not numbness, but a state free from discriminatory attachment. Only by observing the world with a mind free of fabrications can we see the true face of reality.' },
+  { s:'《六祖壇經》般若品第二', t:'菩提自性，本來清淨；但用此心，直了成佛。', r:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。', se:'The Platform Sutra of the Sixth Patriarch · Chapter 2: Prajna', te:'The nature of Bodhi is originally pure; simply use this mind to directly attain Buddhahood.', re:'Pure wisdom is our inherent nature, not something to be sought externally. Today, trust the natural clarity that resides within you.' },
+  { s:'《阿彌陀經》（姚秦鳩摩羅什譯）', t:'不可以少善根福德因緣，得生彼國。', r:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。', se:'The Amitābha Sūtra (Translated by Kumārajīva)', te:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.', re:'The law of cause and effect is the fundamental language of the universe. Every result is a convergence of many conditions; it is not achieved by a single effort at a single moment.' },
+  { s:'《永嘉證道歌》玄覺禪師', t:'夢裡明明有六趣，覺後空空無大千。', r:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。', se:'Song of Enlightenment by Chan Master Yongjia Xuanjue', te:'In a dream, the six realms are clearly seen; after awakening, the great universe is empty.', re:'The joys and sorrows of a dream are empty upon waking. Yet, while in the dream, one must still live earnestly. The emptiness after awakening is a "Great Emptiness" that encompasses everything.' },
+  { s:'《普賢行願品》', t:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。', r:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。', se:'The Vows of Samantabhadra', te:'When the realm of space is exhausted, my vows will be exhausted; but because the realm of space is inexhaustible, my great vows have no end.', re:'The ten great vows of Samantabhadra are as vast as infinite space. With such a great resolve, our actions find a support that transcends personal gain or loss.' },
+  { s:'雲門文偃禪師語錄', t:'函蓋乾坤，截斷眾流，隨波逐浪。', r:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。', se:'The Record of Zen Master Yunmen Wenyan', te:'It covers heaven and earth; it cuts off all flows; it follows the waves and surges with the tide.', re:'Yunmen\'s three phrases: embrace all with a holistic view; decisively cut off discriminatory thoughts; and flexibly follow the flow of conditions. Combined, they are harmonious and unobstructed.' },
+  { s:'《圓覺經》', t:'知幻即離，不作方便；離幻即覺，亦無漸次。', r:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。', se:'The Sūtra of Perfect Enlightenment', te:'Recognizing illusion, one is instantly free, without needing expedient means; free from illusion, one is enlightened, without gradual stages.', re:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition. Today, try to recognize one illusion you have long believed in.' },
+  { s:'洞山良价禪師《寶鏡三昧》', t:'如是之法，佛祖密付；汝今得之，宜善保護。', r:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。', se:'Song of the Precious Mirror Samādhi by Chan Master Dongshan Liangjie', te:'This teaching has been transmitted in secret by all Buddhas and patriarchs. Now that you have received it, guard it well.', re:'The phrase "guard it well" means that after receiving insight, one must carefully protect it in daily life, ensuring it is not washed away by worldly currents.' },
+  { s:'《金剛般若波羅蜜經》', t:'凡所有相，皆是虛妄。若見諸相非相，則見如來。', r:'世間表象皆是暫時的幻影。當你能看透這些表象，不被其迷惑，你就見到了事物的本質。', se:'The Diamond Prajñāpāramitā Sūtra', te:'All that has a form is illusive and unreal. When you see all forms as illusive and unreal, then you see the Tathagata.', re:'Worldly appearances are but transient phantoms. When you look through these appearances without being deceived by them, you perceive the true nature of reality.' },
+  { s:'《大方廣佛華嚴經》', t:'若人欲了知，三世一切佛，應觀法界性，一切唯心造。', r:'我們所感知的世界，本質上是由我們的心念所編織而成的。轉變心念，世界隨之轉變。', se:'The Avatamsaka Sūtra', te:'If one wishes to fully understand all Buddhas of the three periods of time, one should contemplate the nature of the Dharma realm: everything is made by the mind alone.', re:'The world we perceive is essentially woven by our own thoughts. Transform your mind, and the world transforms with it.' },
+  { s:'《六祖壇經》', t:'菩提本無樹，明鏡亦非台。', r:'覺悟不是長出來的樹，心也不是染塵的台。佛性本自空寂清淨，不增不減。', se:'The Platform Sutra of the Sixth Patriarch', te:'Bodhi originally has no tree, the bright mirror is also not a stand.', re:'Awakening is not a tree that grows, nor is the mind a stand that collects dust. The Buddha-nature is inherently empty, still, and pure, neither increasing nor decreasing.' },
+  { s:'《無門關》', t:'大道無門，千差有路；透得此關，乾坤獨步。', r:'真理沒有固定的入口，但處處都是通往它的路。一旦打破了執著的關卡，你將在天地間自由無礙。', se:'The Gateless Barrier', te:'The Great Way has no gate, though there are a thousand paths to it. If you can pass through this barrier, you will walk freely through the universe.', re:'Truth has no fixed entry point, yet every situation is a path toward it. Once you shatter the barriers of attachment, you walk through existence with absolute freedom.' },
+  { s:'僧璨禪師《信心銘》', t:'至道無難，唯嫌揀擇。', r:'通往真理的路並不艱難，難在於我們總是帶著好惡去挑選。放下分別心，道就在眼前。', se:'Inscribed on the Believing Mind by Zen Master Sengcan', te:'The Great Way is not difficult, for those who have no preferences.', re:'The path to truth is not arduous; the difficulty lies in our constant choosing based on likes and dislikes. Let go of discriminatory preferences, and the Way reveals itself.' },
+  { s:'《法句經》', t:'諸惡莫作，眾善奉行；自淨其意，是諸佛教。', r:'修行不在深奧的理論，而在於止惡、行善，並時刻保持內心的清淨。', se:'The Dhammapada', te:'To avoid all evil, to cultivate good, and to cleanse one\'s mind — this is the teaching of the Buddhas.', re:'Practice is not found in profound theories, but in ceasing harm, performing kindness, and maintaining a clear, purified mind at all times.' },
+  { s:'《景德傳燈錄》', t:'百花叢裡過，片葉不沾身。', r:'在繁雜的世間穿行，卻能保持內心的獨立與清淨，不被物欲與情緒所牽絆。', se:'Records of the Transmission of the Lamp', te:'Passing through a cluster of a hundred flowers, not a single leaf clings to the body.', re:'To move through the complexities of the world while maintaining inner independence and purity, remaining unentangled by material desires or emotions.' },
+  { s:'《楞嚴經》', t:'若能轉物，則同如來。', r:'與其被外境轉動心情，不如用智慧去轉化外境。能主宰心念的人，即是覺者。', se:'The Śūraṅgama Sūtra', te:'If you can turn things around, you are the same as the Tathagata.', re:'Rather than letting external circumstances dictate your mood, use wisdom to transform your perception of those circumstances. One who masters their own mind is an awakened being.' },
+  { s:'《維摩詰經》', t:'隨其心淨，則佛土淨。', r:'你眼中的世界是否美好，取決於你內心的清淨程度。心是所有境遇的源頭。', se:'The Vimalakīrti Sūtra', te:'As the mind is purified, the Buddha-land is purified.', re:'Whether the world you see is beautiful depends on the purity of your own heart. The mind is the source of all circumstances.' },
+  { s:'《碧巖錄》', t:'日日是好日。', r:'不論晴雨順逆，若能以覺醒之心面對，每一個日子都是修行與悟道的良辰吉時。', se:'The Blue Cliff Record', te:'Every day is a good day.', re:'Regardless of rain, shine, success, or setback—if faced with an awakened mind, every single day is the perfect time for practice and realization.' },
+  { s:'《指月錄》', t:'標月之指，非月也。', r:'語言與經典只是指引真理的手指，不要把手指當成了月亮本身。實證才是關鍵。', se:'Records of the Finger Pointing at the Moon', te:'The finger pointing at the moon is not the moon.', re:'Language and scriptures are merely fingers pointing toward the truth; do not mistake the pointer for the moon itself. Personal realization is the key.' },
+  { s:'龐蘊居士語錄', t:'好事不如無。', r:'即使是功德與善行，若生出執著心，亦是負擔。回歸本然的無事與清淨，最為珍貴。', se:'The Sayings of Layman Pang', te:'Better than a good thing is nothing.', re:'Even merit and good deeds become a burden if the mind clings to them. Returning to the original state of "nothing to do" and pure simplicity is most precious.' },
+  { s:'《傳燈錄》', t:'萬古長空，一朝風月。', r:'永恆的真理（長空）就體現在當下這瞬息萬變的現象（風月）之中。在短暫中見永恆。', se:'Records of the Transmission of the Lamp', te:'The eternal sky, a single morning\'s wind and moon.', re:'Eternal truth (the vast sky) manifests itself within the transient phenomena of this very moment (the wind and moon). See the eternal within the fleeting.' },
+  { s:'《大乘入楞伽經》', t:'大乘無有乘，乘者即是非。', r:'真正的法門沒有固定形式。若執著於某種「法」，反而背離了真相。', se:'The Laṅkāvatāra Sūtra', te:'The Great Vehicle has no vehicle; to think there is a vehicle is a mistake.', re:'The true path has no fixed form. Clinging to a specific "method" or "way" actually leads one away from the truth.' },
+  { s:'《華嚴經》', t:'一花一世界，一葉一如來。', r:'在微小的細節中，亦包含著整體的宇宙真理。萬物皆有佛性，處處皆是道。', se:'The Avatamsaka Sūtra', te:'To see a world in a flower, and a Buddha in a leaf.', re:'The entire universal truth is contained within even the smallest detail. All things possess Buddha-nature; every place is the Way.' },
+  { s:'寒山詩', t:'吾心似秋月，碧潭清皎潔。', r:'修行者的心境應如秋夜明月，清澈透明，倒映在平靜的潭水中，無有一絲雜染。', se:'The Poetry of Cold Mountain (Hanshan)', te:'My mind is like the autumn moon, shining clear and bright in the green pool.', re:'A practitioner\'s mind should be like the moon on an autumn night—pure and transparent, reflected in a still pool without a single trace of defilement.' }
 ];
 
 function getDharmaForDate(iso) {
-  const d = new Date(iso);
-  const start = new Date(d.getFullYear(), 0, 0);
-  const day = Math.floor((d - start) / 86400000);
-  return dharmaPool[day % dharmaPool.length];
+  // 使用種子隨機演算法 (SHA-256 哈希)
+  const crypto = require('crypto');
+  const hash = crypto.createHash('sha256').update(iso + 'buddhist-salt-2026').digest('hex');
+  // 取哈希值的前 8 位轉換為整數，確保選取的跳轉是非線性的
+  const seedInt = parseInt(hash.substring(0, 8), 16);
+  const index = seedInt % dharmaPool.length;
+  return dharmaPool[index];
 }
 
 async function autoRecordToday() {
