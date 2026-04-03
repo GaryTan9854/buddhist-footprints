@@ -354,10 +354,10 @@ const dharmaPool = [
 async function getDharmaForDate(iso) {
   const crypto = require('crypto');
   
-  // 取得過去 7 天的出處清單，用來避重
+  // 取得過去 20 天的出處清單，用來避重
   const recentSourcesRows = await query(`
     SELECT source FROM dharma_history 
-    WHERE date < ? AND date >= date(?, '-7 days')
+    WHERE date < ? AND date >= date(?, '-20 days')
   `, [iso, iso]);
   const recentSources = new Set(recentSourcesRows.map(r => r.source));
 
