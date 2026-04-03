@@ -483,7 +483,7 @@ async function autoRecordToday() {
 
 // 啟動與每日檢查
 autoRecordToday();
-setInterval(autoRecordToday, 3600000); // 每小時檢查一次日期
+setInterval(autoRecordToday, 60000); // 改為每分鐘檢查一次，確保午夜能即時更新
 
 // ── Main HTTP Server ─────────────────────────────────────────────────────────
 
