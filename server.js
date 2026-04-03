@@ -6,38 +6,21 @@ const { initDb, query } = require('./db');
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
-  const lines = fs.readFileSync(filePath, 'utf8').split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const idx = trimmed.indexOf('=');
-    if (idx === -1) continue;
-    const key = trimmed.slice(0, idx).trim();
-    let value = trimmed.slice(idx + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
+  const content = fs.readFileSync(filePath, 'utf8');
+  content.split('\n').forEach(line => {
+    const [key, ...valueParts] = line.split('=');
+    if (key && valueParts.length > 0) {
+      process.env[key.trim()] = valueParts.join('=').trim();
     }
-    if (!(key in process.env)) process.env[key] = value;
-  }
+  });
 }
-
 loadEnvFile(path.join(__dirname, '.env'));
 
-const PORT    = parseInt(process.env.PORT || '3001', 10);
-const APP     = process.env.APP_NAME || 'buddhist-footprints';
-const { version: PKG_VERSION } = require('./package.json');
-const VERSION = PKG_VERSION || '1.2.0';
-const DISPLAY_VERSION = String(VERSION).replace(/\.0$/, ''); // 1.3.0 → 1.3
-const ROOT    = __dirname;
-
-const APP_PASSWORD = process.env.APP_PASSWORD || '';
-const VALID_TOKEN  = crypto
-  .createHash('sha256')
-  .update(APP_PASSWORD + ':buddhist-footprints-salt')
-  .digest('hex');
+const APP = 'buddhist-footprints';
+const VERSION = '1.20.0';
+const PORT = process.env.PORT || 3004;
+const ROOT = __dirname;
+const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
 
 const MIME = {
   '.html': 'text/html',
@@ -46,414 +29,242 @@ const MIME = {
   '.json': 'application/json',
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
-  '.svg':  'image/svg+xml',
   '.ico':  'image/x-icon',
-  '.woff2':'font/woff2',
-  '.woff': 'font/woff',
-  '.ttf':  'font/ttf',
+  '.svg':  'image/svg+xml'
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function sendJson(res, statusCode, payload) {
-  res.writeHead(statusCode, {
+function sendJson(res, status, data) {
+  res.writeHead(status, { 
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
   });
-  res.end(JSON.stringify(payload));
+  res.end(JSON.stringify(data));
 }
 
-function readBody(req) {
+async function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', chunk => { body += chunk; });
+    req.on('data', chunk => body += chunk);
     req.on('end', () => {
       try { resolve(body ? JSON.parse(body) : {}); }
       catch (e) { reject(e); }
     });
-    req.on('error', reject);
   });
 }
 
-function getToken(req) {
-  const auth = req.headers['authorization'] || '';
-  return auth.startsWith('Bearer ') ? auth.slice(7) : '';
-}
+const requireAuth = (req) => {
+  const auth = req.headers['authorization'];
+  if (!auth || !auth.startsWith('Bearer ')) return false;
+  const token = auth.split(' ')[1];
+  return token === APP_PASSWORD;
+};
 
-function isAuthorized(req) {
-  if (!APP_PASSWORD) return true; // no password set → open
-  return getToken(req) === VALID_TOKEN;
-}
-
-function newId() {
-  return crypto.randomBytes(16).toString('hex');
-}
-
-// ── Route Dispatcher ─────────────────────────────────────────────────────────
-
-async function handleApi(req, res) {
-  const url      = new URL(req.url, `http://localhost`);
-  const pathname = url.pathname;
-  const method   = req.method;
-
-  // ── Health ────────────────────────────────────────────────────────────────
-  if (pathname === '/api/health' && method === 'GET') {
-    return sendJson(res, 200, {
-      status: 'ok', app: APP, version: DISPLAY_VERSION,
-      authRequired: Boolean(APP_PASSWORD),
-    });
-  }
-
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  if (pathname === '/api/auth/login' && method === 'POST') {
-    try {
-      const data = await readBody(req);
-      if (!APP_PASSWORD) return sendJson(res, 503, { error: '尚未設定管理密碼' });
-      if (data.password === APP_PASSWORD) return sendJson(res, 200, { token: VALID_TOKEN });
-      return sendJson(res, 401, { error: '密碼錯誤' });
-    } catch (_) {
-      return sendJson(res, 400, { error: '無效請求' });
-    }
-  }
-
-  // ── Essays ────────────────────────────────────────────────────────────────
-  // GET /api/essays  — list essays (type != 'mantra'), optional ?dharma_source=X
-  if (pathname === '/api/essays' && method === 'GET') {
-    const ds = url.searchParams.get('dharma_source');
-    const rows = ds
-      ? query("SELECT * FROM essays WHERE dharma_source = ? ORDER BY created_at DESC", [ds])
-      : query("SELECT * FROM essays WHERE type != 'mantra' ORDER BY created_at DESC");
-    return sendJson(res, 200, rows);
-  }
-
-  // POST /api/essays  — create essay
-  if (pathname === '/api/essays' && method === 'POST') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    try {
-      const { title, tag = null, content, dharma_source = null } = await readBody(req);
-      if (!title || !content) return sendJson(res, 400, { error: '缺少必填欄位' });
-      const id = newId();
-      query(
-        "INSERT INTO essays (id, title, tag, content, dharma_source, type) VALUES (?, ?, ?, ?, ?, 'essay')",
-        [id, title, tag, content, dharma_source]
-      );
-      const rows = query("SELECT * FROM essays WHERE id = ?", [id]);
-      return sendJson(res, 201, rows[0]);
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // GET /api/essays/:id
-  const essayIdMatch = pathname.match(/^\/api\/essays\/([^/]+)$/);
-  if (essayIdMatch && method === 'GET') {
-    const rows = query("SELECT * FROM essays WHERE id = ?", [essayIdMatch[1]]);
-    if (!rows.length) return sendJson(res, 404, { error: '找不到' });
-    return sendJson(res, 200, rows[0]);
-  }
-
-  // PUT /api/essays/:id
-  if (essayIdMatch && method === 'PUT') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    try {
-      const body = await readBody(req);
-      const id   = essayIdMatch[1];
-      const current = query("SELECT * FROM essays WHERE id = ?", [id]);
-      if (!current.length) return sendJson(res, 404, { error: '找不到' });
-      const merged = { ...current[0], ...body };
-      query(
-        "UPDATE essays SET title=?, tag=?, content=?, dharma_source=?, type=? WHERE id=?",
-        [merged.title, merged.tag ?? null, merged.content, merged.dharma_source ?? null, merged.type ?? 'essay', id]
-      );
-      const updated = query("SELECT * FROM essays WHERE id = ?", [id]);
-      return sendJson(res, 200, updated[0]);
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // DELETE /api/essays/:id
-  if (essayIdMatch && method === 'DELETE') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    const id = essayIdMatch[1];
-    query("DELETE FROM essays WHERE id = ?", [id]);
-    return sendJson(res, 200, { ok: true });
-  }
-
-  // ── Mantras ───────────────────────────────────────────────────────────────
-  // GET /api/mantras  — list mantras (type = 'mantra')
-  if (pathname === '/api/mantras' && method === 'GET') {
-    const rows = query("SELECT * FROM essays WHERE type = 'mantra' ORDER BY created_at DESC");
-    return sendJson(res, 200, rows);
-  }
-
-  // POST /api/mantras  — create mantra
-  if (pathname === '/api/mantras' && method === 'POST') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    try {
-      const { title, tag = null, content } = await readBody(req);
-      if (!title || !content) return sendJson(res, 400, { error: '缺少必填欄位' });
-      const id = newId();
-      query(
-        "INSERT INTO essays (id, title, tag, content, type) VALUES (?, ?, ?, ?, 'mantra')",
-        [id, title, tag, content]
-      );
-      const rows = query("SELECT * FROM essays WHERE id = ?", [id]);
-      return sendJson(res, 201, rows[0]);
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // ── Dharma History ────────────────────────────────────────────────────────
-  // GET /api/dharma/history  — all records, newest first
-  if (pathname === '/api/dharma/history' && method === 'GET') {
-    const rows = query("SELECT * FROM dharma_history ORDER BY date DESC");
-    return sendJson(res, 200, rows);
-  }
-
-  // POST /api/dharma/history  — record today (idempotent; public — no auth needed)
-  if (pathname === '/api/dharma/history' && method === 'POST') {
-    try {
-      const { date, source, text } = await readBody(req);
-      if (!date || !source || !text) return sendJson(res, 400, { error: '缺少必填欄位' });
-      query(
-        "INSERT OR IGNORE INTO dharma_history (date, source, text) VALUES (?, ?, ?)",
-        [date, source, text]
-      );
-      return sendJson(res, 200, { ok: true });
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // GET /api/dharma/history/:date
-  const historyDateMatch = pathname.match(/^\/api\/dharma\/history\/([^/]+)$/);
-  if (historyDateMatch && method === 'GET') {
-    const rows = query("SELECT * FROM dharma_history WHERE date = ?", [historyDateMatch[1]]);
-    return sendJson(res, 200, rows[0] || null);
-  }
-
-  // ── Dharma EN ─────────────────────────────────────────────────────────────
-  // GET /api/dharma/en  — all rows, optional ?source=X
-  if (pathname === '/api/dharma/en' && method === 'GET') {
-    const src = url.searchParams.get('source');
-    const rows = src
-      ? query("SELECT * FROM dharma_en WHERE source = ?", [src])
-      : query("SELECT * FROM dharma_en ORDER BY created_at DESC");
-    return sendJson(res, 200, rows);
-  }
-
-  // POST /api/dharma/en  — save translation (Upsert)
-  if (pathname === '/api/dharma/en' && method === 'POST') {
-    try {
-      const { source, source_en, text_en, reflection_en } = await readBody(req);
-      if (!source) return sendJson(res, 400, { error: '缺少 source' });
-      // SQLite Upsert logic (requires node:sqlite context)
-      query(`
-        INSERT INTO dharma_en (source, source_en, text_en, reflection_en)
-        VALUES (?, ?, ?, ?)
-        ON CONFLICT(source) DO UPDATE SET
-          source_en = excluded.source_en,
-          text_en = excluded.text_en,
-          reflection_en = excluded.reflection_en
-      `, [source, source_en, text_en, reflection_en]);
-      return sendJson(res, 200, { ok: true });
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // ── Gallery ───────────────────────────────────────────────────────────────
-  // GET /api/gallery
-  if (pathname === '/api/gallery' && method === 'GET') {
-    const rows = query("SELECT * FROM gallery ORDER BY created_at DESC");
-    return sendJson(res, 200, rows);
-  }
-
-  // POST /api/gallery
-  if (pathname === '/api/gallery' && method === 'POST') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    try {
-      const { title, caption = null, image_url } = await readBody(req);
-      if (!title || !image_url) return sendJson(res, 400, { error: '缺少必填欄位' });
-      const id = newId();
-      query(
-        "INSERT INTO gallery (id, title, caption, image_url) VALUES (?, ?, ?, ?)",
-        [id, title, caption, image_url]
-      );
-      const rows = query("SELECT * FROM gallery WHERE id = ?", [id]);
-      return sendJson(res, 201, rows[0]);
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // GET /api/gallery/:id
-  const galleryIdMatch = pathname.match(/^\/api\/gallery\/([^/]+)$/);
-  if (galleryIdMatch && method === 'GET') {
-    const rows = query("SELECT * FROM gallery WHERE id = ?", [galleryIdMatch[1]]);
-    if (!rows.length) return sendJson(res, 404, { error: '找不到' });
-    return sendJson(res, 200, rows[0]);
-  }
-
-  // PUT /api/gallery/:id
-  if (galleryIdMatch && method === 'PUT') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    try {
-      const body = await readBody(req);
-      const id   = galleryIdMatch[1];
-      const current = query("SELECT * FROM gallery WHERE id = ?", [id]);
-      if (!current.length) return sendJson(res, 404, { error: '找不到' });
-      const merged = { ...current[0], ...body };
-      query(
-        "UPDATE gallery SET title=?, caption=?, image_url=? WHERE id=?",
-        [merged.title, merged.caption ?? null, merged.image_url, id]
-      );
-      const updated = query("SELECT * FROM gallery WHERE id = ?", [id]);
-      return sendJson(res, 200, updated[0]);
-    } catch (_) { return sendJson(res, 400, { error: '無效請求' }); }
-  }
-
-  // DELETE /api/gallery/:id
-  if (galleryIdMatch && method === 'DELETE') {
-    if (!isAuthorized(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    const id = galleryIdMatch[1];
-    query("DELETE FROM gallery WHERE id = ?", [id]);
-    return sendJson(res, 200, { ok: true });
-  }
-
-  // ── Not found ─────────────────────────────────────────────────────────────
-  return sendJson(res, 404, { error: 'Not found' });
-}
-
-// ── DHARMA POOL & AUTOMATION ──
+// ── DHARMA POOL (三藏 × 十二部結構) ──
 const dharmaPool = [
-  { s:'《金剛般若波羅蜜經》第十品', t:'應無所住而生其心。', r:'一切執著皆是縛。能觀察而不執著，方是真正的自在。今日，試以「無住」之心，面對一切境遇——心生萬象，卻不為萬象所縛。', se:'The Diamond Prajñāpāramitā Sūtra · Chapter 10', te:'Abide nowhere, and thus give rise to the mind.', re:'All attachments are fetters. To observe without clinging is true freedom. Today, try facing all situations with a mind that "abides nowhere"—letting all things arise without being bound by them.' },
-  { s:'《般若波羅蜜多心經》', t:'色不異空，空不異色；色即是空，空即是色。', r:'一切現象，瞬息萬變，然而空並非虛無——它是無限可能的場域。見空性，則不被表象所困，不被暫時的得失遮蔽本有的清明。', se:'The Heart of the Prajñāpāramitā Sūtra', te:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.', re:'All phenomena are transient and ever-changing, yet emptiness is not nothingness—it is the field of infinite possibility. Seeing emptiness allows us to remain unclouded by appearances or temporary gains and losses.' },
-  { s:'《六祖壇經》行由品第一', t:'本來無一物，何處惹塵埃。', r:'慧能大師以此偈悟道。清淨心，不在於不斷去除，而在於認識到本性從未染污。', se:'The Platform Sutra of the Sixth Patriarch · Chapter 1', te:'Originally there is not a single thing; where could any dust alight?', re:'Master Huineng attained enlightenment through this verse. A pure mind is not about continuous cleaning, but about realizing that our fundamental nature was never defiled to begin with.' },
-  { s:'《維摩詰所說經》佛國品第一', t:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。', r:'外境的清淨，源自內心的清淨。我們所見的世界，往往是內心狀態的投影。今日先問心：此刻的心，是清明還是混濁？', se:'The Vimalakīrti Nirdeśa Sūtra · Chapter 1', te:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind. As the mind is purified, the Buddha-land is purified.', re:'The purity of our environment stems from the purity of our inner state. The world we see is often a projection of our mind. Today, ask yourself: is my mind clear or clouded in this moment?' },
-  { s:'《臨濟錄》示眾', t:'隨處作主，立處皆真。', r:'不論身處何種境遇，能做自己的主人，便無處不是道場。今日的每一個當下，皆是修行的機緣。', se:'The Record of Linji · Sermons', te:'At all times and in all places, be the master; then wherever you stand is the truth.', re:'Regardless of your circumstances, if you can remain master of yourself, every place becomes a place of practice. Every present moment today is an opportunity for cultivation.' },
-  { s:'《妙法蓮華經》方便品第二', t:'諸法從本來，常自寂滅相。', r:'一切現象，本自寂靜。浮動的是表象，不動的是本性。今日試著在喧囂中尋找那份寂靜——它一直都在，從未離開。', se:'The Lotus Sūtra · Chapter 2: Expedient Means', te:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.', re:'Beneath the surface of change and noise, all things are inherently at peace. Today, try to find that stillness amidst the bustle—it has always been there, never leaving.' },
-  { s:'《趙州錄》公案', t:'吃茶去。', r:'趙州以三字接引無數學人。平常心是道，一杯茶的當下，便是修行的全體。', se:'The Record of Zhao Zhou · Gōng\'àn', te:'Go drink some tea.', re:'Zhao Zhou guided many students with these four words. The "ordinary mind" is the Way; the simple act of drinking tea contains the entirety of practice.' },
-  { s:'《大佛頂首楞嚴經》卷一', t:'一切浮塵諸幻化相，當處出生，隨處滅盡。', r:'一切現象，在其發生之處生起，又在同一處消散。沒有什麼可以永遠停留。見此，便不會為暫時的高峰過喜，也不會為低谷絕望。', se:'The Śūraṅgama Sūtra · Volume 1', te:'All drifting dust and illusory appearances arise where they are and vanish right there.', re:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness. Understanding this, one is neither elated by temporary peaks nor despaired by troughs.' },
-  { s:'黃檗希運禪師《傳心法要》', t:'無心是道。', r:'「無心」非麻木，乃是不起分別執著之心。以無心觀世界，才能看清事物的真實面目。', se:'Zen Master Huangbo Xiyun: Essentials of Transmitting the Mind', te:'Non-mind is the Way.', re:'"Non-mind" is not numbness, but a state free from discriminatory attachment. Only by observing the world with a mind free of fabrications can we see the true face of reality.' },
-  { s:'《六祖壇經》般若品第二', t:'菩提自性，本來清淨；但用此心，直了成佛。', r:'清淨的智慧是我們本有的，無需外求。今日，信任自己內在那份本然的清明。', se:'The Platform Sutra of the Sixth Patriarch · Chapter 2: Prajna', te:'The nature of Bodhi is originally pure; simply use this mind to directly attain Buddhahood.', re:'Pure wisdom is our inherent nature, not something to be sought externally. Today, trust the natural clarity that resides within you.' },
-  { s:'《阿彌陀經》（姚秦鳩摩羅什譯）', t:'不可以少善根福德因緣，得生彼國。', r:'因緣法則，是宇宙的基本語言。每一個結果，都是眾多因緣的匯聚，非一時一力可成。', se:'The Amitābha Sūtra (Translated by Kumārajīva)', te:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.', re:'The law of cause and effect is the fundamental language of the universe. Every result is a convergence of many conditions; it is not achieved by a single effort at a single moment.' },
-  { s:'《永嘉證道歌》玄覺禪師', t:'夢裡明明有六趣，覺後空空無大千。', r:'夢中的悲歡離合，醒來皆是空。然而夢中仍要認真過——覺後的空，是包含一切的大空。', se:'Song of Enlightenment by Chan Master Yongjia Xuanjue', te:'In a dream, the six realms are clearly seen; after awakening, the great universe is empty.', re:'The joys and sorrows of a dream are empty upon waking. Yet, while in the dream, one must still live earnestly. The emptiness after awakening is a "Great Emptiness" that encompasses everything.' },
-  { s:'《普賢行願品》', t:'虛空界盡，我願乃盡；以虛空界不可盡故，我此大願無有窮盡。', r:'普賢十大願王，以無盡虛空為量。願心廣大，則行動便有了超越個人得失的依託。', se:'The Vows of Samantabhadra', te:'When the realm of space is exhausted, my vows will be exhausted; but because the realm of space is inexhaustible, my great vows have no end.', re:'The ten great vows of Samantabhadra are as vast as infinite space. With such a great resolve, our actions find a support that transcends personal gain or loss.' },
-  { s:'雲門文偃禪師語錄', t:'函蓋乾坤，截斷眾流，隨波逐浪。', r:'雲門三句：以整體眼光函蓋萬象；果斷截斷分別妄念；靈活隨順因緣而行。三者合則圓融無礙。', se:'The Record of Zen Master Yunmen Wenyan', te:'It covers heaven and earth; it cuts off all flows; it follows the waves and surges with the tide.', re:'Yunmen\'s three phrases: embrace all with a holistic view; decisively cut off discriminatory thoughts; and flexibly follow the flow of conditions. Combined, they are harmonious and unobstructed.' },
-  { s:'《圓覺經》', t:'知幻即離，不作方便；離幻即覺，亦無漸次。', r:'認出幻相，幻相自離；不需要繁複的方法，覺悟就在認出的當下。今日，試著認出一個你一直相信的幻相。', se:'The Sūtra of Perfect Enlightenment', te:'Recognizing illusion, one is instantly free, without needing expedient means; free from illusion, one is enlightened, without gradual stages.', re:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition. Today, try to recognize one illusion you have long believed in.' },
-  { s:'洞山良价禪師《寶鏡三昧》', t:'如是之法，佛祖密付；汝今得之，宜善保護。', r:'「宜善保護」四字：得到了洞見之後，更要在日常生活中細心護持，不讓它在世俗的浪潮中流失。', se:'Song of the Precious Mirror Samādhi by Chan Master Dongshan Liangjie', te:'This teaching has been transmitted in secret by all Buddhas and patriarchs. Now that you have received it, guard it well.', re:'The phrase "guard it well" means that after receiving insight, one must carefully protect it in daily life, ensuring it is not washed away by worldly currents.' },
-  { s:'《金剛般若波羅蜜經》', t:'凡所有相，皆是虛妄。若見諸相非相，則見如來。', r:'世間表象皆是暫時的幻影。當你能看透這些表象，不被其迷惑，你就見到了事物的本質。', se:'The Diamond Prajñāpāramitā Sūtra', te:'All that has a form is illusive and unreal. When you see all forms as illusive and unreal, then you see the Tathagata.', re:'Worldly appearances are but transient phantoms. When you look through these appearances without being deceived by them, you perceive the true nature of reality.' },
-  { s:'《大方廣佛華嚴經》', t:'若人欲了知，三世一切佛，應觀法界性，一切唯心造。', r:'我們所感知的世界，本質上是由我們的心念所編織而成的。轉變心念，世界隨之轉變。', se:'The Avatamsaka Sūtra', te:'If one wishes to fully understand all Buddhas of the three periods of time, one should contemplate the nature of the Dharma realm: everything is made by the mind alone.', re:'The world we perceive is essentially woven by our own thoughts. Transform your mind, and the world transforms with it.' },
-  { s:'《六祖壇經》', t:'菩提本無樹，明鏡亦非台。', r:'覺悟不是長出來的樹，心也不是染塵的台。佛性本自空寂清淨，不增不減。', se:'The Platform Sutra of the Sixth Patriarch', te:'Bodhi originally has no tree, the bright mirror is also not a stand.', re:'Awakening is not a tree that grows, nor is the mind a stand that collects dust. The Buddha-nature is inherently empty, still, and pure, neither increasing nor decreasing.' },
-  { s:'《無門關》', t:'大道無門，千差有路；透得此關，乾坤獨步。', r:'真理沒有固定的入口，但處處都是通往它的路。一旦打破了執著的關卡，你將在天地間自由無礙。', se:'The Gateless Barrier', te:'The Great Way has no gate, though there are a thousand paths to it. If you can pass through this barrier, you will walk freely through the universe.', re:'Truth has no fixed entry point, yet every situation is a path toward it. Once you shatter the barriers of attachment, you walk through existence with absolute freedom.' },
-  { s:'僧璨禪師《信心銘》', t:'至道無難，唯嫌揀擇。', r:'通往真理的路並不艱難，難在於我們總是帶著好惡去挑選。放下分別心，道就在眼前。', se:'Inscribed on the Believing Mind by Zen Master Sengcan', te:'The Great Way is not difficult, for those who have no preferences.', re:'The path to truth is not arduous; the difficulty lies in our constant choosing based on likes and dislikes. Let go of discriminatory preferences, and the Way reveals itself.' },
-  { s:'《法句經》', t:'諸惡莫作，眾善奉行；自淨其意，是諸佛教。', r:'修行不在深奧的理論，而在於止惡、行善，並時刻保持內心的清淨。', se:'The Dhammapada', te:'To avoid all evil, to cultivate good, and to cleanse one\'s mind — this is the teaching of the Buddhas.', re:'Practice is not found in profound theories, but in ceasing harm, performing kindness, and maintaining a clear, purified mind at all times.' },
-  { s:'《景德傳燈錄》', t:'百花叢裡過，片葉不沾身。', r:'在繁雜的世間穿行，卻能保持內心的獨立與清淨，不被物欲與情緒所牽絆。', se:'Records of the Transmission of the Lamp', te:'Passing through a cluster of a hundred flowers, not a single leaf clings to the body.', re:'To move through the complexities of the world while maintaining inner independence and purity, remaining unentangled by material desires or emotions.' },
-  { s:'《楞嚴經》', t:'若能轉物，則同如來。', r:'與其被外境轉動心情，不如用智慧去轉化外境。能主宰心念的人，即是覺者。', se:'The Śūraṅgama Sūtra', te:'If you can turn things around, you are the same as the Tathagata.', re:'Rather than letting external circumstances dictate your mood, use wisdom to transform your perception of those circumstances. One who masters their own mind is an awakened being.' },
-  { s:'《維摩詰經》', t:'隨其心淨，則佛土淨。', r:'你眼中的世界是否美好，取決於你內心的清淨程度。心是所有境遇的源頭。', se:'The Vimalakīrti Sūtra', te:'As the mind is purified, the Buddha-land is purified.', re:'Whether the world you see is beautiful depends on the purity of your own heart. The mind is the source of all circumstances.' },
-  { s:'《碧巖錄》', t:'日日是好日。', r:'不論晴雨順逆，若能以覺醒之心面對，每一個日子都是修行與悟道的良辰吉時。', se:'The Blue Cliff Record', te:'Every day is a good day.', re:'Regardless of rain, shine, success, or setback—if faced with an awakened mind, every single day is the perfect time for practice and realization.' },
-  { s:'《指月錄》', t:'標月之指，非月也。', r:'語言與經典只是指引真理的手指，不要把手指當成了月亮本身。實證才是關鍵。', se:'Records of the Finger Pointing at the Moon', te:'The finger pointing at the moon is not the moon.', re:'Language and scriptures are merely fingers pointing toward the truth; do not mistake the pointer for the moon itself. Personal realization is the key.' },
-  { s:'龐蘊居士語錄', t:'好事不如無。', r:'即使是功德與善行，若生出執著心，亦是負擔。回歸本然的無事與清淨，最為珍貴。', se:'The Sayings of Layman Pang', te:'Better than a good thing is nothing.', re:'Even merit and good deeds become a burden if the mind clings to them. Returning to the original state of "nothing to do" and pure simplicity is most precious.' },
-  { s:'《傳燈錄》', t:'萬古長空，一朝風月。', r:'永恆的真理（長空）就體現在當下這瞬息萬變的現象（風月）之中。在短暫中見永恆。', se:'Records of the Transmission of the Lamp', te:'The eternal sky, a single morning\'s wind and moon.', re:'Eternal truth (the vast sky) manifests itself within the transient phenomena of this very moment (the wind and moon). See the eternal within the fleeting.' },
-  { s:'《大乘入楞伽經》', t:'大乘無有乘，乘者即是非。', r:'真正的法門沒有固定形式。若執著於某種「法」，反而背離了真相。', se:'The Laṅkāvatāra Sūtra', te:'The Great Vehicle has no vehicle; to think there is a vehicle is a mistake.', re:'The true path has no fixed form. Clinging to a specific "method" or "way" actually leads one away from the truth.' },
-  { s:'《華嚴經》', t:'一花一世界，一葉一如來。', r:'在微小的細節中，亦包含著整體的宇宙真理。萬物皆有佛性，處處皆是道。', se:'The Avatamsaka Sūtra', te:'To see a world in a flower, and a Buddha in a leaf.', re:'The entire universal truth is contained within even the smallest detail. All things possess Buddha-nature; every place is the Way.' },
-  { s:'寒山詩', t:'吾心似秋月，碧潭清皎潔。', r:'修行者的心境應如秋夜明月，清澈透明，倒映在平靜的潭水中，無有一絲雜染。', se:'The Poetry of Cold Mountain (Hanshan)', te:'My mind is like the autumn moon, shining clear and bright in the green pool.', re:'A practitioner\'s mind should be like the moon on an autumn night—pure and transparent, reflected in a still pool without a single trace of defilement.' }
+  // --- 經藏 (Sutra) ---
+  { s:'《金剛經》', t:'凡所有相，皆是虛妄。若見諸相非相，則見如來。', r:'世間表象皆是幻影。看透表象，即見本質。', trip:'經', div:'1修多羅', se:'Diamond Sutra', te:'All forms are illusive. Seeing through them is seeing reality.', re:'Worldly appearances are but transient phantoms. When you look through these appearances without being deceived by them, you perceive the true nature of reality.' },
+  { s:'《法華經》方便品', t:'諸法從本來，常自寂滅相。', r:'萬法本自寂靜，動的是心，不動的是性。', trip:'經', div:'2祇夜', se:'Lotus Sutra', te:'All phenomena, from their very origin, are constantly characterized by the mark of quiet extinction.', re:'Beneath the surface of constant change and noise, every thing is inherently at peace.' },
+  { s:'《心經》', t:'色不異空，空不異色；色即是空，空即是色。', r:'現象與本質不二，空性即是無限可能。', trip:'經', div:'3伽陀', se:'Heart Sutra', te:'Form is not other than emptiness; emptiness is not other than form. Form is emptiness; emptiness is form.', re:'Emptiness is not nothingness — it is the open field of infinite possibility.' },
+  { s:'《阿彌陀經》', t:'不可以少善根福德因緣，得生彼國。', r:'成就任何事都需要因緣具足，非一時之功。', trip:'經', div:'4優陀那', se:'Amitabha Sutra', te:'One cannot be born in that land with few good roots, blessings, virtues, and causal conditions.', re:'Every result is a convergence of many conditions; it is not achieved by a single effort.' },
+  { s:'《圓覺經》', t:'知幻即離，不作方便；離幻即覺，亦無漸次。', r:'認出幻相即是解脫，覺悟就在當下。', trip:'經', div:'11毘佛略', se:'Sutra of Perfect Enlightenment', te:'Recognizing illusion, one is instantly free; free from illusion, one is enlightened.', re:'To recognize the illusory is to be free of it; enlightenment is found in the very moment of recognition.' },
+  { s:'《華嚴經》', t:'若人欲了知，三世一切佛，應觀法界性，一切唯心造。', r:'世界由心念編織，轉變心念即轉變世界。', trip:'經', div:'11毘佛略', se:'Avatamsaka Sutra', te:'If one wishes to understand all Buddhas, one should contemplate: everything is made by mind alone.', re:'The world we perceive is essentially woven by our own thoughts.' },
+  { s:'《楞嚴經》', t:'一切浮塵諸幻化相，當處出生，隨處滅盡。', r:'一切現象在其發生處生起，又在原處消散。', trip:'經', div:'1修多羅', se:'Shurangama Sutra', te:'All drifting dust and illusory appearances arise where they are and vanish right there.', re:'Every phenomenon is like a phantom—appearing and disappearing within the same space of awareness.' },
+  { s:'《維摩詰經》', t:'若菩薩欲得淨土，當淨其心；隨其心淨，則佛土淨。', r:'內心的清淨程度決定了你眼中的世界。', trip:'經', div:'11毘佛略', se:'Vimalakirti Sutra', te:'If a Bodhisattva wishes to attain the Pure Land, they should first purify their mind.', re:'The purity of our environment stems from the purity of our inner state.' },
+  { s:'《法句經》', t:'諸惡莫作，眾善奉行；自淨其意，是諸佛教。', r:'修行的核心：止惡、行善、清淨內心。', trip:'經', div:'3伽陀', se:'Dhammapada', te:'To avoid all evil, to cultivate good, and to cleanse one\'s mind — this is the teaching of the Buddhas.', re:'Practice is found in ceasing harm, performing kindness, and maintaining a clear, purified mind.' },
+  { s:'《佛說八大人覺經》', t:'世間無常，國土危脆；四大苦空，五陰無我。', r:'正視無常與無我，是通往智慧的第一步。', trip:'經', div:'1修多羅', se:'Sutra on the Eight Great Awakenings', te:'The world is impermanent; the self is empty.', re:'Realizing impermanence and non-self is the first step toward wisdom.' },
+  { s:'《地藏經》', t:'閻浮提眾生，舉心動念，無非是罪，無非是業。', r:'時刻觀照自己的每一個念頭，微小處皆是因果。', trip:'經', div:'5尼陀那', se:'Ksitigarbha Sutra', te:'Every thought of sentient beings creates karma.', re:'Watch your thoughts constantly; even the smallest one carries the weight of cause and effect.' },
+  { s:'《藥師經》', t:'願我來世得菩提時，身如琉璃，內外明澈，淨無瑕穢。', r:'追求內在的透明與清淨，如同琉璃般無雜質。', trip:'經', div:'12授記', se:'Medicine Buddha Sutra', te:'May my body be like crystal, pure and transparent.', re:'Strive for internal clarity and purity, devoid of any defilement.' },
+
+  // --- 律藏 (Vinaya) ---
+  { s:'《四分律》', t:'譬如大海，不宿死屍；佛法大海，亦復如是，不宿破戒之人。', r:'清淨的教法中容不下虛偽與毀禁。', trip:'律', div:'9阿波陀那', se:'Four-Part Vinaya', te:'As the ocean rejects a corpse, the Dharma rejects the impure.', re:'Pure teachings cannot coexist with hypocrisy or the violation of precepts.' },
+  { s:'《根本說一切有部毗奈耶》', t:'勤修清淨戒，以求解脫處。', r:'持戒是為了建立內心的秩序，從而獲得真正的自由。', trip:'律', div:'5尼陀那', se:'Mulasarvastivada Vinaya', te:'Practice the precepts to find the place of liberation.', re:'Precepts are established to create inner order, which leads to true freedom.' },
+  { s:'《五分律》', t:'若不持戒，雖在山中，亦非修行。', r:'修行不在於地點，而在於對自我的規範。', trip:'律', div:'5尼陀那', se:'Five-Part Vinaya', te:'Without precepts, even in mountains, one is not practicing.', re:'Spiritual practice is not about where you are, but how you discipline yourself.' },
+  { s:'《大比丘三千威儀》', t:'行步當視地，無傷微命。', r:'在日常細微處培養慈悲心，尊重所有生命。', trip:'律', div:'4優陀那', se:'Great Bhikshu Precepts', te:'Walk with care to avoid harming small lives.', re:'Cultivate compassion in the smallest details of life by respecting all living beings.' },
+
+  // --- 論藏 (Abhidharma) ---
+  { s:'龍樹菩薩《中論》', t:'因緣所生法，我說即是空，亦為是假名，亦是中道義。', r:'世間萬物皆依因緣而生，沒有獨立永恆的實體。', trip:'論', div:'10優婆提舍', se:'Madhyamaka-sastra', te:'Dependent origination is emptiness, a mere label, the Middle Way.', re:'Everything arises through conditions; nothing possesses an independent, eternal self.' },
+  { s:'彌勒菩薩《瑜伽師地論》', t:'一切唯識，萬法唯心。', r:'所有的感知皆是心識的顯現，外境不離內心。', trip:'論', div:'10優婆提舍', se:'Yogacarabhumi-sastra', te:'Everything is representation-only; all is mind.', re:'All perceptions are manifestations of consciousness; the external world does not exist apart from the mind.' },
+  { s:'馬鳴菩薩《大乘起信論》', t:'一心二門：心真如門，心生滅門。', r:'心既是永恆的真理，也是瞬息萬變的現象。', trip:'論', div:'10優婆提舍', se:'Awakening of Faith in Mahayana', te:'One mind, two aspects: Thusness and arising-ceasing.', re:'The mind is both the eternal truth and the constantly changing phenomena.' },
+  { s:'僧璨禪師《信心銘》', t:'至道無難，唯嫌揀擇。', r:'通往真理的路並不艱難，難在於我們總是帶著好惡去挑選。', trip:'論', div:'3伽陀', se:'Inscribed on the Believing Mind', te:'The Great Way is not difficult for those who have no preferences.', re:'The path to truth is not arduous; the difficulty lies in our constant choosing based on likes and dislikes.' },
+  { s:'馬祖道一禪師', t:'平常心是道。', r:'真理不在玄妙處，就在日常的喝茶、吃飯、睡眠之中。', trip:'論', div:'10優婆提舍', se:'Zen Master Mazu Daoyi', te:'Ordinary mind is the Way.', re:'Truth is not found in the mysterious, but in the ordinary acts of daily life.' },
+  { s:'黃檗希運禪師', t:'無心是道。', r:'放下分別執著，讓心回歸無事的本然。', trip:'論', div:'10優婆提舍', se:'Zen Master Huangbo Xiyun', te:'Non-mind is the Way.', re:'Let go of discriminatory attachment and return to the mind\'s original, unburdened state.' },
+  { s:'臨濟義玄禪師', t:'隨處作主，立處皆真。', r:'做自己的主人，則任何地方都是真實的道場。', trip:'論', div:'10優婆提舍', se:'Zen Master Linji Yixuan', te:'Be the master everywhere, then truth is where you stand.', re:'If you can remain master of yourself, every place becomes a place of truth.' },
+  { s:'百丈懷海禪師', t:'一日不作，一日不食。', r:'修行與生活不二，勞動亦是悟道的契機。', trip:'論', div:'10優婆提舍', se:'Zen Master Baizhang Huaihai', te:'A day without work is a day without food.', re:'Spiritual practice and daily life are one; labor is an opportunity for realization.' },
+  { s:'趙州從諗禪師', t:'吃茶去。', r:'不要在文字上糾纏，回到當下的體會。', trip:'論', div:'10優婆提舍', se:'Zen Master Zhao Zhou', te:'Go drink some tea.', re:'Do not get entangled in words; return to the direct experience of the present moment.' },
+  { s:'龐蘊居士', t:'好事不如無。', r:'即使是善行，生出執著心亦是負擔。', trip:'論', div:'10優婆提舍', se:'Layman Pang', te:'Better than a good thing is nothing.', re:'Even good deeds become a burden if the mind clings to them.' },
+  { s:'永嘉玄覺禪師', t:'夢裡明明有六趣，覺後空空無大千。', r:'醒後方知夢是空，覺後方知世如夢。', trip:'論', div:'3伽陀', se:'Zen Master Yongjia Xuanjue', te:'The dream is clear until you wake; then all is empty.', re:'Upon waking, one knows the dream was empty; upon awakening, one knows the world is like a dream.' },
+  { s:'寒山詩', t:'吾心似秋月，碧潭清皎潔。', r:'修行者的心境應如秋月般明徹無染。', trip:'論', div:'3伽陀', se:'Poetry of Hanshan', te:'My mind is like the autumn moon, bright and pure.', re:'A practitioner\'s mind should be like the autumn moon—pure and reflected without defilement.' },
+  { s:'雲門文偃禪師', t:'日日是好日。', r:'以覺醒之心面對順逆，則天天皆是良辰。', trip:'論', div:'10優婆提舍', se:'Zen Master Yunmen Wenyan', te:'Every day is a good day.', re:'If faced with an awakened mind, every single day is the perfect time for practice.' },
+  { s:'洞山良价禪師', t:'如是之法，佛祖密付；汝今得之，宜善保護。', r:'得到的洞見需要在生活中細心護持。', trip:'論', div:'3伽陀', se:'Zen Master Dongshan Liangjie', te:'This teaching is a secret gift; guard it well.', re:'After receiving insight, one must carefully protect it in the midst of daily life.' },
+  { s:'蘇東坡', t:'溪聲便是廣長舌，山色豈非清淨身。', r:'大自然的一切景觀，皆在訴說著真理。', trip:'論', div:'10優婆提舍', se:'Su Dongpo', te:'The creek sound is Buddha\'s voice; the mountains his pure body.', re:'All the sights and sounds of nature are proclaiming the ultimate truth.' },
+  { s:'《信心銘》', t:'唯嫌揀擇。', r:'道就在眼前，難在我們總是帶著偏見去挑選。', trip:'論', div:'3伽陀', se:'Inscribed on the Believing Mind', te:'The Way reveals itself when choosing based on preference stops.', re:'The only difficulty is our constant selecting based on likes and dislikes.' }
 ];
 
 async function getDharmaForDate(iso) {
-  const crypto = require('crypto');
-  
-  // 取得過去 20 天的出處清單，用來避重
+  // 取得近期歷史避重 (20天)
   const recentSourcesRows = await query(`
     SELECT source FROM dharma_history 
     WHERE date < ? AND date >= date(?, '-20 days')
   `, [iso, iso]);
   const recentSources = new Set(recentSourcesRows.map(r => r.source));
 
-  let indexOffset = 0;
-  let selectedDharma = null;
+  // 1. 生成日期哈希作為基礎種子
+  const hash = crypto.createHash('sha256').update(iso + 'buddhist-structure-salt-2026').digest('hex');
+  const mainSeed = parseInt(hash.substring(0, 8), 16);
 
-  while (indexOffset < dharmaPool.length) {
-    const hash = crypto.createHash('sha256')
-      .update(iso + 'buddhist-salt-2026' + indexOffset)
-      .digest('hex');
-    const seedInt = parseInt(hash.substring(0, 8), 16);
-    const index = seedInt % dharmaPool.length;
-    const candidate = dharmaPool[index];
+  // 2. 抽「藏」: 經(0), 律(1), 論(2)
+  const tripitakaList = ['經', '律', '論'];
+  
+  for (let offset = 0; offset < 100; offset++) {
+    const currentSeed = mainSeed + offset;
+    const tripIndex = currentSeed % 3;
+    const targetTrip = tripitakaList[tripIndex];
 
-    // 如果沒出現在近期紀錄，或是已經試過所有可能（防死循環），就選它
-    if (!recentSources.has(candidate.s) || indexOffset === dharmaPool.length - 1) {
-      selectedDharma = candidate;
-      break;
+    const tripPool = dharmaPool.filter(p => p.trip === targetTrip);
+    if (tripPool.length === 0) continue;
+
+    const dharmaIndex = (currentSeed >> 2) % tripPool.length;
+    const candidate = tripPool[dharmaIndex];
+
+    if (!recentSources.has(candidate.s)) {
+      return candidate;
     }
-    indexOffset++;
   }
-  return selectedDharma;
+  return dharmaPool[mainSeed % dharmaPool.length];
 }
 
 async function autoRecordToday() {
   const today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'});
-  const dharma = await getDharmaForDate(today); // 改為 await
+  const dharma = await getDharmaForDate(today);
   try {
-    // 1. 記錄歷史 (確保存入中文正文與思索)
     query(`
-      INSERT INTO dharma_history (date, source, text, reflection) 
-      VALUES (?, ?, ?, ?)
+      INSERT INTO dharma_history (date, source, text, reflection, tripitaka, division) 
+      VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(date) DO UPDATE SET
-        source = excluded.source,
-        text = excluded.text,
-        reflection = excluded.reflection
-    `, [today, dharma.s, dharma.t, dharma.r]);
+        source = excluded.source, text = excluded.text,
+        reflection = excluded.reflection, tripitaka = excluded.tripitaka, division = excluded.division
+    `, [today, dharma.s, dharma.t, dharma.r, dharma.trip, dharma.div]);
     
-    // 2. 確保翻譯在 DB 中 (含英文思索)
     query(`
       INSERT INTO dharma_en (source, source_en, text_en, reflection_en)
       VALUES (?, ?, ?, ?)
       ON CONFLICT(source) DO UPDATE SET
-        source_en = excluded.source_en,
-        text_en = excluded.text_en,
-        reflection_en = excluded.reflection_en
+        source_en = excluded.source_en, text_en = excluded.text_en, reflection_en = excluded.reflection_en
     `, [dharma.s, dharma.se, dharma.te, dharma.re]);
-    console.log('[cron] Daily dharma recorded: ' + today);
+    console.log('[cron] Structured Daily Dharma recorded: ' + today);
   } catch(e) { console.error('[cron] Error:', e.message); }
 }
 
-// 啟動與每日檢查
+// ── API HANDLERS ──
+async function handleApi(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+  const method = req.method;
+
+  if (pathname === '/api/health') return sendJson(res, 200, { status:'ok', app:APP, version:VERSION, authRequired:!!APP_PASSWORD });
+
+  if (pathname === '/api/auth/login' && method === 'POST') {
+    const { password } = await readBody(req);
+    if (password === APP_PASSWORD) return sendJson(res, 200, { token: APP_PASSWORD });
+    return sendJson(res, 401, { error: 'Invalid password' });
+  }
+
+  if (pathname.startsWith('/api/dharma/history')) {
+    if (method === 'GET') {
+      const parts = pathname.split('/');
+      const dateParam = parts[parts.length - 1];
+      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+        const row = query("SELECT * FROM dharma_history WHERE date = ?", [dateParam])[0];
+        return sendJson(res, row ? 200 : 404, row || { error: 'Not found' });
+      }
+      return sendJson(res, 200, query("SELECT * FROM dharma_history ORDER BY date DESC"));
+    }
+    if (method === 'POST') {
+      const { date, source, text, reflection } = await readBody(req);
+      query("INSERT OR IGNORE INTO dharma_history (date, source, text, reflection) VALUES (?, ?, ?, ?)", [date, source, text, reflection]);
+      return sendJson(res, 200, { ok: true });
+    }
+  }
+
+  if (pathname === '/api/dharma/en') {
+    const src = url.searchParams.get('source');
+    const rows = src ? query("SELECT * FROM dharma_en WHERE source = ?", [src]) : query("SELECT * FROM dharma_en ORDER BY created_at DESC");
+    return sendJson(res, 200, rows);
+  }
+
+  if (pathname === '/api/essays' || pathname === '/api/mantras') {
+    const type = pathname.includes('mantras') ? 'mantra' : 'essay';
+    const src = url.searchParams.get('dharma_source');
+    let rows;
+    if (src) rows = query("SELECT * FROM essays WHERE type = ? AND dharma_source = ? ORDER BY created_at DESC", [type, src]);
+    else rows = query("SELECT * FROM essays WHERE type = ? ORDER BY created_at DESC", [type]);
+    return sendJson(res, 200, rows);
+  }
+
+  if (pathname.startsWith('/api/essays/') && (method === 'GET' || method === 'PUT' || method === 'DELETE')) {
+    const id = pathname.split('/').pop();
+    if (method === 'GET') return sendJson(res, 200, query("SELECT * FROM essays WHERE id = ?", [id])[0]);
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    if (method === 'DELETE') { query("DELETE FROM essays WHERE id = ?", [id]); return sendJson(res, 200, { ok: true }); }
+    const { title, tag, content, dharma_source } = await readBody(req);
+    query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title, tag, content, dharma_source, id]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (pathname === '/api/essays' && method === 'POST') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const { title, tag, content, dharma_source } = await readBody(req);
+    query("INSERT INTO essays (title, tag, content, dharma_source, type) VALUES (?, ?, ?, ?, 'essay')", [title, tag, content, dharma_source]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (pathname === '/api/mantras' && method === 'POST') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const { title, tag, content } = await readBody(req);
+    query("INSERT INTO essays (title, tag, content, type) VALUES (?, ?, ?, 'mantra')", [title, tag, content]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (pathname === '/api/gallery') {
+    if (method === 'GET') return sendJson(res, 200, query("SELECT * FROM gallery ORDER BY created_at DESC"));
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const { title, caption, image_url } = await readBody(req);
+    query("INSERT INTO gallery (title, caption, image_url) VALUES (?, ?, ?)", [title, caption, image_url]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  if (pathname.startsWith('/api/gallery/') && method === 'DELETE') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    query("DELETE FROM gallery WHERE id = ?", [pathname.split('/').pop()]);
+    return sendJson(res, 200, { ok: true });
+  }
+
+  return sendJson(res, 404, { error: 'Not found' });
+}
+
 autoRecordToday();
-setInterval(autoRecordToday, 60000); // 改為每分鐘檢查一次，確保午夜能即時更新
-
-// ── Main HTTP Server ─────────────────────────────────────────────────────────
-
+setInterval(autoRecordToday, 60000);
 initDb();
 
 http.createServer(async (req, res) => {
   const pathname = req.url.split('?')[0];
-
   if (req.method === 'OPTIONS') {
-    res.writeHead(200, {
-      'Access-Control-Allow-Origin':  '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    });
+    res.writeHead(200, { 'Access-Control-Allow-Origin':'*', 'Access-Control-Allow-Headers':'Content-Type, Authorization', 'Access-Control-Allow-Methods':'GET, POST, PUT, DELETE, OPTIONS' });
     return res.end();
   }
-
-  // All /api/* routes go to the API handler
-  if (pathname.startsWith('/api/')) {
-    try {
-      await handleApi(req, res);
-    } catch (err) {
-      console.error('API error:', err);
-      sendJson(res, 500, { error: 'Internal server error' });
-    }
-    return;
-  }
-
-  // Static file serving
+  if (pathname.startsWith('/api/')) return handleApi(req, res).catch(e => { console.error(e); sendJson(res, 500, {error:'Server error'}); });
   const filePath = path.join(ROOT, pathname);
   const ext = path.extname(filePath);
-
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      fs.readFile(path.join(ROOT, 'index.html'), (fallbackErr, fallbackData) => {
-        if (fallbackErr) { res.writeHead(404); return res.end('Not found'); }
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(fallbackData);
+      fs.readFile(path.join(ROOT, 'index.html'), (fErr, fData) => {
+        if (fErr) { res.writeHead(404); return res.end('Not found'); }
+        res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(fData);
       });
       return;
     }
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-    res.end(data);
+    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' }); res.end(data);
   });
 }).listen(PORT, () => console.log(`${APP} v${VERSION} on port ${PORT}`));
