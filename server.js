@@ -17,7 +17,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '1.20';
+const VERSION = '2.0';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -128,7 +128,7 @@ async function getDharmaForDate(iso) {
     const dharmaIndex = (currentSeed >> 2) % tripPool.length;
     const candidate = tripPool[dharmaIndex];
 
-    if (!recentSources.has(candidate.s)) {
+    if (!recentSources.has(candidate.s) && !recentTexts.has(candidate.t)) {
       return candidate;
     }
   }
