@@ -17,7 +17,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.0';
+const VERSION = '2.1';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -105,10 +105,10 @@ const dharmaPool = [
 async function getDharmaForDate(iso) {
   // 取得近期歷史避重 (20天)
   const recentSourcesRows = await query(`
-    SELECT source FROM dharma_history 
+    SELECT source, text FROM dharma_history 
     WHERE date < ? AND date >= date(?, '-20 days')
   `, [iso, iso]);
-  const recentSources = new Set(recentSourcesRows.map(r => r.source));
+  const recentSources = new Set(recentSourcesRows.map(r => r.source));  const recentTexts = new Set(recentSourcesRows.map(r => r.text));
 
   // 1. 生成日期哈希作為基礎種子
   const hash = crypto.createHash('sha256').update(iso + 'buddhist-structure-salt-2026').digest('hex');
