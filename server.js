@@ -17,7 +17,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.1';
+const VERSION = '2.2';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -139,13 +139,15 @@ async function autoRecordToday() {
   const today = new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Kuala_Lumpur'});
   const dharma = await getDharmaForDate(today);
   try {
+    const cb=cbetaData[dharma.s]||{};
     query(`
-      INSERT INTO dharma_history (date, source, text, reflection, tripitaka, division) 
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO dharma_history (date, source, text, reflection, tripitaka, division, cbeta_url, cbeta_label, alt_links)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(date) DO UPDATE SET
         source = excluded.source, text = excluded.text,
-        reflection = excluded.reflection, tripitaka = excluded.tripitaka, division = excluded.division
-    `, [today, dharma.s, dharma.t, dharma.r, dharma.trip, dharma.div]);
+        reflection = excluded.reflection, tripitaka = excluded.tripitaka, division = excluded.division,
+        cbeta_url = excluded.cbeta_url, cbeta_label = excluded.cbeta_label, alt_links = excluded.alt_links
+    `, [today, dharma.s, dharma.t, dharma.r, dharma.trip, dharma.div, cb.cu||'', cb.cl||'', cb.al||null]);
     
     query(`
       INSERT INTO dharma_en (source, source_en, text_en, reflection_en)
