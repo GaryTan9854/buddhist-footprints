@@ -17,7 +17,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.3';
+const VERSION = '2.4';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -102,6 +102,7 @@ const dharmaPool = [
   { s:'《信心銘》', t:'唯嫌揀擇。', r:'道就在眼前，難在我們總是帶著偏見去挑選。', trip:'論', div:'3伽陀', se:'Inscribed on the Believing Mind', te:'The Way reveals itself when choosing based on preference stops.', re:'The only difficulty is our constant selecting based on likes and dislikes.' }
 ];
 
+const cbetaData={'《金剛經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cl:'金剛經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93"}]'},'《法華經》方便品':{cu:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cl:'法華經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93"}]'},'《心經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cl:'心經全文 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93"}]'},'《阿彌陀經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cl:'阿彌陀經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AA%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93"}]'},'《圓覺經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cl:'圓覺經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93"}]'},'《華嚴經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0279_001',cl:'華嚴經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93"}]'},'《楞嚴經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cl:'楞嚴經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93"}]'},'《維摩詰經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cl:'維摩詰經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93"}]'},'《法句經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0210_001',cl:'法句經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E6%B3%95%E5%8F%A5%E7%B6%93"}]'},'《佛說八大人覺經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0779_001',cl:'八大人覺經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AA%E5%85%AB%E5%A4%A7%E4%BA%BA%E8%A6%BA%E7%B6%93"}]'},'《地藏經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0412_001',cl:'地藏經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%9C%B0%E8%97%8F%E8%8F%A9%E8%96%A9%E6%9C%AC%E9%A1%98%E7%B6%93"}]'},'《藥師經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0450_001',cl:'藥師經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E8%97%A5%E5%B8%AB%E7%90%89%E7%92%83%E5%85%89%E5%A6%82%E4%BE%86%E6%9C%AC%E9%A1%98%E7%B6%93"}]'},'《四分律》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1428_001',cl:'四分律 · CBETA',al:null},'《根本說一切有部毗奈耶》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1442_001',cl:'根有部毗奈耶 · CBETA',al:null},'《五分律》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1421_001',cl:'五分律 · CBETA',al:null},'《大比丘三千威儀》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1470_001',cl:'三千威儀 · CBETA',al:null},'龍樹菩薩《中論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1564_001',cl:'中論 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%B8%AD%E8%AB%96"}]'},'彌勒菩薩《瑜伽師地論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1579_001',cl:'瑜伽師地論 · CBETA',al:null},'馬鳴菩薩《大乘起信論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1666_001',cl:'大乘起信論 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E4%B9%98%E8%B5%B7%E4%BF%A1%E8%AB%96"}]'},'僧璨禪師《信心銘》':{cu:'https://cbetaonline.dila.edu.tw/zh/T2010_001',cl:'信心銘 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BF%A1%E5%BF%83%E9%8A%98"}]'},'馬祖道一禪師':{cu:'',cl:'',al:null},'黃檗希運禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cl:'傳心法要 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81"}]'},'臨濟義玄禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cl:'臨濟錄 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84"}]'},'百丈懷海禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/X1452_001',cl:'百丈廣錄 · CBETA',al:null},'趙州從諗禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cl:'趙州錄 · CBETA',al:'[{"label":"佛門網","url":"https://www.buddhistdoor.org/tc/chan/detail/16400"}]'},'龐蘊居士':{cu:'',cl:'',al:null},'永嘉玄覺禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cl:'證道歌 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C"}]'},'寒山詩':{cu:'https://cbetaonline.dila.edu.tw/zh/T2052_001',cl:'寒山詩 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%AF%92%E5%B1%B1%E5%AD%90%E8%A9%A9%E9%9B%86"}]'},'雲門文偃禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cl:'雲門廣錄 · CBETA',al:null},'洞山良价禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cl:'洞山語錄 · CBETA',al:'[{"label":"曹洞宗","url":"https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97"}]'},'蘇東坡':{cu:'',cl:'',al:null},'《信心銘》':{cu:'https://cbetaonline.dila.edu.tw/zh/T2010_001',cl:'信心銘 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BF%A1%E5%BF%83%E9%8A%98"}]'}};
 async function getDharmaForDate(iso) {
   // 取得近期歷史避重 (20天)
   const recentSourcesRows = await query(`
@@ -125,14 +126,14 @@ async function getDharmaForDate(iso) {
     const tripPool = dharmaPool.filter(p => p.trip === targetTrip);
     if (tripPool.length === 0) continue;
 
-    const dharmaIndex = (currentSeed >> 2) % tripPool.length;
+    const dharmaIndex = (currentSeed >>> 2) % tripPool.length;
     const candidate = tripPool[dharmaIndex];
 
     if (!recentSources.has(candidate.s) && !recentTexts.has(candidate.t)) {
       return candidate;
     }
   }
-  return dharmaPool[mainSeed % dharmaPool.length];
+  return dharmaPool[(mainSeed >>> 0) % dharmaPool.length];
 }
 
 async function autoRecordToday() {
