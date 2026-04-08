@@ -224,7 +224,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.2</span>
+    <span class="site-version" id="versionBadge">v2.3</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -481,6 +481,15 @@ function showPage(name, btn) {
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
 document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); });
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  const lb=document.getElementById('lightbox');
+  if(lb&&lb.classList.contains('open')){lb.classList.remove('open');return;}
+  const om=document.querySelector('.modal-overlay.open');
+  if(om){om.classList.remove('open');return;}
+  const back=document.querySelector('.detail-back');
+  if(back)back.click();
+});
 </script>
 </body>
 </html>
