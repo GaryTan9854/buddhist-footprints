@@ -17,7 +17,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.6';
+const VERSION = '2.7';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -107,7 +107,7 @@ async function getDharmaForDate(iso) {
   // 取得近期歷史避重 (20天)
   const recentSourcesRows = await query(`
     SELECT source, text FROM dharma_history 
-    WHERE date < ? AND date >= date(?, '-20 days')
+    WHERE date < ? AND date >= date(?, '-30 days')
   `, [iso, iso]);
   const recentSources = new Set(recentSourcesRows.map(r => r.source));  const recentTexts = new Set(recentSourcesRows.map(r => r.text));
 
