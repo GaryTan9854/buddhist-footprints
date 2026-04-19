@@ -21,6 +21,10 @@ if [[ -z "${APP_PASSWORD:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${DEEPSEEK_API_KEY:-}" ]]; then
+  echo "⚠️  DEEPSEEK_API_KEY is not set in $REPO_DIR/.env — AI-generated daily dharma will be skipped (fallback to local pool)."
+fi
+
 # ── 1. Auto-bump version (major.minor) ─────────────────────────────────────────
 # Read current version from package.json
 VERSION=$(node -e "console.log(require('./package.json').version)")
@@ -80,9 +84,14 @@ rsync -av --delete \
   --exclude='*.db-wal' \
   "$REPO_DIR/" "$REMOTE_HOST:$REMOTE_DIR/"
 
-# ── 4. Update APP_PASSWORD on MBP + restart PM2 ───────────────────────────────
+# ── 4. Update APP_PASSWORD + DEEPSEEK_API_KEY on MBP + restart PM2 ───────────
 echo "🔑 Updating remote APP_PASSWORD..."
 ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && touch .env && if grep -q \"^APP_PASSWORD=\" .env; then perl -0pi -e \"s/^APP_PASSWORD=.*/APP_PASSWORD=$APP_PASSWORD/m\" .env; else printf \"\\nAPP_PASSWORD=$APP_PASSWORD\\n\" >> .env; fi'"
+
+if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then
+  echo "🔑 Updating remote DEEPSEEK_API_KEY..."
+  ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && touch .env && if grep -q \"^DEEPSEEK_API_KEY=\" .env; then perl -0pi -e \"s|^DEEPSEEK_API_KEY=.*|DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY|m\" .env; else printf \"\\nDEEPSEEK_API_KEY=$DEEPSEEK_API_KEY\\n\" >> .env; fi && if grep -q \"^ANTHROPIC_API_KEY=\" .env; then perl -0pi -e \"s/^ANTHROPIC_API_KEY=.*\\n?//m\" .env; fi'"
+fi
 
 echo "♻️  Restarting PM2 $PM2_APP_NAME..."
 ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && set -a && source .env && set +a && NODE_ENV=production pm2 restart $PM2_APP_NAME --update-env && sleep 2 && curl -fsSL $HEALTH_URL'"
