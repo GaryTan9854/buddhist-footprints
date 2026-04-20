@@ -1,6 +1,6 @@
 {
   "name": "buddhist-footprints",
-  "version": "2.12",
+  "version": "2.13",
   "description": "Buddhist Footprints — daily dharma, essays, mantras, gallery",
   "main": "server.js",
   "scripts": {

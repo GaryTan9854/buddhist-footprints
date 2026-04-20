@@ -25,7 +25,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.12';
+const VERSION = '2.13';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -112,11 +112,12 @@ const dharmaPool = [
 
 const cbetaData={'《金剛經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0235_001',cl:'金剛經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%87%91%E5%89%9B%E7%B6%93"}]'},'《法華經》方便品':{cu:'https://cbetaonline.dila.edu.tw/zh/T0262_001',cl:'法華經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A6%99%E6%B3%95%E8%8D%B3%E8%8F%AF%E7%B6%93"}]'},'《心經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0251_001',cl:'心經全文 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E8%88%AC%E8%8B%A5%E6%B3%A2%E7%BE%85%E8%9C%9C%E5%A4%9A%E5%BF%83%E7%B6%93"}]'},'《阿彌陀經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0366_001',cl:'阿彌陀經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AA%E9%98%BF%E5%BD%8C%E9%99%80%E7%B6%93"}]'},'《圓覺經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0842_001',cl:'圓覺經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%9C%93%E8%A6%BA%E7%B6%93"}]'},'《華嚴經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0279_001',cl:'華嚴經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E6%96%B9%E5%BB%A3%E4%BD%9B%E8%8F%AF%E5%9A%B4%E7%B6%93"}]'},'《楞嚴經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0945_001',cl:'楞嚴經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E4%BD%9B%E9%A0%82%E9%A6%96%E6%A5%9E%E5%9A%B4%E7%B6%93"}]'},'《維摩詰經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0475_001',cl:'維摩詰經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E7%B6%AD%E6%91%A9%E8%A9%B0%E6%89%80%E8%AA%AA%E7%B6%93"}]'},'《法句經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0210_001',cl:'法句經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E6%B3%95%E5%8F%A5%E7%B6%93"}]'},'《佛說八大人覺經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0779_001',cl:'八大人覺經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BD%9B%E8%AA%AA%E5%85%AB%E5%A4%A7%E4%BA%BA%E8%A6%BA%E7%B6%93"}]'},'《地藏經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0412_001',cl:'地藏經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%9C%B0%E8%97%8F%E8%8F%A9%E8%96%A9%E6%9C%AC%E9%A1%98%E7%B6%93"}]'},'《藥師經》':{cu:'https://cbetaonline.dila.edu.tw/zh/T0450_001',cl:'藥師經 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E8%97%A5%E5%B8%AB%E7%90%89%E7%92%83%E5%85%89%E5%A6%82%E4%BE%86%E6%9C%AC%E9%A1%98%E7%B6%93"}]'},'《四分律》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1428_001',cl:'四分律 · CBETA',al:null},'《根本說一切有部毗奈耶》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1442_001',cl:'根有部毗奈耶 · CBETA',al:null},'《五分律》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1421_001',cl:'五分律 · CBETA',al:null},'《大比丘三千威儀》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1470_001',cl:'三千威儀 · CBETA',al:null},'龍樹菩薩《中論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1564_001',cl:'中論 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%B8%AD%E8%AB%96"}]'},'彌勒菩薩《瑜伽師地論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1579_001',cl:'瑜伽師地論 · CBETA',al:null},'馬鳴菩薩《大乘起信論》':{cu:'https://cbetaonline.dila.edu.tw/zh/T1666_001',cl:'大乘起信論 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%A4%A7%E4%B9%98%E8%B5%B7%E4%BF%A1%E8%AB%96"}]'},'僧璨禪師《信心銘》':{cu:'https://cbetaonline.dila.edu.tw/zh/T2010_001',cl:'信心銘 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BF%A1%E5%BF%83%E9%8A%98"}]'},'馬祖道一禪師':{cu:'',cl:'',al:null},'黃檗希運禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T2012A_001',cl:'傳心法要 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%BB%83%E8%AD%A6%E6%96%B7%E9%9A%9B%E7%A6%AA%E5%B8%AB%E5%82%B3%E5%BF%83%E6%B3%95%E8%A6%81"}]'},'臨濟義玄禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1985_001',cl:'臨濟錄 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E9%8E%AE%E6%BF%9F%E6%85%A7%E7%85%A7%E7%A6%AA%E5%B8%AB%E8%AA%9E%E9%8C%84"}]'},'百丈懷海禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/X1452_001',cl:'百丈廣錄 · CBETA',al:null},'趙州從諗禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/J30nB271_001',cl:'趙州錄 · CBETA',al:'[{"label":"佛門網","url":"https://www.buddhistdoor.org/tc/chan/detail/16400"}]'},'龐蘊居士':{cu:'',cl:'',al:null},'永嘉玄覺禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T2014_001',cl:'證道歌 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E6%B0%B8%E5%98%89%E8%AD%89%E9%81%93%E6%AD%8C"}]'},'寒山詩':{cu:'https://cbetaonline.dila.edu.tw/zh/T2052_001',cl:'寒山詩 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E5%AF%92%E5%B1%B1%E5%AD%90%E8%A9%A9%E9%9B%86"}]'},'雲門文偃禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1988_001',cl:'雲門廣錄 · CBETA',al:null},'洞山良价禪師':{cu:'https://cbetaonline.dila.edu.tw/zh/T1986B_001',cl:'洞山語錄 · CBETA',al:'[{"label":"曹洞宗","url":"https://zh.wikipedia.org/wiki/%E6%9B%B9%E6%B4%9E%E5%AE%97"}]'},'蘇東坡':{cu:'',cl:'',al:null},'《信心銘》':{cu:'https://cbetaonline.dila.edu.tw/zh/T2010_001',cl:'信心銘 · CBETA',al:'[{"label":"維基文庫","url":"https://zh.wikisource.org/wiki/%E4%BF%A1%E5%BF%83%E9%8A%98"}]'}};
 
-async function generateDharmaViaAI(iso, targetTrip, usedTexts) {
+async function generateDharmaViaAI(iso, targetTrip, usedTexts, recentSources) {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) return null;
   const tripName = {'經':'經藏（契經、律典之外的修多羅）','律':'律藏（戒律、威儀）','論':'論藏（論師、禪師語錄）'}[targetTrip] || targetTrip;
   const recentList = [...usedTexts].slice(-80).map(t => `• ${t}`).join('\n');
+  const recentSourceList = [...recentSources].slice(-20).map(s => `• ${s}`).join('\n');
   const prompt = `你是佛學專家，精通三藏十二部。請從「${tripName}」中，選取一句真實的佛典或祖師語錄，作為今日（${iso}）的每日一句。
 
 **要求：**
@@ -124,8 +125,10 @@ async function generateDharmaViaAI(iso, targetTrip, usedTexts) {
 2. 簡短有力，10–60字，適合每日靜思
 3. 請勿使用以下已用過的句子：
 ${recentList}
-4. 附上 CBETA Online 網址（若有，格式：https://cbetaonline.dila.edu.tw/zh/TXXXX_XXX），可自行判斷是否有對應頁面
-5. 十二部分類：修多羅/祇夜/伽陀/尼陀那/本事/本生/未曾有法/毘佛略/優婆提舍/因緣/自說/論議（擇一最貼切）
+4. 請勿使用以下近期已出現過的出處：
+${recentSourceList}
+5. 附上 CBETA Online 網址（若有，格式：https://cbetaonline.dila.edu.tw/zh/TXXXX_XXX），可自行判斷是否有對應頁面
+6. 十二部分類：修多羅/祇夜/伽陀/尼陀那/本事/本生/未曾有法/毘佛略/優婆提舍/因緣/自說/論議（擇一最貼切）
 
 **請只輸出 JSON，不要其他文字：**
 {
@@ -167,8 +170,15 @@ ${recentList}
 
 async function getDharmaForDate(iso) {
   // 查全部歷史，確保不重複（無時間視窗限制）
-  const allRows = await query(`SELECT text FROM dharma_history WHERE date < ?`, [iso]);
+  const allRows = await query(`SELECT source, text FROM dharma_history WHERE date < ?`, [iso]);
   const usedTexts = new Set(allRows.map(r => r.text));
+  const recentSources = new Set();
+  for (const row of await query(`
+    SELECT source FROM dharma_history
+    WHERE date < ? AND date >= date(?, '-20 days')
+  `, [iso, iso])) {
+    recentSources.add(row.source);
+  }
 
   // 三藏輪選：以日期 hash 決定今天取哪一藏
   const hash = crypto.createHash('sha256').update(iso + 'buddhist-structure-salt-2026').digest('hex');
@@ -177,8 +187,8 @@ async function getDharmaForDate(iso) {
   const targetTrip = tripitakaList[mainSeed % 3];
 
   // 1. 優先：AI 從浩瀚佛典即時生成
-  const aiResult = await generateDharmaViaAI(iso, targetTrip, usedTexts);
-  if (aiResult && !usedTexts.has(aiResult.t)) {
+  const aiResult = await generateDharmaViaAI(iso, targetTrip, usedTexts, recentSources);
+  if (aiResult && !usedTexts.has(aiResult.t) && !recentSources.has(aiResult.s)) {
     console.log(`[AI] generated: ${aiResult.s}`);
     return aiResult;
   }
@@ -192,18 +202,32 @@ async function getDharmaForDate(iso) {
     if (tripPool.length === 0) continue;
     const dharmaIndex = (currentSeed >>> 2) % tripPool.length;
     const candidate = tripPool[dharmaIndex];
-    if (!usedTexts.has(candidate.t)) { return candidate; }
+    if (!usedTexts.has(candidate.t) && !recentSources.has(candidate.s)) { return candidate; }
   }
 
   // 3. LRU fallback：選最久沒出現的那則
   const lruRows = await query(`SELECT text, MAX(date) as last_used FROM dharma_history WHERE date < ? GROUP BY text`, [iso]);
   const lu = {}; lruRows.forEach(r => { lu[r.text] = r.last_used; });
+  const sourceRows = await query(`SELECT source, MAX(date) as last_used FROM dharma_history WHERE date < ? GROUP BY source`, [iso]);
+  const sourceLastUsed = {};
+  sourceRows.forEach(r => { sourceLastUsed[r.source] = r.last_used; });
   let oldest = null, oldestDate = iso;
   for (const e of dharmaPool) {
+    if (recentSources.has(e.s)) continue;
     const d = lu[e.t] || '0000-00-00';
     if (d < oldestDate) { oldest = e; oldestDate = d; }
   }
-  return oldest || dharmaPool[(mainSeed >>> 0) % dharmaPool.length];
+  if (oldest) return oldest;
+
+  let oldestSource = null;
+  let oldestSourceDate = iso;
+  for (const e of dharmaPool) {
+    const d = sourceLastUsed[e.s] || '0000-00-00';
+    if (d < oldestSourceDate) { oldestSource = e; oldestSourceDate = d; }
+  }
+  if (oldestSource) return oldestSource;
+
+  return dharmaPool[(mainSeed >>> 0) % dharmaPool.length];
 }
 
 function getStoredDharmaForDate(iso) {
