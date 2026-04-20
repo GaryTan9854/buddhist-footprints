@@ -144,11 +144,11 @@ body::before {
 
 /* ── LISTS & DETAIL ── */
 .history-empty { text-align:center;padding:44px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2; }
-.history-item { display:grid;grid-template-columns:130px 1fr 20px;align-items:start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(184,149,42,0.09);cursor:pointer;transition:all 0.18s; }
+.history-item { display:grid;grid-template-columns:minmax(220px, 240px) minmax(0, 1fr) 20px;align-items:start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(184,149,42,0.09);cursor:pointer;transition:all 0.18s; }
 .history-item:last-child{border-bottom:none;}
 .history-item:hover{background:var(--gold-pale);margin:0 -30px;padding-left:30px;padding-right:30px;}
-.history-date { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-faint);padding-top:3px;white-space:nowrap; }
-.today-badge { display:inline-block;font-size:9px;letter-spacing:1px;background:var(--gold);color:var(--rice);padding:1px 7px;border-radius:1px;margin-left:5px; }
+.history-date { display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:2px;color:var(--ink-faint);padding-top:3px;min-width:0;line-height:1.7; }
+.today-badge { display:inline-flex;align-items:center;font-size:9px;letter-spacing:1px;background:var(--gold);color:var(--rice);padding:1px 7px;border-radius:1px;flex:0 0 auto; }
 .history-source { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:5px; }
 .history-quote { font-size:15px;line-height:1.9;color:var(--ink-light);letter-spacing:0.04em; }
 .history-arrow { color:rgba(184,149,42,0.35);font-size:14px;align-self:center; }
@@ -290,7 +290,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.13</span>
+    <span class="site-version" id="versionBadge">v2.14</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
