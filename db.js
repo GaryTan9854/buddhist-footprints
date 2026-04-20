@@ -85,6 +85,23 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_gallery_created ON gallery(created_at);
   `);
 
+  const existingHistoryColumns = new Set(
+    database.prepare(`PRAGMA table_info(dharma_history)`).all().map((col) => col.name)
+  );
+  const historyColumnDefs = [
+    ['reflection', 'TEXT'],
+    ['tripitaka', 'TEXT'],
+    ['division', 'TEXT'],
+    ['cbeta_url', 'TEXT'],
+    ['cbeta_label', 'TEXT'],
+    ['alt_links', 'TEXT'],
+  ];
+  for (const [name, type] of historyColumnDefs) {
+    if (!existingHistoryColumns.has(name)) {
+      database.exec(`ALTER TABLE dharma_history ADD COLUMN ${name} ${type}`);
+    }
+  }
+
   // ── Seed dharma_en (5 English translations) ────────────────────────────────
   // Uses INSERT OR IGNORE so re-running initDb is safe
   const seedDharmaEn = database.prepare(`
