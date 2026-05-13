@@ -294,7 +294,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.16</span>
+    <span class="site-version" id="versionBadge">v2.17</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -587,14 +587,21 @@ async function routeFromHash() {
   const m = hash.match(/^#(dharma-en|dharma|essay|mantra)\/(.+)$/);
   if (!m) return;
   const [, type, id] = m;
+  function activatePage(name) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    const btn = document.querySelector(`.nav-btn[onclick*="${name}"]`);
+    if(btn) btn.classList.add('active');
+  }
   if (type === 'dharma') {
     switchDharmaTab('history'); await showDharmaDetail(id);
   } else if (type === 'dharma-en') {
     switchDharmaTab('en-history'); await showDharmaEnDetail(id);
   } else if (type === 'essay') {
-    showPage('essays', document.querySelector('.nav-btn[onclick*="essays"]')); await showEssayPageDetail(id);
+    activatePage('essays'); await showEssayPageDetail(id);
   } else if (type === 'mantra') {
-    showPage('mantras', document.querySelector('.nav-btn[onclick*="mantras"]')); await showMantraPageDetail(id);
+    activatePage('mantras'); await showMantraPageDetail(id);
   }
 }
 document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); routeFromHash(); });
