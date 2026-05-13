@@ -210,6 +210,10 @@ body::before {
 
 .site-footer { text-align:center;padding:32px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);opacity:0.45;border-top:1px solid var(--border);margin-top:40px; }
 
+.btn-share{display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.2);padding:4px 11px;border-radius:1px;cursor:pointer;transition:all 0.2s;}
+.btn-share:hover{color:var(--gold);border-color:var(--gold);background:var(--gold-pale);}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink-light);color:var(--rice);font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;padding:10px 22px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:9999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
@@ -290,7 +294,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.15</span>
+    <span class="site-version" id="versionBadge">v2.16</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -372,6 +376,7 @@ body::before {
 </div>
 
 <div class="lightbox" id="lightbox"><button class="lightbox-close" onclick="closeLightbox()">✕</button><img id="lightboxImg"></div>
+<div class="toast" id="toast"></div>
 
 <script>
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
@@ -424,20 +429,21 @@ function formatDateEn(iso) {
 
 async function fetchTodayDharma() { _todayDharma = await apiGet('/api/dharma/history/' + todayKey()); renderTodayDharma(); }
 
-function renderDharmaEntry(zh, en, dateLbl, mode) {
+function renderDharmaEntry(zh, en, dateLbl, mode, shareHash) {
   const alts = (zh.alt_links ? JSON.parse(zh.alt_links) : []).map(l => `<a class="more-link" href="${l.url}" target="_blank">↗ ${l.label}</a>`).join('');
+  const shareBtn = shareHash ? `<button class="btn-share" onclick="shareUrl('${shareHash}')">↗ 分享連結</button>` : '';
   if (mode === 'en') {
     return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
       <div class="dharma-source" style="flex-direction:column;gap:6px"><span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint)">${zh.source}</span><span>${en ? en.source_en : zh.source}</span></div>
       <div class="dharma-text" style="font-size:18px">${en ? en.text_en : zh.text}</div>
       <div class="dharma-reflection"><strong>REFLECTION</strong>${en ? en.reflection_en : 'Translation pending.'}</div>
-      <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
+      <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}</div>`;
   } else {
     return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
       <div class="dharma-source"><span>出處：${zh.source}</span>${zh.cbeta_url ? `<a class="dharma-link" href="${zh.cbeta_url}" target="_blank">☸ ${zh.cbeta_label || 'CBETA'}</a>` : ''}</div>
       <div class="dharma-text">${zh.text}</div>
       ${zh.reflection ? `<div class="dharma-reflection"><strong>今日思索</strong>${zh.reflection}</div>` : ''}
-      <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button></div>`;
+      <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}</div>`;
   }
 }
 
@@ -457,8 +463,9 @@ async function unlinkEssayFromDharma() { if(confirm('移除連結？')){ await a
 async function renderTodayDharma() {
   if(!_todayDharma) return;
   const btn = document.getElementById('langToggleBtn'); const body = document.getElementById('dharmaBody');
-  if(!_dharmaEnMode){ btn.textContent='EN'; btn.classList.remove('en-mode'); body.innerHTML = renderDharmaEntry(_todayDharma, null, null, 'zh'); }
-  else { btn.textContent='中'; btn.classList.add('en-mode'); const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(_todayDharma.source)); body.innerHTML = renderDharmaEntry(_todayDharma, enArr?.[0], null, 'en'); }
+  const shareHash = '#dharma/' + _todayDharma.date;
+  if(!_dharmaEnMode){ btn.textContent='EN'; btn.classList.remove('en-mode'); body.innerHTML = renderDharmaEntry(_todayDharma, null, null, 'zh', shareHash); }
+  else { btn.textContent='中'; btn.classList.add('en-mode'); const enArr = await apiGet('/api/dharma/en?source=' + encodeURIComponent(_todayDharma.source)); body.innerHTML = renderDharmaEntry(_todayDharma, enArr?.[0], null, 'en', shareHash); }
 }
 function toggleDharmaLang() { _dharmaEnMode = !_dharmaEnMode; renderTodayDharma(); }
 
@@ -472,35 +479,43 @@ function switchDharmaTab(tab) {
 }
 
 async function renderDharmaHistory() {
+  history.replaceState(null,'',location.pathname);
   const rows = await apiGet('/api/dharma/history'); const body = document.getElementById('historyBody');
   if(!rows || !rows.length){ body.innerHTML='尚無紀錄'; return; }
   const tk = todayKey();
   body.innerHTML = rows.map(e => `<div class="history-item" onclick="showDharmaDetail('${e.date}')"><div class="history-date">${formatDate(e.date)}${e.date===tk?'<span class="today-badge">今日</span>':''}</div><div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh')}`; }
+async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); history.replaceState(null,'','#dharma/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh', '#dharma/'+iso)}`; }
 
 async function renderDharmaEnHistory() {
+  history.replaceState(null,'',location.pathname);
   const [rows, enRows] = await Promise.all([apiGet('/api/dharma/history'), apiGet('/api/dharma/en')]);
   const enMap = {}; if(enRows) enRows.forEach(e => enMap[e.source]=e);
   const body = document.getElementById('enHistoryBody'); const tk = todayKey();
   body.innerHTML = rows.map(e => { const en = enMap[e.source]; return `<div class="history-item" onclick="showDharmaEnDetail('${e.date}')"><div class="history-date">${formatDateEn(e.date)}${e.date===tk?'<span class="today-badge">Today</span>':''}</div><div><div class="history-source">${en?en.source_en:e.source}</div><div class="history-quote">${en?en.text_en:e.text}</div></div><div class="history-arrow">›</div></div>`; }).join('');
 }
-async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); const enArr = await apiGet('/api/dharma/en?source='+encodeURIComponent(zh.source)); document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en')}`; }
+async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); const enArr = await apiGet('/api/dharma/en?source='+encodeURIComponent(zh.source)); history.replaceState(null,'','#dharma-en/'+iso); document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en', '#dharma-en/'+iso)}`; }
 
 async function renderEssayList() {
+  history.replaceState(null,'',location.pathname);
   const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayContent');
-  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') + 
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') +
     `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
 }
 async function showEssayPageDetail(id) {
-  const e = await apiGet('/api/essays/'+id); const wrap = document.getElementById('essayContent');
+  const e = await apiGet('/api/essays/'+id);
+  history.replaceState(null,'','#essay/'+id);
+  const wrap = document.getElementById('essayContent');
   wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList()">‹ 返回列表</button>
     <div class="card"><div class="card-body">
       <div class="essay-detail-date">${formatDate(e.created_at)}</div>
       <div class="essay-detail-title">${e.title}</div>
       <div class="essay-detail-divider"></div>
       <div class="essay-detail-body">${escHtml(e.content)}</div>
-      ${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button></div>`:''}
+      <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn-share" onclick="shareUrl('#essay/${id}')">↗ 分享連結</button>
+        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>`:''}
+      </div>
     </div></div>`;
 }
 function openEssayEditor(e, ds) { _editingType='essay'; _formDirty=false; document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
@@ -510,19 +525,25 @@ async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssa
 async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
 
 async function renderMantraList() {
+  history.replaceState(null,'',location.pathname);
   const mantras = await apiGet('/api/mantras'); const wrap = document.getElementById('mantraContent');
-  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>`:'') + 
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>`:'') +
     `<div class="essay-list">${(mantras||[]).map(e => `<div class="essay-card" onclick="showMantraPageDetail('${e.id}')"><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,100)}…</div></div>`).join('')}</div>`;
 }
 async function showMantraPageDetail(id) {
-  const e = await apiGet('/api/essays/'+id); const wrap = document.getElementById('mantraContent');
+  const e = await apiGet('/api/essays/'+id);
+  history.replaceState(null,'','#mantra/'+id);
+  const wrap = document.getElementById('mantraContent');
   wrap.innerHTML = `<button class="detail-back" onclick="renderMantraList()">‹ 返回列表</button>
     <div class="card"><div class="card-body">
       <div class="essay-detail-date">${formatDate(e.created_at)}</div>
       <div class="essay-detail-title">${e.title}</div>
       <div class="essay-detail-divider"></div>
       <div class="essay-detail-body">${escHtml(e.content)}</div>
-      ${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button></div>`:''}
+      <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn-share" onclick="shareUrl('#mantra/${id}')">↗ 分享連結</button>
+        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button>`:''}
+      </div>
     </div></div>`;
 }
 function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
@@ -549,7 +570,34 @@ function showPage(name, btn) {
 }
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
-document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); });
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function shareUrl(hash) {
+  const url = location.origin + location.pathname + hash;
+  if (navigator.share) { navigator.share({ title: document.title, url }); }
+  else { navigator.clipboard.writeText(url).then(() => showToast('連結已複製')); }
+}
+async function routeFromHash() {
+  const hash = location.hash;
+  if (!hash || hash === '#') return;
+  const m = hash.match(/^#(dharma-en|dharma|essay|mantra)\/(.+)$/);
+  if (!m) return;
+  const [, type, id] = m;
+  if (type === 'dharma') {
+    switchDharmaTab('history'); await showDharmaDetail(id);
+  } else if (type === 'dharma-en') {
+    switchDharmaTab('en-history'); await showDharmaEnDetail(id);
+  } else if (type === 'essay') {
+    showPage('essays', document.querySelector('.nav-btn[onclick*="essays"]')); await showEssayPageDetail(id);
+  } else if (type === 'mantra') {
+    showPage('mantras', document.querySelector('.nav-btn[onclick*="mantras"]')); await showMantraPageDetail(id);
+  }
+}
+document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); routeFromHash(); });
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
   const lb=document.getElementById('lightbox');
