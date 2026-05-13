@@ -25,7 +25,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '2.14';
+const VERSION = '2.15';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -296,7 +296,7 @@ async function handleApi(req, res) {
     return sendJson(res, 200, rows);
   }
 
-  if (pathname === '/api/essays' || pathname === '/api/mantras') {
+  if ((pathname === '/api/essays' || pathname === '/api/mantras') && method === 'GET') {
     const type = pathname.includes('mantras') ? 'mantra' : 'essay';
     const src = url.searchParams.get('dharma_source');
     let rows;

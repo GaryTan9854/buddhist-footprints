@@ -290,7 +290,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.14</span>
+    <span class="site-version" id="versionBadge">v2.15</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -340,12 +340,12 @@ body::before {
 
 <div class="modal-overlay" id="essayModal">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title" id="essayModalTitle">編輯內容</div><button class="modal-close" onclick="closeModal('essayModal')">✕</button></div>
+    <div class="modal-header"><div class="modal-title" id="essayModalTitle">編輯內容</div><button class="modal-close" onclick="closeEssayModalSafe()">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="essayEditId"><input type="hidden" id="essayDharmaSource">
-      <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput"></div>
-      <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="essayTagInput"></div>
-      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput"></textarea></div>
+      <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput" oninput="_formDirty=true"></div>
+      <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="essayTagInput" oninput="_formDirty=true"></div>
+      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput" oninput="_formDirty=true"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn-primary" onclick="saveEssay()">儲存</button></div>
   </div>
@@ -379,6 +379,8 @@ let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
 let _todayDharma = null;
 let _essayModalId = null;
+let _formDirty = false;
+let _editingType = 'essay';
 
 async function apiGet(path) { const r = await fetch(path); return r.ok ? r.json() : null; }
 async function apiPost(path, body) { const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)}, body:JSON.stringify(body) }); return {ok:r.ok, data:await r.json()}; }
@@ -501,8 +503,9 @@ async function showEssayPageDetail(id) {
       ${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button></div>`:''}
     </div></div>`;
 }
-function openEssayEditor(e, ds) { document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
-async function saveEssay() { const id=document.getElementById('essayEditId').value; const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value}; const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body); if(r.ok){ closeModal('essayModal'); renderEssayList(); } }
+function openEssayEditor(e, ds) { _editingType='essay'; _formDirty=false; document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
+function closeEssayModalSafe() { if(_formDirty && !confirm('您有未儲存的變更，確定要離開嗎？')) return; _formDirty=false; closeModal('essayModal'); }
+async function saveEssay() { const id=document.getElementById('essayEditId').value; const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value}; const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body); if(r.ok){ _formDirty=false; closeModal('essayModal'); if(_editingType==='mantra') renderMantraList(); else renderEssayList(); } }
 async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssayEditor(e); }
 async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
 
@@ -522,7 +525,7 @@ async function showMantraPageDetail(id) {
       ${isAdmin?`<div style="margin-top:20px"><button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button></div>`:''}
     </div></div>`;
 }
-function openMantraEditor(m) { document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
+function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
 async function editMantra(id) { const e=await apiGet('/api/essays/'+id); openMantraEditor(e); }
 async function deleteMantra(id) { if(confirm('確定？')){ await apiDelete('/api/essays/'+id); renderMantraList(); } }
 
@@ -552,7 +555,10 @@ document.addEventListener('keydown',e=>{
   const lb=document.getElementById('lightbox');
   if(lb&&lb.classList.contains('open')){lb.classList.remove('open');return;}
   const om=document.querySelector('.modal-overlay.open');
-  if(om){om.classList.remove('open');return;}
+  if(om){
+    if(om.id==='essayModal'){ closeEssayModalSafe(); return; }
+    om.classList.remove('open');return;
+  }
   const back=document.querySelector('.detail-back');
   if(back)back.click();
 });
