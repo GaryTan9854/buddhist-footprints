@@ -6,7 +6,8 @@
 <title>佛法足跡</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink:       #1a1612;
@@ -220,7 +221,7 @@ body::before {
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 @media(max-width:700px){
-  /* ── HEADER: wrap to logo row + scrollable nav row ── */
+  /* ── HEADER ── */
   .site-header{
     padding:0 16px; height:auto; flex-wrap:wrap; gap:0;
   }
@@ -257,7 +258,7 @@ body::before {
   .dharma-reflection{ font-size:12px; padding:12px 14px; }
   .dharma-source{ font-size:10px; }
 
-  /* ── HISTORY LIST (mobile: date stacks above source) ── */
+  /* ── HISTORY LIST ── */
   .history-item{
     grid-template-columns:1fr 16px;
     grid-template-areas:"date arrow" "content arrow";
@@ -296,7 +297,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.3</span>
+    <span class="site-version" id="versionBadge">v3.4</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -381,6 +382,21 @@ body::before {
 <div class="toast" id="toast"></div>
 
 <script>
+// --- MATH RENDERING START ---
+function initMathRendering(element) {
+  if (typeof renderMathInElement === 'function') {
+    renderMathInElement(element, {
+      delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '\\(', right: '\\)', display: false},
+          {left: '$', right: '$', display: false}
+      ],
+      throwOnError: false
+    });
+  }
+}
+// --- MATH RENDERING END ---
+
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
 let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
@@ -521,14 +537,8 @@ async function showEssayPageDetail(id) {
     </div></div>`;
   const essayBody = document.getElementById('essayDetailBody');
   essayBody.innerHTML = e.content;
-  if (typeof renderMathInElement === 'function') {
-    renderMathInElement(essayBody, {
-      delimiters: [
-          {left: '$$', right: '$$', display: true},
-          {left: '$', right: '$', display: false},
-      ]
-    });
-  }
+  // --- MATH RENDERING CALL ---
+  initMathRendering(essayBody);
 }
 function openEssayEditor(e, ds) { _editingType='essay'; _formDirty=false; document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
 function closeEssayModalSafe() { if(_formDirty && !confirm('您有未儲存的變更，確定要離開嗎？')) return; _formDirty=false; closeModal('essayModal'); }
@@ -551,12 +561,16 @@ async function showMantraPageDetail(id) {
       <div class="essay-detail-date">${formatDate(e.created_at)}</div>
       <div class="essay-detail-title">${e.title}</div>
       <div class="essay-detail-divider"></div>
-      <div class="essay-detail-body">${escHtml(e.content)}</div>
+      <div class="essay-detail-body" id="mantraDetailBody"></div>
       <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn-share" onclick="shareUrl('#mantra/${id}')">↗ 分享連結</button>
         ${isAdmin?`<button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button>`:''}
       </div>
     </div></div>`;
+  const mantraBody = document.getElementById('mantraDetailBody');
+  mantraBody.innerHTML = escHtml(e.content);
+  // --- MATH RENDERING CALL ---
+  initMathRendering(mantraBody);
 }
 function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
 async function editMantra(id) { const e=await apiGet('/api/essays/'+id); openMantraEditor(e); }
