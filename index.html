@@ -297,7 +297,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v2.19</span>
+    <span class="site-version" id="versionBadge">v2.20</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -514,12 +514,13 @@ async function showEssayPageDetail(id) {
       <div class="essay-detail-date">${formatDate(e.created_at)}</div>
       <div class="essay-detail-title">${e.title}</div>
       <div class="essay-detail-divider"></div>
-      <div class="essay-detail-body">${escHtml(e.content)}</div>
+      <div class="essay-detail-body" id="essayDetailBody">${e.content}</div>
       <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn-share" onclick="shareUrl('#essay/${id}')">↗ 分享連結</button>
         ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>`:''}
       </div>
-    </div></div>`;
+    </div></div>
+    <script>renderMathInElement(document.getElementById('essayDetailBody'));</script>`;
 }
 function openEssayEditor(e, ds) { _editingType='essay'; _formDirty=false; document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
 function closeEssayModalSafe() { if(_formDirty && !confirm('您有未儲存的變更，確定要離開嗎？')) return; _formDirty=false; closeModal('essayModal'); }
