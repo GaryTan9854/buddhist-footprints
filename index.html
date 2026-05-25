@@ -297,7 +297,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.4</span>
+    <span class="site-version" id="versionBadge">v3.5</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -385,11 +385,21 @@ body::before {
 // --- MATH RENDERING START ---
 function initMathRendering(element) {
   if (typeof renderMathInElement === 'function') {
+    // Pre-process text to wrap common isolated LaTeX commands in $ if they aren't already
+    let html = element.innerHTML;
+    // Regex to find things like \Delta x or \frac{...}{...} that are NOT inside $...$ or $$...$$
+    // This is a simplified heuristic: look for \ followed by common math words, 
+    // but try to avoid matching inside existing tags or delimiters.
+    // For now, let's target specific reported cases like \Delta
+    html = html.replace(/(?<![\$])\\Delta([a-zA-Z\s]*)(?![\$])/g, '$\\Delta$1$');
+    element.innerHTML = html;
+
     renderMathInElement(element, {
       delimiters: [
           {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
           {left: '\\(', right: '\\)', display: false},
-          {left: '$', right: '$', display: false}
+          {left: '\\[', right: '\\]', display: true}
       ],
       throwOnError: false
     });
