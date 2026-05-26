@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -174,7 +175,21 @@ body::before {
 .essay-detail-date { font-family:'Noto Sans TC',sans-serif; font-size:11px; letter-spacing:3px; color:var(--gold); margin-bottom:12px; }
 .essay-detail-title { font-size:24px; font-weight:400; letter-spacing:4px; color:var(--ink); margin-bottom:8px; line-height:1.7; }
 .essay-detail-divider { height:1px; background:linear-gradient(to right,var(--gold),transparent); margin:20px 0; width:120px; }
-.essay-detail-body { font-family:'Noto Serif TC',serif; font-size:16px; line-height:2.4; color:var(--ink-light); white-space:pre-wrap; text-align:justify; }
+.essay-detail-body { font-family:'Noto Serif TC',serif; font-size:16px; line-height:2.4; color:var(--ink-light); text-align:justify; }
+.essay-detail-body p { margin-bottom:18px; }
+.essay-detail-body h1,.essay-detail-body h2,.essay-detail-body h3 { font-weight:500;letter-spacing:2px;color:var(--ink);margin:24px 0 10px;line-height:1.8; }
+.essay-detail-body h1 { font-size:21px; }
+.essay-detail-body h2 { font-size:18px; }
+.essay-detail-body h3 { font-size:16px;color:var(--gold); }
+.essay-detail-body strong { color:var(--ink);font-weight:600; }
+.essay-detail-body em { font-style:italic;color:var(--ink-faint); }
+.essay-detail-body blockquote { border-left:3px solid var(--gold);padding:4px 18px;margin:18px 0;color:var(--ink-faint);background:var(--gold-pale);border-radius:0 2px 2px 0; }
+.essay-detail-body ul,.essay-detail-body ol { padding-left:26px;margin-bottom:16px; }
+.essay-detail-body li { margin-bottom:8px; }
+.essay-detail-body code { font-family:monospace;background:rgba(184,149,42,0.1);padding:2px 6px;border-radius:2px;font-size:0.88em; }
+.essay-detail-body pre { background:rgba(26,22,18,0.05);padding:14px;border-radius:2px;overflow-x:auto;margin-bottom:16px; }
+.essay-detail-body pre code { background:none;padding:0; }
+.essay-detail-body hr { border:none;border-top:1px solid var(--border);margin:24px 0; }
 
 /* ── MODAL ── */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(26,22,18,0.55);z-index:200;align-items:center;justify-content:center;padding:24px; }
@@ -205,7 +220,19 @@ body::before {
 .lightbox-close{position:absolute;top:24px;right:28px;background:none;border:none;cursor:pointer;color:rgba(244,239,230,0.5);font-size:24px;}
 
 /* ── ESSAY VIEW MODAL ── */
-.essay-view-body { font-family:'Noto Serif TC',serif;font-size:15px;line-height:2;color:var(--ink-light);white-space:pre-wrap;padding:16px 0; }
+.essay-view-body { font-family:'Noto Serif TC',serif;font-size:15px;line-height:2;color:var(--ink-light);padding:16px 0; }
+.essay-view-body p { margin-bottom:14px; }
+.essay-view-body h1,.essay-view-body h2,.essay-view-body h3 { font-weight:500;letter-spacing:2px;color:var(--ink);margin:18px 0 8px; }
+.essay-view-body h1 { font-size:18px; }
+.essay-view-body h2 { font-size:16px; }
+.essay-view-body h3 { font-size:14px;color:var(--gold); }
+.essay-view-body strong { color:var(--ink);font-weight:600; }
+.essay-view-body em { font-style:italic;color:var(--ink-faint); }
+.essay-view-body blockquote { border-left:3px solid var(--gold);padding:4px 16px;margin:14px 0;color:var(--ink-faint);background:var(--gold-pale); }
+.essay-view-body ul,.essay-view-body ol { padding-left:22px;margin-bottom:12px; }
+.essay-view-body li { margin-bottom:6px; }
+.essay-view-body code { font-family:monospace;background:rgba(184,149,42,0.1);padding:2px 5px;border-radius:2px;font-size:0.88em; }
+.essay-view-body hr { border:none;border-top:1px solid var(--border);margin:18px 0; }
 .btn-unlink { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--verm);background:none;border:1px solid rgba(155,58,42,0.3);border-radius:1px;padding:4px 12px;cursor:pointer;margin-bottom:16px; }
 
 .loading-spinner { text-align:center;padding:48px;font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;color:var(--ink-faint); }
@@ -297,7 +324,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.6</span>
+    <span class="site-version" id="versionBadge">v3.7</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -398,6 +425,17 @@ function initMathRendering(element) {
 }
 // --- MATH RENDERING END ---
 
+function renderMarkdown(text) {
+  if (typeof marked === 'undefined') return escHtml(text || '').replace(/\n/g,'<br>');
+  // CommonMark treats CJK punctuation (「」（）etc.) as punctuation chars, which breaks
+  // left/right-flanking detection for ** and * — pre-convert them to HTML first.
+  const processed = (text || '')
+    .replace(/\*\*\*([^*\n]+)\*\*\*/g, '<strong><em>$1</em></strong>')
+    .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(?<!\*)\*(?!\*)([^*\n]+)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+  return marked.parse(processed, { breaks: true });
+}
+
 const ADMIN_TOKEN_KEY = 'bf_admin_token';
 let isAdmin = Boolean(sessionStorage.getItem(ADMIN_TOKEN_KEY));
 let _dharmaEnMode = false;
@@ -472,7 +510,9 @@ async function handleEssayClick(source, btn) {
 }
 function showEssayModal(essay) {
   document.getElementById('essayViewTitle').textContent = essay.title;
-  document.getElementById('essayViewContent').textContent = essay.content;
+  const viewContent = document.getElementById('essayViewContent');
+  viewContent.innerHTML = renderMarkdown(essay.content);
+  initMathRendering(viewContent);
   document.getElementById('essayViewMeta').innerHTML = `<span style="font-size:11px;color:var(--ink-faint)">${formatDate(essay.created_at)}</span>`;
   document.getElementById('essayViewUnlink').style.display = isAdmin ? 'block' : 'none';
   _essayModalId = essay.id; openModal('essayViewModal');
@@ -537,7 +577,7 @@ async function showEssayPageDetail(id) {
       </div>
     </div></div>`;
   const essayBody = document.getElementById('essayDetailBody');
-  essayBody.textContent = e.content;
+  essayBody.innerHTML = renderMarkdown(e.content);
   // --- MATH RENDERING CALL ---
   initMathRendering(essayBody);
 }
@@ -569,7 +609,7 @@ async function showMantraPageDetail(id) {
       </div>
     </div></div>`;
   const mantraBody = document.getElementById('mantraDetailBody');
-  mantraBody.innerHTML = escHtml(e.content);
+  mantraBody.innerHTML = renderMarkdown(e.content);
   // --- MATH RENDERING CALL ---
   initMathRendering(mantraBody);
 }
