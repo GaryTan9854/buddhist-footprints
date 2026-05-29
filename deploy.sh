@@ -64,10 +64,15 @@ echo "🚀 Deploying Buddhist Footprints v$NEXT..."
 
 # ── 2. Git commit & push ───────────────────────────────────────────────────────
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "📦 Git commit & push..."
+  echo "📦 Git commit..."
   git add -A
   git commit -m "Deploy Buddhist Footprints v$NEXT"
-  git push origin main
+  echo "📤 Git push..."
+  if git push origin main 2>&1; then
+    echo "✅ Git push 成功"
+  else
+    echo "⚠️  Git push 失敗（網路問題？），跳過，繼續 deploy..."
+  fi
 else
   echo "✅ Git: 無變更，跳過 commit"
 fi

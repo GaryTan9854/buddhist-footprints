@@ -25,7 +25,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.8';
+const VERSION = '3.9';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -182,7 +182,7 @@ async function getDharmaForDate(iso) {
 
   // 1. 優先：AI 從浩瀚佛典即時生成
   const aiResult = await generateDharmaViaAI(iso, targetTrip, usedTexts, usedSources);
-  if (aiResult && !usedTexts.has(aiResult.t) && !usedSources.has(aiResult.s)) {
+  if (aiResult && !usedTexts.has(aiResult.t) && !usedSources.has(aiResult.s) && aiResult.t.trim().length > 0) {
     console.log(`[AI] generated: ${aiResult.s}`);
     return aiResult;
   }
@@ -199,27 +199,22 @@ async function getDharmaForDate(iso) {
     if (!usedTexts.has(candidate.t) && !usedSources.has(candidate.s)) { return candidate; }
   }
 
-  // 3. LRU fallback：選最久沒出現的那則
+  // 3. LRU fallback：選最久沒出現的那則（文字為主要防線）
   const lruRows = await query(`SELECT text, MAX(date) as last_used FROM dharma_history WHERE date < ? GROUP BY text`, [iso]);
   const lu = {}; lruRows.forEach(r => { lu[r.text] = r.last_used; });
-  const sourceRows = await query(`SELECT source, MAX(date) as last_used FROM dharma_history WHERE date < ? GROUP BY source`, [iso]);
-  const sourceLastUsed = {};
-  sourceRows.forEach(r => { sourceLastUsed[r.source] = r.last_used; });
   let oldest = null, oldestDate = iso;
   for (const e of dharmaPool) {
-    if (usedSources.has(e.s)) continue;
+    if (usedTexts.has(e.t)) continue;   // 文字重複，直接跳過（不論出處名稱是否相同）
+    if (usedSources.has(e.s)) continue; // 出處重複也跳過
     const d = lu[e.t] || '0000-00-00';
     if (d < oldestDate) { oldest = e; oldestDate = d; }
   }
   if (oldest) return oldest;
 
-  let oldestSource = null;
-  let oldestSourceDate = iso;
+  // 4. 最後手段：只要文字沒重複即可（放寬出處限制）
   for (const e of dharmaPool) {
-    const d = sourceLastUsed[e.s] || '0000-00-00';
-    if (d < oldestSourceDate) { oldestSource = e; oldestSourceDate = d; }
+    if (!usedTexts.has(e.t)) return e;
   }
-  if (oldestSource) return oldestSource;
 
   return dharmaPool[(mainSeed >>> 0) % dharmaPool.length];
 }
