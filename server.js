@@ -25,7 +25,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.12';
+const VERSION = '3.13';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -186,18 +186,20 @@ async function getDharmaForDate(iso) {
   const targetTrip = tripitakaList[mainSeed % 3];
 
   // 1. 優先：AI 從浩瀚佛典即時生成（只用文字比對攔截重複）
-  // 每次 retry 把剛被拒絕的文字也加入 promptTexts，讓 AI 累積知道哪些不能用
+  // 每次 retry 把剛被拒絕的文字加入 promptTexts；第 3 次起放開三藏限制
   const promptTexts = new Set(usedTexts);
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const aiResult = await generateDharmaViaAI(iso, targetTrip, promptTexts, recentSources);
+  const tripCandidates = [targetTrip, ...tripitakaList.filter(t => t !== targetTrip)]; // 先用今日藏，再輪其餘
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const currentTrip = attempt < 3 ? targetTrip : tripCandidates[attempt % tripCandidates.length];
+    const aiResult = await generateDharmaViaAI(iso, currentTrip, promptTexts, recentSources);
     if (!aiResult) { console.log(`[AI] attempt ${attempt+1}: no result, stopping`); break; }
     const aiText = aiResult.t ? aiResult.t.trim() : '';
     if (aiText.length > 0 && !usedTexts.has(aiText)) {
-      console.log(`[AI] generated (attempt ${attempt+1}): ${aiResult.s}`);
+      console.log(`[AI] generated (attempt ${attempt+1}, ${currentTrip}): ${aiResult.s}`);
       return aiResult;
     }
-    console.log(`[AI] attempt ${attempt+1} rejected (duplicate): ${aiResult.s} — ${aiText.substring(0, 20)}`);
-    if (aiText.length > 0) promptTexts.add(aiText); // 下次 retry 告知 AI 這個也不行
+    console.log(`[AI] attempt ${attempt+1} (${currentTrip}) rejected: ${aiResult.s} — ${aiText.substring(0, 20)}`);
+    if (aiText.length > 0) promptTexts.add(aiText);
   }
 
   // 2. Pool fallback：只用文字去重
