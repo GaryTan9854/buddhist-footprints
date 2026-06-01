@@ -25,7 +25,7 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.14';
+const VERSION = '3.15';
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -268,6 +268,22 @@ async function handleApi(req, res) {
     const { password } = await readBody(req);
     if (password === APP_PASSWORD) return sendJson(res, 200, { token: APP_PASSWORD });
     return sendJson(res, 401, { error: 'Invalid password' });
+  }
+
+  if (pathname === '/api/dharma/regenerate' && method === 'POST') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const { date } = await readBody(req);
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return sendJson(res, 400, { error: 'Invalid date' });
+    query(`DELETE FROM dharma_history WHERE date = ?`, [date]);
+    const dharma = await getDharmaForDate(date);
+    const cb = dharma._ai ? {cu:dharma._cu||'',cl:dharma._cl||'',al:dharma._al||null} : (cbetaData[dharma.s]||{});
+    query(`INSERT INTO dharma_history (date, source, text, reflection, tripitaka, division, cbeta_url, cbeta_label, alt_links) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [date, dharma.s, dharma.t, dharma.r, dharma.trip, dharma.div, cb.cu||'', cb.cl||'', cb.al||null]);
+    if (dharma.se) query(`INSERT INTO dharma_en (source, source_en, text_en, reflection_en) VALUES (?, ?, ?, ?) ON CONFLICT(source) DO UPDATE SET source_en=excluded.source_en, text_en=excluded.text_en, reflection_en=excluded.reflection_en`,
+      [dharma.s, dharma.se, dharma.te, dharma.re]);
+    const row = query(`SELECT * FROM dharma_history WHERE date = ?`, [date])[0];
+    console.log(`[regenerate] ${date} → ${dharma.s}`);
+    return sendJson(res, 200, row);
   }
 
   if (pathname.startsWith('/api/dharma/history')) {

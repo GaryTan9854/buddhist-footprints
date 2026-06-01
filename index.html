@@ -242,6 +242,9 @@ body::before {
 
 .btn-share{display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.2);padding:4px 11px;border-radius:1px;cursor:pointer;transition:all 0.2s;}
 .btn-share:hover{color:var(--gold);border-color:var(--gold);background:var(--gold-pale);}
+.btn-regen{display:inline-flex;align-items:center;gap:4px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.15);padding:4px 11px;border-radius:1px;cursor:pointer;margin-left:auto;transition:all 0.2s;opacity:0.6;}
+.btn-regen:hover{color:var(--verm);border-color:rgba(155,58,42,0.4);opacity:1;}
+.btn-regen:disabled{cursor:not-allowed;opacity:0.3;}
 .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--ink-light);color:var(--rice);font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:2px;padding:10px 22px;border-radius:2px;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;z-index:9999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
@@ -324,7 +327,7 @@ body::before {
   <div class="site-logo">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.14</span>
+    <span class="site-version" id="versionBadge">v3.15</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
@@ -494,13 +497,13 @@ function renderDharmaEntry(zh, en, dateLbl, mode, shareHash) {
       <div class="dharma-source" style="flex-direction:column;gap:6px"><span style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint)">${zh.source}</span><span>${en ? en.source_en : zh.source}</span></div>
       <div class="dharma-text" style="font-size:18px">${en ? en.text_en : zh.text}</div>
       <div class="dharma-reflection"><strong>REFLECTION</strong>${en ? en.reflection_en : 'Translation pending.'}</div>
-      <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}</div>`;
+      <div class="more-links"><button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}${isAdmin?`<button class="btn-regen" onclick="regenerateDharma('${zh.date}',this)">↺ 重新產生</button>`:''}</div>`;
   } else {
     return `${dateLbl ? `<div class="detail-date-label">${dateLbl}</div>` : ''}
       <div class="dharma-source"><span>出處：${zh.source}</span>${zh.cbeta_url ? `<a class="dharma-link" href="${zh.cbeta_url}" target="_blank">☸ ${zh.cbeta_label || 'CBETA'}</a>` : ''}</div>
       <div class="dharma-text">${zh.text}</div>
       ${zh.reflection ? `<div class="dharma-reflection"><strong>今日思索</strong>${zh.reflection}</div>` : ''}
-      <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}</div>`;
+      <div class="more-links">${alts}<button class="btn-essay" onclick="handleEssayClick('${escAttr(zh.source)}',this)">心得</button>${shareBtn}${isAdmin?`<button class="btn-regen" onclick="regenerateDharma('${zh.date}',this)">↺ 重新產生</button>`:''}</div>`;
   }
 }
 
@@ -518,6 +521,21 @@ function showEssayModal(essay) {
   _essayModalId = essay.id; openModal('essayViewModal');
 }
 async function unlinkEssayFromDharma() { if(confirm('移除連結？')){ await apiPut('/api/essays/'+_essayModalId, {dharma_source:null}); closeModal('essayViewModal'); } }
+
+async function regenerateDharma(date, btn) {
+  if (!confirm(`重新產生 ${date} 的每日佛典？\n（目前內容將被替換）`)) return;
+  btn.disabled = true; btn.textContent = '產生中…';
+  const r = await apiPost('/api/dharma/regenerate', { date });
+  if (r.ok) {
+    const today = todayKey();
+    if (date === today) { _todayDharma = r.data; await renderTodayDharma(); }
+    else if (document.getElementById('enHistoryBody') && document.querySelector('#enHistoryBody .detail-back')) { await showDharmaEnDetail(date); }
+    else { await showDharmaDetail(date); }
+  } else {
+    btn.disabled = false; btn.textContent = '↺ 重新產生';
+    alert('產生失敗，請稍後再試');
+  }
+}
 
 async function renderTodayDharma() {
   if(!_todayDharma) return;
