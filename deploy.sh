@@ -25,39 +25,48 @@ if [[ -z "${DEEPSEEK_API_KEY:-}" ]]; then
   echo "⚠️  DEEPSEEK_API_KEY is not set in $REPO_DIR/.env — AI-generated daily dharma will be skipped (fallback to local pool)."
 fi
 
-# ── 1. Auto-bump version (major.minor) ─────────────────────────────────────────
-# Read current version from package.json
-VERSION=$(node -e "console.log(require('./package.json').version)")
+# ── 1. SemVer version bump ─────────────────────────────────────────────────────
+# 自動判斷：feat!:/breaking:→major, feat:→minor, 其他→patch
+# 可帶參數 ./deploy.sh major|minor|patch 強制指定
+BUMP=""
+for arg in "$@"; do case "$arg" in major|minor|patch) BUMP=$arg ;; esac; done
+if [ -z "$BUMP" ]; then
+  LAST_TAG=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || echo "")
+  SUBJECTS=$(git log ${LAST_TAG:+$LAST_TAG..}HEAD --pretty=%s 2>/dev/null || echo "")
+  BUMP=patch
+  echo "$SUBJECTS" | grep -qE '^(breaking:|[a-z]+(\([^)]*\))?!:)' && BUMP=major
+  if [ "$BUMP" = "patch" ]; then
+    echo "$SUBJECTS" | grep -qE '^feat(\([^)]*\))?:' && BUMP=minor
+  fi
+fi
+export BUMP_LEVEL="$BUMP"
+export BUILD_NUM=$(( $(git rev-list --count HEAD) + 1 ))
 
-# Calculate NEXT version based on TunaTCM logic: 1.20 -> 2.0, else 1.x -> 1.x+1
+VERSION=$(node -e "console.log(require('./package.json').version)")
 NEXT=$(node -e "
-  const v = '$VERSION'.split('.');
-  let major = parseInt(v[0]);
-  let minor = parseInt(v[1]);
-  if (minor >= 20) {
-    major++;
-    minor = 0;
-  } else {
-    minor++;
-  }
-  process.stdout.write(\`\${major}.\${minor}\`);
+  const [ma = 0, mi = 0, pa = 0] = '$VERSION'.split('.').map(Number);
+  const bump = process.env.BUMP_LEVEL || 'patch';
+  if (bump === 'major') process.stdout.write(\`\${ma + 1}.0.0\`);
+  else if (bump === 'minor') process.stdout.write(\`\${ma}.\${mi + 1}.0\`);
+  else process.stdout.write(\`\${ma}.\${mi}.\${pa + 1}\`);
 ")
 
-echo "🔢 Version bump: v$VERSION → v$NEXT"
+echo "🔢 Version bump: v$VERSION → v$NEXT ($BUMP) | Build: $BUILD_NUM"
 
 # Update package.json
 node -e "
   const fs = require('fs');
   const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
   pkg.version = '$NEXT';
+  pkg.build = Number(process.env.BUILD_NUM || 0);
   fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
 "
 
-# Update server.js (const VERSION = '...')
+# Update server.js (const VERSION / BUILD)
 perl -pi -e "s/const VERSION = '[^']+';/const VERSION = '$NEXT';/" server.js
+perl -pi -e "s/const BUILD = '[^']+';/const BUILD = '$BUILD_NUM';/" server.js
 
 # Update index.html (id="versionBadge")
-# Match either <span class="site-version">v...</span> OR <span class="site-version" id="versionBadge">v...</span>
 perl -pi -e "s|<span class=\"site-version\"[^>]*>v[^<]+</span>|<span class=\"site-version\" id=\"versionBadge\">v$NEXT</span>|" index.html
 
 echo "🚀 Deploying Buddhist Footprints v$NEXT..."
@@ -66,9 +75,10 @@ echo "🚀 Deploying Buddhist Footprints v$NEXT..."
 if [[ -n "$(git status --porcelain)" ]]; then
   echo "📦 Git commit..."
   git add -A
-  git commit -m "Deploy Buddhist Footprints v$NEXT"
+  git commit -m "Deploy Buddhist Footprints v$NEXT (build $BUILD_NUM)"
+  git tag "v$NEXT"
   echo "📤 Git push..."
-  if git push origin main 2>&1; then
+  if git push origin main --tags 2>&1; then
     echo "✅ Git push 成功"
   else
     echo "⚠️  Git push 失敗（網路問題？），跳過，繼續 deploy..."

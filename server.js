@@ -25,7 +25,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.15';
+const VERSION = '3.15.0';
+const BUILD = '0';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -262,7 +263,7 @@ async function handleApi(req, res) {
   const pathname = url.pathname;
   const method = req.method;
 
-  if (pathname === '/api/health') return sendJson(res, 200, { status:'ok', app:APP, version:VERSION, authRequired:!!APP_PASSWORD });
+  if (pathname === '/api/health') return sendJson(res, 200, { status:'ok', app:APP, version:VERSION, build:BUILD, authRequired:!!APP_PASSWORD });
 
   if (pathname === '/api/auth/login' && method === 'POST') {
     const { password } = await readBody(req);
