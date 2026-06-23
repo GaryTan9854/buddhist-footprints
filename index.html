@@ -324,13 +324,13 @@ body::before {
 <body>
 
 <header class="site-header">
-  <div class="site-logo">
+  <div class="site-logo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.15.0</span>
+    <span class="site-version" id="versionBadge">v3.15.1</span>
   </div>
   <nav class="site-nav">
-    <button class="nav-btn active" onclick="showPage('dharma',this)">每日佛典</button>
+    <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
     <button class="nav-btn" onclick="showPage('essays',this)">佛法心得</button>
     <button class="nav-btn" onclick="showPage('mantras',this)">佛咒</button>
     <button class="nav-btn" onclick="showPage('gallery',this)">佛法圖集</button>
@@ -653,6 +653,7 @@ function showPage(name, btn) {
   document.getElementById('page-'+name).classList.add('active'); if(btn) btn.classList.add('active');
   if(name==='essays') renderEssayList(); else if(name==='mantras') renderMantraList(); else if(name==='gallery') renderGallery();
 }
+function goHome() { showPage('dharma', document.getElementById('navDharmaBtn')); window.scrollTo(0,0); }
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escAttr(s) { return (s||'').replace(/'/g,'&#39;').replace(/"/g,'&quot;'); }
 
