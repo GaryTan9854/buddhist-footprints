@@ -13,3 +13,6 @@ credentials.json
 *.db
 *.db-shm
 *.db-wal
+
+# 本地開發產生的語音檔（prod 在 ~/db/buddhist-footprints/audio/）
+audio/

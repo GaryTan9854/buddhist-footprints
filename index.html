@@ -240,6 +240,27 @@ body::before {
 
 .site-footer { text-align:center;padding:32px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:3px;color:var(--ink-faint);opacity:0.45;border-top:1px solid var(--border);margin-top:40px; }
 
+/* ── AUDIO PLAYER ── */
+.audio-player { display:flex;align-items:center;gap:14px;padding:14px 18px;margin:18px 0 6px;background:var(--gold-pale);border:1px solid var(--border);border-radius:2px; }
+.ap-play { width:44px;height:44px;flex-shrink:0;border-radius:50%;border:1px solid var(--gold);background:var(--gold);color:var(--rice);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;padding-left:2px; }
+.ap-play:hover { background:var(--gold-lt); }
+.ap-main { flex:1;min-width:0; }
+.ap-title { font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-light);margin-bottom:7px; }
+.ap-bar { height:5px;background:rgba(184,149,42,0.18);border-radius:3px;cursor:pointer;position:relative; }
+.ap-progress { height:100%;width:0;background:var(--gold);border-radius:3px;pointer-events:none; }
+.ap-time { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);margin-top:6px; }
+.ap-ctrls { display:flex;align-items:center;gap:6px;flex-shrink:0; }
+.ap-btn { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:0.5px;color:var(--ink-light);background:rgba(255,255,255,0.5);border:1px solid var(--border);border-radius:2px;padding:6px 9px;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;white-space:nowrap; }
+.ap-btn:hover { color:var(--gold);border-color:var(--gold); }
+.audio-pending { display:flex;align-items:center;gap:10px;padding:12px 18px;margin:18px 0 6px;background:var(--gold-pale);border:1px solid var(--border);border-radius:2px;font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:2px;color:var(--ink-faint); }
+.audio-pending .spinner { width:16px;height:16px;border-width:2px;margin:0; }
+.speech-block { transition:background 0.4s;border-radius:2px; }
+.speech-block.clickable { cursor:pointer; }
+.speech-block.speaking { background:var(--gold-pale);box-shadow:0 0 0 8px var(--gold-pale); }
+.essay-audio-badge { font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--gold); }
+.audio-gen-label { display:flex;align-items:center;gap:9px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-size:12px;letter-spacing:1px;color:var(--ink-light); }
+.audio-gen-label input { accent-color:var(--gold);width:15px;height:15px; }
+
 .btn-share{display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.2);padding:4px 11px;border-radius:1px;cursor:pointer;transition:all 0.2s;}
 .btn-share:hover{color:var(--gold);border-color:var(--gold);background:var(--gold-pale);}
 .btn-regen{display:inline-flex;align-items:center;gap:4px;font-family:'Noto Sans TC',sans-serif;font-size:10px;letter-spacing:1px;color:var(--ink-faint);background:none;border:1px solid rgba(107,93,80,0.15);padding:4px 11px;border-radius:1px;cursor:pointer;margin-left:auto;transition:all 0.2s;opacity:0.6;}
@@ -318,6 +339,12 @@ body::before {
   .modal-body{ padding:16px; }
   .modal-footer{ padding:12px 16px 18px; gap:8px; }
   .form-textarea{ min-height:200px; }
+
+  /* ── AUDIO PLAYER ── */
+  .audio-player{ flex-wrap:wrap;gap:10px;padding:12px 12px; }
+  .ap-main{ flex:1 1 100%;order:3; }
+  .ap-ctrls{ margin-left:auto; }
+  .speech-block.speaking{ box-shadow:0 0 0 5px var(--gold-pale); }
 }
 </style>
 </head>
@@ -327,7 +354,7 @@ body::before {
   <div class="site-logo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.15.1</span>
+    <span class="site-version" id="versionBadge">v3.16.0</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -383,6 +410,7 @@ body::before {
       <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput" oninput="_formDirty=true"></div>
       <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="essayTagInput" oninput="_formDirty=true"></div>
       <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput" oninput="_formDirty=true"></textarea></div>
+      <div class="form-group" id="audioGenGroup"><label class="audio-gen-label"><input type="checkbox" id="essayAudioGen"><span id="audioGenText">🎧 發布後自動產生語音 MP3（可在網頁聆聽全文）</span></label></div>
     </div>
     <div class="modal-footer"><button class="btn-primary" onclick="saveEssay()">儲存</button></div>
   </div>
@@ -575,11 +603,143 @@ async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/hi
 
 async function renderEssayList() {
   history.replaceState(null,'',location.pathname);
+  apCleanup();
   const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayContent');
   wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') +
-    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
+    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}${e.audio_status==='ready'?`<span class="essay-audio-badge">🎧 ${fmtMinutes(e.audio_duration)}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
 }
+
+// ── 語音播放器 ──
+// 段落切分：必須與後端 tts.js 的 splitBlocks() 完全一致
+function splitBlocks(content) { return (content || '').split(/\n{2,}/); }
+function fmtMinutes(sec) { return Math.max(1, Math.round((sec||0)/60)) + ' 分鐘'; }
+function fmtTime(sec) { sec=Math.max(0,Math.floor(sec||0)); const m=Math.floor(sec/60), s=sec%60; return m+':'+String(s).padStart(2,'0'); }
+let _apPoll = null;
+const AP_SPEEDS = [0.8, 1, 1.25, 1.5];
+
+function apCleanup() {
+  const a = document.getElementById('essayAudio');
+  if (a) a.pause();
+  if (_apPoll) { clearInterval(_apPoll); _apPoll = null; }
+}
+
+function renderAudioSection(e) {
+  if (e.audio_status === 'ready') {
+    return `<div class="audio-player">
+      <audio id="essayAudio" src="/api/essays/${e.id}/audio.mp3" preload="metadata"></audio>
+      <button class="ap-play" id="apPlay" onclick="apToggle()" title="播放 / 暫停">▶</button>
+      <div class="ap-main">
+        <div class="ap-title">🎧 聆聽全文（${fmtMinutes(e.audio_duration)}）</div>
+        <div class="ap-bar" id="apBar" onclick="apSeekBar(event)"><div class="ap-progress" id="apProgress"></div></div>
+        <div class="ap-time" id="apTime">0:00 / ${fmtTime(e.audio_duration)}</div>
+      </div>
+      <div class="ap-ctrls">
+        <button class="ap-btn" onclick="apSkip(-15)" title="倒退 15 秒">↺ 15</button>
+        <button class="ap-btn" onclick="apSkip(15)" title="快轉 15 秒">15 ↻</button>
+        <button class="ap-btn" id="apSpeed" onclick="apCycleSpeed()" title="播放速度">1×</button>
+        <a class="ap-btn" href="/api/essays/${e.id}/audio.mp3?download=1" title="下載 MP3 離線聆聽">⬇ MP3</a>
+      </div>
+    </div>`;
+  }
+  if (e.audio_status === 'pending') {
+    return `<div class="audio-pending"><div class="spinner"></div>語音產生中，稍候即可聆聽…</div>`;
+  }
+  return '';
+}
+
+function apAdminButtons(e) {
+  if (!isAdmin) return '';
+  if (e.audio_status === 'pending') return '';
+  const label = e.audio_status === 'ready' ? '🎧 重新產生語音' : (e.audio_status === 'error' ? '🎧 語音產生失敗，重試' : '🎧 產生語音');
+  let html = `<button class="btn-outline btn-sm" onclick="apGenerate('${e.id}')">${label}</button>`;
+  if (e.audio_status === 'ready') html += `<button class="btn-outline btn-sm btn-danger" onclick="apDeleteAudio('${e.id}')">刪除語音</button>`;
+  return html;
+}
+
+async function apGenerate(id) {
+  const r = await apiPost('/api/essays/'+id+'/audio', {});
+  if (r.ok) { showToast('語音產生中…'); showEssayPageDetail(id); }
+  else showToast('產生失敗');
+}
+async function apDeleteAudio(id) {
+  if (!confirm('刪除這篇文章的語音檔？')) return;
+  await apiDelete('/api/essays/'+id+'/audio');
+  showEssayPageDetail(id);
+}
+
+function apToggle() {
+  const a = document.getElementById('essayAudio');
+  if (!a) return;
+  if (a.paused) a.play(); else a.pause();
+}
+function apSkip(sec) {
+  const a = document.getElementById('essayAudio');
+  if (a) a.currentTime = Math.max(0, Math.min((a.duration||Infinity)-0.5, a.currentTime + sec));
+}
+function apCycleSpeed() {
+  const a = document.getElementById('essayAudio');
+  if (!a) return;
+  const cur = AP_SPEEDS.indexOf(a.playbackRate);
+  const next = AP_SPEEDS[(cur + 1) % AP_SPEEDS.length];
+  a.playbackRate = next;
+  localStorage.setItem('bf_audio_speed', next);
+  document.getElementById('apSpeed').textContent = next + '×';
+}
+function apSeekBar(ev) {
+  const a = document.getElementById('essayAudio');
+  const bar = document.getElementById('apBar');
+  if (!a || !bar || !isFinite(a.duration)) return;
+  const rect = bar.getBoundingClientRect();
+  a.currentTime = ((ev.clientX - rect.left) / rect.width) * a.duration;
+}
+
+function apBindPlayer(e) {
+  const a = document.getElementById('essayAudio');
+  if (!a) return;
+  const timings = e.audio_timings ? JSON.parse(e.audio_timings) : [];
+  const speed = parseFloat(localStorage.getItem('bf_audio_speed')) || 1;
+  if (speed !== 1) { a.playbackRate = speed; document.getElementById('apSpeed').textContent = speed + '×'; }
+  const playBtn = document.getElementById('apPlay');
+  a.onplay = () => { playBtn.textContent = '❚❚'; playBtn.style.paddingLeft = '0'; };
+  a.onpause = () => { playBtn.textContent = '▶'; playBtn.style.paddingLeft = '2px'; };
+  let lastIdx = null;
+  a.ontimeupdate = () => {
+    const dur = isFinite(a.duration) && a.duration ? a.duration : e.audio_duration;
+    document.getElementById('apProgress').style.width = (dur ? (a.currentTime / dur * 100) : 0) + '%';
+    document.getElementById('apTime').textContent = fmtTime(a.currentTime) + ' / ' + fmtTime(dur);
+    // 段落同步反白
+    let cur = null;
+    for (const t of timings) { if (a.currentTime >= t.t) cur = t; else break; }
+    const idx = cur ? cur.i : null;
+    if (idx === lastIdx) return;
+    lastIdx = idx;
+    document.querySelectorAll('.speech-block.speaking, .essay-detail-title.speaking').forEach(el => el.classList.remove('speaking'));
+    if (idx === null || a.paused && a.currentTime === 0) return;
+    const el = idx === -1 ? document.querySelector('.essay-detail-title') : document.querySelector(`.speech-block[data-bi="${idx}"]`);
+    if (el) {
+      el.classList.add('speaking');
+      const r = el.getBoundingClientRect();
+      if (r.top < 70 || r.bottom > window.innerHeight - 40) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+  a.onended = () => { document.querySelectorAll('.speaking').forEach(el => el.classList.remove('speaking')); };
+  // 點段落 → 從該段開始播放
+  const startable = new Map(timings.filter(t => t.i >= 0).map(t => [t.i, t.t]));
+  document.querySelectorAll('.speech-block').forEach(el => {
+    const bi = parseInt(el.dataset.bi, 10);
+    if (!startable.has(bi)) return;
+    el.classList.add('clickable');
+    el.title = '從此段開始播放';
+    el.addEventListener('click', (ev) => {
+      if (ev.target.closest('a')) return;
+      a.currentTime = startable.get(bi);
+      a.play();
+    });
+  });
+}
+
 async function showEssayPageDetail(id) {
+  apCleanup();
   const e = await apiGet('/api/essays/'+id);
   history.replaceState(null,'','#essay/'+id);
   const wrap = document.getElementById('essayContent');
@@ -588,20 +748,48 @@ async function showEssayPageDetail(id) {
       <div class="essay-detail-date">${formatDate(e.created_at)}</div>
       <div class="essay-detail-title">${e.title}</div>
       <div class="essay-detail-divider"></div>
+      ${renderAudioSection(e)}
       <div class="essay-detail-body" id="essayDetailBody"></div>
       <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn-share" onclick="shareUrl('#essay/${id}')">↗ 分享連結</button>
-        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>`:''}
+        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>${apAdminButtons(e)}<button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>`:''}
       </div>
     </div></div>`;
   const essayBody = document.getElementById('essayDetailBody');
-  essayBody.innerHTML = renderMarkdown(e.content);
+  // 逐段渲染（與語音時間戳對齊）；無語音時渲染結果與整篇 parse 相同
+  essayBody.innerHTML = splitBlocks(e.content).map((b, i) => `<div class="speech-block" data-bi="${i}">${renderMarkdown(b)}</div>`).join('');
   // --- MATH RENDERING CALL ---
   initMathRendering(essayBody);
+  if (e.audio_status === 'ready') apBindPlayer(e);
+  if (e.audio_status === 'pending') {
+    _apPoll = setInterval(async () => {
+      const fresh = await apiGet('/api/essays/'+id);
+      if (fresh && fresh.audio_status !== 'pending' && location.hash === '#essay/'+id) { showEssayPageDetail(id); }
+    }, 5000);
+  }
 }
-function openEssayEditor(e, ds) { _editingType='essay'; _formDirty=false; document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||''; document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:''; openModal('essayModal'); }
+function openEssayEditor(e, ds) {
+  _editingType='essay'; _formDirty=false;
+  document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||'';
+  document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:'';
+  // 新文章預設勾選產生語音；編輯已有語音的文章則預設不重新產生
+  document.getElementById('audioGenGroup').style.display='block';
+  document.getElementById('essayAudioGen').checked = !e;
+  document.getElementById('audioGenText').textContent = (e && e.audio_status==='ready') ? '🎧 重新產生語音 MP3（內文有修改時勾選）' : '🎧 發布後自動產生語音 MP3（可在網頁聆聽全文）';
+  openModal('essayModal');
+}
 function closeEssayModalSafe() { if(_formDirty && !confirm('您有未儲存的變更，確定要離開嗎？')) return; _formDirty=false; closeModal('essayModal'); }
-async function saveEssay() { const id=document.getElementById('essayEditId').value; const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value}; const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body); if(r.ok){ _formDirty=false; closeModal('essayModal'); if(_editingType==='mantra') renderMantraList(); else renderEssayList(); } }
+async function saveEssay() {
+  const id=document.getElementById('essayEditId').value;
+  const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value};
+  if(_editingType==='essay' && document.getElementById('essayAudioGen').checked) body.generate_audio=true;
+  const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body);
+  if(r.ok){
+    _formDirty=false; closeModal('essayModal');
+    if(body.generate_audio) showToast('文章已儲存，語音產生中…');
+    if(_editingType==='mantra') renderMantraList(); else renderEssayList();
+  }
+}
 async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssayEditor(e); }
 async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
 
@@ -631,7 +819,7 @@ async function showMantraPageDetail(id) {
   // --- MATH RENDERING CALL ---
   initMathRendering(mantraBody);
 }
-function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; openModal('essayModal'); }
+function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; document.getElementById('audioGenGroup').style.display='none'; document.getElementById('essayAudioGen').checked=false; openModal('essayModal'); }
 async function editMantra(id) { const e=await apiGet('/api/essays/'+id); openMantraEditor(e); }
 async function deleteMantra(id) { if(confirm('確定？')){ await apiDelete('/api/essays/'+id); renderMantraList(); } }
 
@@ -649,6 +837,7 @@ function openLightbox(id, src) { document.getElementById('lightboxImg').src=src;
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
 function showPage(name, btn) {
+  apCleanup();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active'); if(btn) btn.classList.add('active');
   if(name==='essays') renderEssayList(); else if(name==='mantras') renderMantraList(); else if(name==='gallery') renderGallery();

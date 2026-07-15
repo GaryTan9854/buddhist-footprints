@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { initDb, query } = require('./db');
+const { queueEssayAudio, audioFilePath, deleteEssayAudio } = require('./tts');
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return;
@@ -25,8 +26,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.15.1';
-const BUILD = '69';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.16.0';
+const BUILD = '70';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -257,6 +258,39 @@ async function autoRecordToday() {
   } catch(e) { console.error('[cron] Error:', e.message); }
 }
 
+function serveAudio(req, res, essayId, asDownload) {
+  const file = audioFilePath(essayId);
+  let stat;
+  try { stat = fs.statSync(file); } catch { return sendJson(res, 404, { error: 'Audio not found' }); }
+  const headers = {
+    'Content-Type': 'audio/mpeg',
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'public, max-age=3600',
+    'Access-Control-Allow-Origin': '*'
+  };
+  if (asDownload) {
+    const essay = query("SELECT title FROM essays WHERE id=?", [essayId])[0];
+    const name = encodeURIComponent(((essay && essay.title) || essayId) + '.mp3');
+    headers['Content-Disposition'] = `attachment; filename*=UTF-8''${name}`;
+  }
+  const range = req.headers.range && req.headers.range.match(/^bytes=(\d*)-(\d*)$/);
+  if (range && (range[1] || range[2])) {
+    const start = range[1] ? parseInt(range[1], 10) : Math.max(0, stat.size - parseInt(range[2], 10));
+    const end = range[1] && range[2] ? Math.min(parseInt(range[2], 10), stat.size - 1) : stat.size - 1;
+    if (start >= stat.size || start > end) {
+      res.writeHead(416, { 'Content-Range': `bytes */${stat.size}` });
+      return res.end();
+    }
+    headers['Content-Range'] = `bytes ${start}-${end}/${stat.size}`;
+    headers['Content-Length'] = end - start + 1;
+    res.writeHead(206, headers);
+    return fs.createReadStream(file, { start, end }).pipe(res);
+  }
+  headers['Content-Length'] = stat.size;
+  res.writeHead(200, headers);
+  fs.createReadStream(file).pipe(res);
+}
+
 // ── API HANDLERS ──
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -319,21 +353,42 @@ async function handleApi(req, res) {
     return sendJson(res, 200, rows);
   }
 
+  // 文章語音：串流 MP3（支援 Range，供播放器 seek 與下載）
+  const audioMatch = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/audio\.mp3$/);
+  if (audioMatch && method === 'GET') {
+    return serveAudio(req, res, audioMatch[1], url.searchParams.has('download'));
+  }
+
+  // 手動（重新）產生 / 刪除語音
+  const audioCtl = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/audio$/);
+  if (audioCtl) {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const id = audioCtl[1];
+    if (method === 'POST') { queueEssayAudio(id); return sendJson(res, 200, { ok: true, status: 'pending' }); }
+    if (method === 'DELETE') {
+      deleteEssayAudio(id);
+      query("UPDATE essays SET audio_status=NULL, audio_duration=NULL, audio_timings=NULL WHERE id=?", [id]);
+      return sendJson(res, 200, { ok: true });
+    }
+  }
+
   if (pathname.startsWith('/api/essays/') && (method === 'GET' || method === 'PUT' || method === 'DELETE')) {
     const id = pathname.split('/').pop();
     if (method === 'GET') return sendJson(res, 200, query("SELECT * FROM essays WHERE id = ?", [id])[0]);
     if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    if (method === 'DELETE') { query("DELETE FROM essays WHERE id = ?", [id]); return sendJson(res, 200, { ok: true }); }
-    const { title, tag, content, dharma_source } = await readBody(req);
-    query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title, tag, content, dharma_source, id]);
-    return sendJson(res, 200, { ok: true });
+    if (method === 'DELETE') { query("DELETE FROM essays WHERE id = ?", [id]); deleteEssayAudio(id); return sendJson(res, 200, { ok: true }); }
+    const { title, tag, content, dharma_source, generate_audio } = await readBody(req);
+    query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title ?? null, tag ?? null, content ?? null, dharma_source ?? null, id]);
+    if (generate_audio) queueEssayAudio(id);
+    return sendJson(res, 200, { ok: true, id });
   }
 
   if (pathname === '/api/essays' && method === 'POST') {
     if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    const { title, tag, content, dharma_source } = await readBody(req);
-    query("INSERT INTO essays (title, tag, content, dharma_source, type) VALUES (?, ?, ?, ?, 'essay')", [title, tag, content, dharma_source]);
-    return sendJson(res, 200, { ok: true });
+    const { title, tag, content, dharma_source, generate_audio } = await readBody(req);
+    const row = query("INSERT INTO essays (title, tag, content, dharma_source, type) VALUES (?, ?, ?, ?, 'essay') RETURNING id", [title ?? null, tag ?? null, content ?? null, dharma_source ?? null])[0];
+    if (generate_audio && row) queueEssayAudio(row.id);
+    return sendJson(res, 200, { ok: true, id: row ? row.id : null });
   }
 
   if (pathname === '/api/mantras' && method === 'POST') {
@@ -361,6 +416,10 @@ async function handleApi(req, res) {
 }
 
 initDb();
+// 伺服器重啟時，接續上次沒做完的語音產生
+for (const row of query(`SELECT id FROM essays WHERE audio_status='pending'`)) {
+  queueEssayAudio(row.id);
+}
 autoRecordToday();
 setInterval(autoRecordToday, 60000);
 

@@ -85,6 +85,22 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_gallery_created ON gallery(created_at);
   `);
 
+  // essays 語音欄位（發布時產生 MP3）
+  const existingEssayColumns = new Set(
+    database.prepare(`PRAGMA table_info(essays)`).all().map((col) => col.name)
+  );
+  const essayColumnDefs = [
+    ['audio_status', 'TEXT'],      // null | pending | ready | error
+    ['audio_duration', 'REAL'],    // 秒
+    ['audio_timings', 'TEXT'],     // JSON [{i:段落index(-1=標題), t:起始秒}]
+    ['audio_voice', 'TEXT'],
+  ];
+  for (const [name, type] of essayColumnDefs) {
+    if (!existingEssayColumns.has(name)) {
+      database.exec(`ALTER TABLE essays ADD COLUMN ${name} ${type}`);
+    }
+  }
+
   const existingHistoryColumns = new Set(
     database.prepare(`PRAGMA table_info(dharma_history)`).all().map((col) => col.name)
   );

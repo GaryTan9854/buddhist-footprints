@@ -97,6 +97,7 @@ rsync -av --delete \
   --exclude='*.db' \
   --exclude='*.db-shm' \
   --exclude='*.db-wal' \
+  --exclude='audio/' \
   "$REPO_DIR/" "$REMOTE_HOST:$REMOTE_DIR/"
 
 # ── 4. Update APP_PASSWORD + DEEPSEEK_API_KEY on MBP + restart PM2 ───────────
