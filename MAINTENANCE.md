@@ -22,6 +22,13 @@
 - **MBA 本地端**：每次執行 `./deploy.sh` 時，會自動將 MBP 上的整個 `backups/` 資料夾同步回本地 `/Users/user/Documents/.db-backups/buddhist-footprints/`。
 - **Git 安全**：`.gitignore` 已嚴格排除所有 `*.db` 檔案，確保數據不會上傳至 GitHub。
 
-## 4. 部署標準程序
+## 4. 文章語音 (TTS MP3)
+- **流程**：發布/編輯「佛法心得」時勾選「產生語音 MP3」→ 後端排入佇列（`tts.js`）→ 存檔至 `~/db/buddhist-footprints/audio/<essayId>.mp3`（dev 為 repo 內 `audio/`，已 gitignore）→ 網頁顯示播放器。
+- **引擎**：零依賴直連 Edge TTS WebSocket（Node 22+ 內建 WebSocket），預設音色 `zh-TW-HsiaoChenNeural`（`tts.js` 的 `DEFAULT_VOICE`）。
+- **播放器**：播放/暫停、±15 秒、速度 0.8–1.5×、下載、段落同步反白、點段落續播。段落切分 `splitBlocks()` 前後端必須一致（`tts.js` 與 `index.html` 各有一份）。
+- **若產生失敗（401/403）**：Microsoft 可能更換 token。對照 `uvx edge-tts` 原始碼（`constants.py` 的 `TRUSTED_CLIENT_TOKEN`、`SEC_MS_GEC_VERSION`），更新 `tts.js` 頂部常數。
+- **API**：`POST /api/essays/:id/audio`（重新產生）、`DELETE /api/essays/:id/audio`、`GET /api/essays/:id/audio.mp3`（支援 Range；`?download=1` 下載）。
+
+## 5. 部署標準程序
 - 始終使用 `./deploy.sh` 進行部署。
 - 若需更新 `APP_PASSWORD`，請修改本地 `.env` 檔案後再次部署。
