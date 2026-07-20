@@ -11,7 +11,7 @@ const SEC_MS_GEC_VERSION = '1-143.0.3650.75';
 const WSS_URL = 'wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0';
 
-const DEFAULT_VOICE = 'zh-TW-HsiaoChenNeural';
+const DEFAULT_VOICE = 'zh-TW-YunJheNeural'; // 男聲（女聲：zh-TW-HsiaoChenNeural）
 // audio-24khz-48kbitrate-mono-mp3 是 CBR 48kbps：時長 = bytes / 6000
 const CBR_BYTES_PER_SEC = 6000;
 const MAX_CHUNK_CHARS = 800; // 單一 WS 請求的字數上限（過長段落按句切分）
@@ -152,7 +152,8 @@ function queueEssayAudio(essayId) {
 async function generateEssayAudio(essayId) {
   const essay = query(`SELECT * FROM essays WHERE id=?`, [essayId])[0];
   if (!essay) return;
-  const voice = essay.audio_voice || DEFAULT_VOICE;
+  // 一律用目前預設音色（audio_voice 欄位只記錄實際使用的音色，換預設後重新產生即換聲）
+  const voice = DEFAULT_VOICE;
   console.log(`[tts] generating audio for "${essay.title}" (${essayId})`);
   try {
     const blocks = splitBlocks(essay.content);
