@@ -26,8 +26,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.16.3';
-const BUILD = '74';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.16.4';
+const BUILD = '75';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -436,10 +436,13 @@ http.createServer(async (req, res) => {
     if (err) {
       fs.readFile(path.join(ROOT, 'index.html'), (fErr, fData) => {
         if (fErr) { res.writeHead(404); return res.end('Not found'); }
-        res.writeHead(200, { 'Content-Type': 'text/html' }); res.end(fData);
+        res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-cache' }); res.end(fData);
       });
       return;
     }
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' }); res.end(data);
+    const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
+    // HTML 不快取（避免 deploy 後使用者拿到舊 bundle）；其他靜態檔快取 1 小時
+    headers['Cache-Control'] = (ext === '.html' || !ext) ? 'no-cache' : 'public, max-age=3600';
+    res.writeHead(200, headers); res.end(data);
   });
 }).listen(PORT, () => console.log(`${APP} v${VERSION} on port ${PORT}`));
