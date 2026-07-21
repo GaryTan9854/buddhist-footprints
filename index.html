@@ -358,7 +358,7 @@ body::before {
   <div class="site-logo" id="siteLogo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.18.0</span>
+    <span class="site-version" id="versionBadge">v3.18.1</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -802,7 +802,7 @@ async function showEssayPageDetail(id, keepLang) {
       </div>
       <div class="essay-detail-title" style="margin-top:12px">${en ? e.title_en : e.title}</div>
       <div class="essay-detail-divider"></div>
-      ${renderAudioSection(e)}
+      ${en ? '' : renderAudioSection(e)}
       <div class="essay-detail-body" id="essayDetailBody"></div>
       <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn-share" onclick="shareUrl('#essay/${id}')">↗ 分享連結</button>
@@ -815,7 +815,7 @@ async function showEssayPageDetail(id, keepLang) {
   else essayBody.innerHTML = splitBlocks(e.content).map((b, i) => `<div class="speech-block" data-bi="${i}">${renderMarkdown(b)}</div>`).join('');
   // --- MATH RENDERING CALL ---
   initMathRendering(essayBody);
-  if (e.audio_status === 'ready') apBindPlayer(e); // EN 模式也可聽中文語音，僅無段落反白
+  if (e.audio_status === 'ready' && !en) apBindPlayer(e); // 英文版不提供中文語音，播放器整個收起
   if (!e.content_en && e.translate_status === 'pending') watchEssayTranslation(id);
   if (e.audio_status === 'pending') {
     _apPoll = setInterval(async () => {
