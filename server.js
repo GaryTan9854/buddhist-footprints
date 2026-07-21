@@ -26,8 +26,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.17.0';
-const BUILD = '77';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.18.0';
+const BUILD = '79';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
