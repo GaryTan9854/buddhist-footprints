@@ -354,7 +354,7 @@ body::before {
   <div class="site-logo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.16.2</span>
+    <span class="site-version" id="versionBadge">v3.16.3</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -674,16 +674,26 @@ function apToggle() {
 }
 function apSkip(sec) {
   const a = document.getElementById('essayAudio');
-  if (a) a.currentTime = Math.max(0, Math.min((a.duration||Infinity)-0.5, a.currentTime + sec));
+  if (!a) return;
+  const max = isFinite(a.duration) && a.duration > 0.5 ? a.duration - 0.5 : Infinity;
+  const t = Math.max(0, Math.min(max, a.currentTime + sec));
+  if (isFinite(t)) a.currentTime = t;
+}
+// 使用者選定的速度（單一事實來源）。不從 a.playbackRate 推算——
+// 瀏覽器重新載入媒體（切背景分頁再回來等）會把 playbackRate 重設回 1，
+// 若照舊值推算，按鈕會與實際速度脫鉤、看似失效。
+let _apSpeed = 1;
+function apApplySpeed(rate) {
+  _apSpeed = rate;
+  const a = document.getElementById('essayAudio');
+  if (a) a.playbackRate = rate;
+  localStorage.setItem('bf_audio_speed', rate);
+  const btn = document.getElementById('apSpeed');
+  if (btn) btn.textContent = rate + '×';
 }
 function apCycleSpeed() {
-  const a = document.getElementById('essayAudio');
-  if (!a) return;
-  const cur = AP_SPEEDS.indexOf(a.playbackRate);
-  const next = AP_SPEEDS[(cur + 1) % AP_SPEEDS.length];
-  a.playbackRate = next;
-  localStorage.setItem('bf_audio_speed', next);
-  document.getElementById('apSpeed').textContent = next + '×';
+  const cur = AP_SPEEDS.indexOf(_apSpeed);
+  apApplySpeed(AP_SPEEDS[(cur + 1) % AP_SPEEDS.length]);
 }
 function apSeekBar(ev) {
   const a = document.getElementById('essayAudio');
@@ -697,10 +707,13 @@ function apBindPlayer(e) {
   const a = document.getElementById('essayAudio');
   if (!a) return;
   const timings = e.audio_timings ? JSON.parse(e.audio_timings) : [];
-  const speed = parseFloat(localStorage.getItem('bf_audio_speed')) || 1;
-  if (speed !== 1) { a.playbackRate = speed; document.getElementById('apSpeed').textContent = speed + '×'; }
+  const saved = parseFloat(localStorage.getItem('bf_audio_speed'));
+  apApplySpeed(AP_SPEEDS.includes(saved) ? saved : 1);
+  // 瀏覽器可能在重新載入媒體後把 playbackRate 重設回 1——一偵測到就套回使用者選的速度
+  a.onratechange = () => { if (a.playbackRate !== _apSpeed) a.playbackRate = _apSpeed; };
+  a.onloadedmetadata = () => { if (a.playbackRate !== _apSpeed) a.playbackRate = _apSpeed; };
   const playBtn = document.getElementById('apPlay');
-  a.onplay = () => { playBtn.textContent = '❚❚'; playBtn.style.paddingLeft = '0'; };
+  a.onplay = () => { playBtn.textContent = '❚❚'; playBtn.style.paddingLeft = '0'; if (a.playbackRate !== _apSpeed) a.playbackRate = _apSpeed; };
   a.onpause = () => { playBtn.textContent = '▶'; playBtn.style.paddingLeft = '2px'; };
   let lastIdx = null;
   a.ontimeupdate = () => {
