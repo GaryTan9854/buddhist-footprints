@@ -258,6 +258,46 @@ async function autoRecordToday() {
   } catch(e) { console.error('[cron] Error:', e.message); }
 }
 
+// ── 文章英譯（訪客按 EN 觸發，一次性產生後存 DB）──
+async function translateEssay(id) {
+  const essay = query(`SELECT * FROM essays WHERE id=?`, [id])[0];
+  if (!essay) return;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  try {
+    if (!apiKey) throw new Error('DEEPSEEK_API_KEY not set');
+    console.log(`[translate] translating "${essay.title}" (${id})`);
+    const prompt = `你是專業譯者，精通佛法術語的英譯。請將以下繁體中文文章翻譯成自然流暢的英文。
+
+要求：
+1. 保留原文的段落結構與 Markdown 格式（標題、粗體、引用、清單等）
+2. 佛法名詞使用通行英譯（如：三法印 Three Dharma Seals、五蘊 five aggregates、無常 impermanence、空性 emptiness、見地 view、迴向 dedicate merit）
+3. 輸出格式：第一行是英文標題（不加 # 符號），接著空一行，之後是全文英譯。除此之外不要任何說明文字。
+
+標題：${essay.title}
+
+${essay.content}`;
+    const apiRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!apiRes.ok) throw new Error('API ' + apiRes.status);
+    const data = await apiRes.json();
+    const raw = data.choices[0].message.content.trim();
+    const nl = raw.indexOf('\n');
+    if (nl < 1) throw new Error('bad output format');
+    const title_en = raw.slice(0, nl).trim().replace(/^#+\s*/, '');
+    const content_en = raw.slice(nl).trim();
+    if (!title_en || content_en.length < 20) throw new Error('empty translation');
+    query(`UPDATE essays SET title_en=?, content_en=?, translate_status=NULL WHERE id=?`, [title_en, content_en, id]);
+    console.log(`[translate] done "${essay.title}" — ${content_en.length} chars`);
+  } catch (e) {
+    console.error('[translate] failed:', e.message);
+    query(`UPDATE essays SET translate_status='error' WHERE id=?`, [id]);
+  }
+}
+let _translateQueue = Promise.resolve();
+
 function serveAudio(req, res, essayId, asDownload) {
   const file = audioFilePath(essayId);
   let stat;
@@ -359,6 +399,20 @@ async function handleApi(req, res) {
     return serveAudio(req, res, audioMatch[1], url.searchParams.has('download'));
   }
 
+  // 訪客觸發文章英譯（一次性；已有英文版直接回 ready）
+  const trMatch = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/translate$/);
+  if (trMatch && method === 'POST') {
+    const id = trMatch[1];
+    const e = query(`SELECT content_en, translate_status FROM essays WHERE id=?`, [id])[0];
+    if (!e) return sendJson(res, 404, { error: 'Not found' });
+    if (e.content_en) return sendJson(res, 200, { ok: true, status: 'ready' });
+    if (e.translate_status !== 'pending') {
+      query(`UPDATE essays SET translate_status='pending' WHERE id=?`, [id]);
+      _translateQueue = _translateQueue.then(() => translateEssay(id)).catch(() => {});
+    }
+    return sendJson(res, 200, { ok: true, status: 'pending' });
+  }
+
   // 手動（重新）產生 / 刪除語音
   const audioCtl = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/audio$/);
   if (audioCtl) {
@@ -422,9 +476,12 @@ async function handleApi(req, res) {
 }
 
 initDb();
-// 伺服器重啟時，接續上次沒做完的語音產生
+// 伺服器重啟時，接續上次沒做完的語音產生與翻譯
 for (const row of query(`SELECT id FROM essays WHERE audio_status='pending'`)) {
   queueEssayAudio(row.id);
+}
+for (const row of query(`SELECT id FROM essays WHERE translate_status='pending'`)) {
+  _translateQueue = _translateQueue.then(() => translateEssay(row.id)).catch(() => {});
 }
 autoRecordToday();
 setInterval(autoRecordToday, 60000);

@@ -96,6 +96,7 @@ function initDb() {
     ['audio_voice', 'TEXT'],
     ['title_en', 'TEXT'],          // 英文版（有值時文章頁出現 EN 切換）
     ['content_en', 'TEXT'],
+    ['translate_status', 'TEXT'],  // null | pending | error（訪客按 EN 觸發即時翻譯）
   ];
   for (const [name, type] of essayColumnDefs) {
     if (!existingEssayColumns.has(name)) {
