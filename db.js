@@ -94,6 +94,8 @@ function initDb() {
     ['audio_duration', 'REAL'],    // 秒
     ['audio_timings', 'TEXT'],     // JSON [{i:段落index(-1=標題), t:起始秒}]
     ['audio_voice', 'TEXT'],
+    ['title_en', 'TEXT'],          // 英文版（有值時文章頁出現 EN 切換）
+    ['content_en', 'TEXT'],
   ];
   for (const [name, type] of essayColumnDefs) {
     if (!existingEssayColumns.has(name)) {

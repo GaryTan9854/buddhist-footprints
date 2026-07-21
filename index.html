@@ -142,9 +142,10 @@ body::before {
 .btn-essay:hover{color:var(--ink);border-color:var(--gold);background:var(--gold-pale);}
 .btn-essay.linked{color:#4f8c6b;border-color:rgba(79,140,107,0.4);background:rgba(79,140,107,0.05);}
 .btn-essay.linked:hover{background:rgba(79,140,107,0.1);}
-.btn-lang { margin-left:auto;padding:5px 16px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--gold);background:transparent;border:1px solid rgba(184,149,42,0.35);border-radius:1px;cursor:pointer;transition:all 0.2s; }
-.btn-lang:hover{background:var(--gold-pale);border-color:var(--gold);}
-.btn-lang.en-mode{background:var(--gold-pale);border-color:var(--gold);color:var(--ink-light);}
+.btn-lang { margin-left:auto;padding:8px 20px;font-family:'Cinzel',serif;font-size:13px;font-weight:600;letter-spacing:3px;color:var(--rice);background:var(--gold);border:1px solid var(--gold);border-radius:2px;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 10px rgba(184,149,42,0.4);flex-shrink:0; }
+.btn-lang:hover{background:var(--gold-lt);border-color:var(--gold-lt);}
+.btn-lang.en-mode{background:var(--ink-light);border-color:var(--ink-light);}
+.site-logo{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
 
 /* ── LISTS & DETAIL ── */
 .history-empty { text-align:center;padding:44px 20px;font-family:'Noto Sans TC',sans-serif;font-size:13px;color:var(--ink-faint);line-height:2; }
@@ -351,7 +352,7 @@ body::before {
 <body>
 
 <header class="site-header">
-  <div class="site-logo" style="cursor:pointer" onclick="goHome()" title="回首頁">
+  <div class="site-logo" id="siteLogo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
     <span class="site-version" id="versionBadge">v3.16.4</span>
@@ -361,7 +362,7 @@ body::before {
     <button class="nav-btn" onclick="showPage('essays',this)">佛法心得</button>
     <button class="nav-btn" onclick="showPage('mantras',this)">佛咒</button>
     <button class="nav-btn" onclick="showPage('gallery',this)">佛法圖集</button>
-    <button class="admin-nav-btn" id="adminNavBtn" onclick="handleAdminClick()">管理員</button>
+    <button class="nav-btn" onclick="showPrologue(this)">網站序文</button>
   </nav>
 </header>
 
@@ -475,15 +476,28 @@ let _essayModalId = null;
 let _formDirty = false;
 let _editingType = 'essay';
 
-async function apiGet(path) { const r = await fetch(path); return r.ok ? r.json() : null; }
+async function apiGet(path) { const r = await fetch(path); if (!r.ok) return null; try { return await r.json(); } catch { return null; } }
 async function apiPost(path, body) { const r = await fetch(path, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)}, body:JSON.stringify(body) }); return {ok:r.ok, data:await r.json()}; }
 async function apiPut(path, body) { const r = await fetch(path, { method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)}, body:JSON.stringify(body) }); return {ok:r.ok, data:await r.json()}; }
 async function apiDelete(path) { const r = await fetch(path, { method:'DELETE', headers:{'Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)} }); return r.ok; }
 
-function applyAdminState() {
-  const btn = document.getElementById('adminNavBtn'); if(btn){ btn.textContent = isAdmin?'登出':'管理員'; btn.classList.toggle('logged-in', isAdmin); }
+// 管理員入口已隱藏：桌機雙擊 Logo、手機長按 Logo（0.7 秒）呼出登入；已登入則詢問登出
+function adminGesture() {
+  if (isAdmin) {
+    if (confirm('登出管理員？')) { isAdmin = false; sessionStorage.removeItem(ADMIN_TOKEN_KEY); location.reload(); }
+  } else {
+    openModal('loginModal');
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+  }
 }
-function handleAdminClick() { if(isAdmin){ isAdmin=false; sessionStorage.removeItem(ADMIN_TOKEN_KEY); applyAdminState(); location.reload(); } else { openModal('loginModal'); } }
+function bindAdminGesture() {
+  const logo = document.getElementById('siteLogo');
+  logo.addEventListener('dblclick', (e) => { e.preventDefault(); adminGesture(); });
+  let lp = null;
+  logo.addEventListener('touchstart', () => { lp = setTimeout(() => { lp = null; adminGesture(); }, 700); }, { passive: true });
+  ['touchend', 'touchmove', 'touchcancel'].forEach(ev =>
+    logo.addEventListener(ev, () => { if (lp) { clearTimeout(lp); lp = null; } }, { passive: true }));
+}
 async function doLogin() {
   const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:document.getElementById('adminPassword').value}) });
   if(res.ok){ const data = await res.json(); isAdmin=true; sessionStorage.setItem(ADMIN_TOKEN_KEY, data.token); location.reload(); }
@@ -590,7 +604,18 @@ async function renderDharmaHistory() {
   const tk = todayKey();
   body.innerHTML = rows.map(e => `<div class="history-item" onclick="showDharmaDetail('${e.date}')"><div class="history-date">${formatDate(e.date)}${e.date===tk?'<span class="today-badge">今日</span>':''}</div><div><div class="history-source">${e.source}</div><div class="history-quote">${e.text}</div></div><div class="history-arrow">›</div></div>`).join('');
 }
-async function showDharmaDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); history.replaceState(null,'','#dharma/'+iso); document.getElementById('historyBody').innerHTML = `<button class="detail-back" onclick="renderDharmaHistory()">‹ 返回</button>${renderDharmaEntry(zh, null, formatDate(iso), 'zh', '#dharma/'+iso)}`; }
+async function showDharmaDetail(iso, lang) {
+  lang = lang || 'zh';
+  const zh = await apiGet('/api/dharma/history/'+iso);
+  const en = lang === 'en' ? (await apiGet('/api/dharma/en?source=' + encodeURIComponent(zh.source)))?.[0] : null;
+  history.replaceState(null,'','#dharma/'+iso);
+  document.getElementById('historyBody').innerHTML =
+    `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button class="detail-back" style="margin-bottom:0" onclick="renderDharmaHistory()">‹ 返回</button>
+      <button class="btn-lang ${lang==='en'?'en-mode':''}" onclick="showDharmaDetail('${iso}','${lang==='en'?'zh':'en'}')">${lang==='en'?'中':'EN'}</button>
+    </div>` +
+    renderDharmaEntry(zh, en, lang==='en' ? formatDateEn(iso) : formatDate(iso), lang, '#dharma/'+iso);
+}
 
 async function renderDharmaEnHistory() {
   history.replaceState(null,'','#dharma-en-history');
@@ -751,15 +776,22 @@ function apBindPlayer(e) {
   });
 }
 
-async function showEssayPageDetail(id) {
+let _essayEnMode = false;
+async function showEssayPageDetail(id, keepLang) {
   apCleanup();
+  if (!keepLang) _essayEnMode = false;
   const e = await apiGet('/api/essays/'+id);
-  history.replaceState(null,'','#essay/'+id);
   const wrap = document.getElementById('essayContent');
-  wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList()">‹ 返回列表</button>
+  if (!e || !e.id) { wrap.innerHTML = '<div class="history-empty">找不到這篇文章</div>'; return; }
+  history.replaceState(null,'','#essay/'+id);
+  const en = _essayEnMode && e.content_en;
+  const langBtn = e.content_en ? `<button class="btn-lang ${en?'en-mode':''}" onclick="toggleEssayLang('${id}')">${en?'中':'EN'}</button>` : '';
+  wrap.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <button class="detail-back" style="margin-bottom:0" onclick="renderEssayList()">‹ 返回列表</button>${langBtn}
+    </div>
     <div class="card"><div class="card-body">
-      <div class="essay-detail-date">${formatDate(e.created_at)}</div>
-      <div class="essay-detail-title">${e.title}</div>
+      <div class="essay-detail-date">${en ? formatDateEn(e.created_at) : formatDate(e.created_at)}</div>
+      <div class="essay-detail-title">${en ? e.title_en : e.title}</div>
       <div class="essay-detail-divider"></div>
       ${renderAudioSection(e)}
       <div class="essay-detail-body" id="essayDetailBody"></div>
@@ -769,17 +801,29 @@ async function showEssayPageDetail(id) {
       </div>
     </div></div>`;
   const essayBody = document.getElementById('essayDetailBody');
-  // 逐段渲染（與語音時間戳對齊）；無語音時渲染結果與整篇 parse 相同
-  essayBody.innerHTML = splitBlocks(e.content).map((b, i) => `<div class="speech-block" data-bi="${i}">${renderMarkdown(b)}</div>`).join('');
+  // 中文逐段渲染（與語音時間戳對齊）；英文版整篇渲染（語音是中文的，不做段落對應）
+  if (en) essayBody.innerHTML = renderMarkdown(e.content_en);
+  else essayBody.innerHTML = splitBlocks(e.content).map((b, i) => `<div class="speech-block" data-bi="${i}">${renderMarkdown(b)}</div>`).join('');
   // --- MATH RENDERING CALL ---
   initMathRendering(essayBody);
-  if (e.audio_status === 'ready') apBindPlayer(e);
+  if (e.audio_status === 'ready') apBindPlayer(e); // EN 模式也可聽中文語音，僅無段落反白
   if (e.audio_status === 'pending') {
     _apPoll = setInterval(async () => {
       const fresh = await apiGet('/api/essays/'+id);
       if (fresh && fresh.audio_status !== 'pending' && location.hash === '#essay/'+id) { showEssayPageDetail(id); }
     }, 5000);
   }
+}
+function toggleEssayLang(id) { _essayEnMode = !_essayEnMode; showEssayPageDetail(id, true); }
+
+// 網站序文（導覽列直達）
+const PROLOGUE_ID = '03d087d9c32618524aa2c556b64a9dbb';
+function showPrologue(btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-essays').classList.add('active');
+  if(btn) btn.classList.add('active');
+  showEssayPageDetail(PROLOGUE_ID);
 }
 function openEssayEditor(e, ds) {
   _editingType='essay'; _formDirty=false;
@@ -907,7 +951,7 @@ async function routeFromHash() {
     activatePage('mantras'); await showMantraPageDetail(id);
   }
 }
-document.addEventListener('DOMContentLoaded', () => { applyAdminState(); fetchTodayDharma(); routeFromHash(); });
+document.addEventListener('DOMContentLoaded', () => { bindAdminGesture(); fetchTodayDharma(); routeFromHash(); });
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
   const lb=document.getElementById('lightbox');

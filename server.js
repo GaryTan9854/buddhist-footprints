@@ -377,7 +377,13 @@ async function handleApi(req, res) {
     if (method === 'GET') return sendJson(res, 200, query("SELECT * FROM essays WHERE id = ?", [id])[0]);
     if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
     if (method === 'DELETE') { query("DELETE FROM essays WHERE id = ?", [id]); deleteEssayAudio(id); return sendJson(res, 200, { ok: true }); }
-    const { title, tag, content, dharma_source, generate_audio } = await readBody(req);
+    const body = await readBody(req);
+    const { title, tag, content, dharma_source, generate_audio, title_en, content_en } = body;
+    // 英文版翻譯單獨更新（一般編輯不帶這兩個欄位，避免被清空）
+    if (title_en !== undefined || content_en !== undefined) {
+      query("UPDATE essays SET title_en=?, content_en=? WHERE id=?", [title_en ?? null, content_en ?? null, id]);
+      if (title === undefined) return sendJson(res, 200, { ok: true, id });
+    }
     query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title ?? null, tag ?? null, content ?? null, dharma_source ?? null, id]);
     if (generate_audio) queueEssayAudio(id);
     return sendJson(res, 200, { ok: true, id });
