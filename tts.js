@@ -178,23 +178,26 @@ async function generateEssayAudio(essayId) {
     const duration = Math.round((full.length / CBR_BYTES_PER_SEC) * 100) / 100;
 
     fs.mkdirSync(AUDIO_DIR, { recursive: true });
-    fs.writeFileSync(path.join(AUDIO_DIR, `${essayId}.mp3`), full);
-    query(`UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=?, audio_voice=?, audio_source='tts', audio_updated_at=? WHERE id=?`,
+    try { fs.unlinkSync(audioFilePath(essayId, '.m4a')); } catch {}
+    fs.writeFileSync(audioFilePath(essayId), full);
+    query(`UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=?, audio_voice=?, audio_source='tts', audio_mime='audio/mpeg', audio_updated_at=? WHERE id=?`,
       [duration, JSON.stringify(timings), voice, new Date().toISOString(), essayId]);
     console.log(`[tts] done "${essay.title}" — ${Math.round(duration)}s, ${(full.length / 1024).toFixed(0)}KB`);
   } catch (e) {
-    query(`UPDATE essays SET audio_status='error', audio_source=NULL, audio_updated_at=? WHERE id=?`, [new Date().toISOString(), essayId]);
+    query(`UPDATE essays SET audio_status='error', audio_source=NULL, audio_mime=NULL, audio_updated_at=? WHERE id=?`, [new Date().toISOString(), essayId]);
     throw e;
   }
 }
 
-function audioFilePath(essayId) {
+function audioFilePath(essayId, ext = '.mp3') {
   // essayId 已由呼叫端驗證格式（hex），避免路徑跳脫
-  return path.join(AUDIO_DIR, `${essayId}.mp3`);
+  return path.join(AUDIO_DIR, `${essayId}${ext}`);
 }
 
 function deleteEssayAudio(essayId) {
-  try { fs.unlinkSync(audioFilePath(essayId)); } catch {}
+  for (const ext of ['.mp3', '.m4a']) {
+    try { fs.unlinkSync(audioFilePath(essayId, ext)); } catch {}
+  }
 }
 
 module.exports = { queueEssayAudio, audioFilePath, deleteEssayAudio, DEFAULT_VOICE, splitBlocks };

@@ -26,8 +26,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.18.3';
-const BUILD = '83';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.18.4';
+const BUILD = '84';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -347,18 +347,21 @@ ${essay.content}`;
 let _translateQueue = Promise.resolve();
 
 function serveAudio(req, res, essayId, asDownload) {
-  const file = audioFilePath(essayId);
+  const audioRow = query("SELECT audio_mime FROM essays WHERE id=?", [essayId])[0];
+  const preferredExt = audioRow?.audio_mime === 'audio/mp4' ? '.m4a' : '.mp3';
+  const file = [preferredExt, preferredExt === '.mp3' ? '.m4a' : '.mp3']
+    .map(ext => audioFilePath(essayId, ext)).find(candidate => fs.existsSync(candidate));
   let stat;
   try { stat = fs.statSync(file); } catch { return sendJson(res, 404, { error: 'Audio not found' }); }
   const headers = {
-    'Content-Type': 'audio/mpeg',
+    'Content-Type': file.endsWith('.m4a') ? 'audio/mp4' : 'audio/mpeg',
     'Accept-Ranges': 'bytes',
     'Cache-Control': 'public, max-age=3600',
     'Access-Control-Allow-Origin': '*'
   };
   if (asDownload) {
     const essay = query("SELECT title FROM essays WHERE id=?", [essayId])[0];
-    const name = encodeURIComponent(((essay && essay.title) || essayId) + '.mp3');
+    const name = encodeURIComponent(((essay && essay.title) || essayId) + (file.endsWith('.m4a') ? '.m4a' : '.mp3'));
     headers['Content-Disposition'] = `attachment; filename*=UTF-8''${name}`;
   }
   const range = req.headers.range && req.headers.range.match(/^bytes=(\d*)-(\d*)$/);
@@ -499,7 +502,7 @@ async function handleApi(req, res) {
     if (method === 'POST') { queueEssayAudio(id); return sendJson(res, 200, { ok: true, status: 'pending' }); }
     if (method === 'DELETE') {
       deleteEssayAudio(id);
-      query("UPDATE essays SET audio_status=NULL, audio_duration=NULL, audio_timings=NULL, audio_voice=NULL, audio_source=NULL, audio_updated_at=? WHERE id=?", [new Date().toISOString(), id]);
+      query("UPDATE essays SET audio_status=NULL, audio_duration=NULL, audio_timings=NULL, audio_voice=NULL, audio_source=NULL, audio_mime=NULL, audio_updated_at=? WHERE id=?", [new Date().toISOString(), id]);
       return sendJson(res, 200, { ok: true });
     }
   }
@@ -517,12 +520,16 @@ async function handleApi(req, res) {
     catch (e) { return sendJson(res, e.status || 400, { error: e.status === 413 ? 'Audio file too large (max 30 MB)' : 'Invalid audio body' }); }
     const isMp3 = audio.length >= 3 && audio.slice(0, 3).toString() === 'ID3';
     const isMpeg = audio.length >= 2 && audio[0] === 0xff && [0xfb, 0xf3, 0xf2].includes(audio[1]);
-    if (!isMp3 && !isMpeg) return sendJson(res, 400, { error: 'Not an MP3 file' });
+    const isM4a = audio.length >= 12 && audio.slice(4, 8).toString() === 'ftyp' && ['M4A ', 'M4B ', 'isom', 'iso2', 'mp41', 'mp42'].includes(audio.slice(8, 12).toString());
+    if (!isMp3 && !isMpeg && !isM4a) return sendJson(res, 400, { error: '只支援 MP3 或 M4A 音檔' });
     try {
-      const file = audioFilePath(id);
+      const ext = isM4a ? '.m4a' : '.mp3';
+      const mime = isM4a ? 'audio/mp4' : 'audio/mpeg';
+      deleteEssayAudio(id);
+      const file = audioFilePath(id, ext);
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, audio);
-      query("UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=NULL, audio_voice=NULL, audio_source='upload', audio_updated_at=? WHERE id=?", [duration, new Date().toISOString(), id]);
+      query("UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=NULL, audio_voice=NULL, audio_source='upload', audio_mime=?, audio_updated_at=? WHERE id=?", [duration, mime, new Date().toISOString(), id]);
       return sendJson(res, 200, { ok: true, status: 'ready' });
     } catch (e) { console.error('[audio upload]', e); return sendJson(res, 500, { error: 'Could not save audio' }); }
   }

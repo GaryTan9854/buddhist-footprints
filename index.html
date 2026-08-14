@@ -359,7 +359,7 @@ body::before {
   <div class="site-logo" id="siteLogo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.18.3</span>
+    <span class="site-version" id="versionBadge">v3.18.4</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -433,7 +433,7 @@ body::before {
     <div class="modal-footer"><button class="btn-primary" onclick="saveGalleryItem()">儲存</button></div>
   </div>
 </div>
-<input type="file" id="mantraAudioFileInput" accept="audio/mpeg,.mp3" style="display:none" onchange="handleMantraAudioSelected(event)">
+<input type="file" id="mantraAudioFileInput" accept="audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a" style="display:none" onchange="handleMantraAudioSelected(event)">
 <input type="file" id="essayImageFileInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple style="display:none" onchange="handleEssayImageSelected(event)">
 
 <div class="modal-overlay" id="essayViewModal">
@@ -687,7 +687,7 @@ function apAdminButtons(e, type='essay') {
   if (e.audio_status === 'pending') return '';
   const label = e.audio_status === 'ready' ? '🎧 重新產生語音' : (e.audio_status === 'error' ? '🎧 語音產生失敗，重試' : '🎧 產生語音');
   let html = `<button class="btn-outline btn-sm" onclick="apGenerate('${e.id}','${type}')">${label}</button>`;
-  if (type === 'mantra') html += `<button class="btn-outline btn-sm" id="uploadAudioBtn" onclick="chooseMantraAudio('${e.id}')">⬆ 上傳 MP3</button>`;
+  if (type === 'mantra') html += `<button class="btn-outline btn-sm" id="uploadAudioBtn" onclick="chooseMantraAudio('${e.id}')">⬆ 上傳 MP3／M4A</button>`;
   if (e.audio_status === 'ready') html += `<button class="btn-outline btn-sm btn-danger" onclick="apDeleteAudio('${e.id}','${type}')">刪除語音</button>`;
   return html;
 }
@@ -726,7 +726,7 @@ async function handleMantraAudioSelected(ev) {
     const r = await fetch(`/api/essays/${id}/audio/upload?duration=${encodeURIComponent(duration)}`, { method:'POST', body:file, headers:{'Content-Type':'audio/mpeg','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)} });
     if (!r.ok) { const data = await r.json().catch(()=>({})); throw new Error(data.error || '上傳失敗'); }
     showToast('MP3 上傳完成'); showEssayPageDetail(id,false,'mantra');
-  } catch (e) { showToast(e.message || '上傳失敗'); if (btn) { btn.disabled = false; btn.textContent = '⬆ 上傳 MP3'; } }
+  } catch (e) { showToast(e.message || '上傳失敗'); if (btn) { btn.disabled = false; btn.textContent = '⬆ 上傳 MP3／M4A'; } }
 }
 
 function apToggle() {
