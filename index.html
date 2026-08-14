@@ -358,7 +358,7 @@ body::before {
   <div class="site-logo" id="siteLogo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.18.1</span>
+    <span class="site-version" id="versionBadge">v3.18.2</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -394,8 +394,8 @@ body::before {
   </div>
 </div>
 
-<div class="page" id="page-essays"><div class="content-wrap" id="essayContent"></div></div>
-<div class="page" id="page-mantras"><div class="content-wrap" id="mantraContent"></div></div>
+<div class="page" id="page-essays"><div class="page-hero"><div class="page-hero-en">ESSAYS</div><div class="page-hero-title">佛法心得</div><div class="ornament"><span>☸</span></div></div><div class="content-wrap" id="essayContent"></div></div>
+<div class="page" id="page-mantras"><div class="page-hero"><div class="page-hero-en">MANTRA</div><div class="page-hero-title">佛咒</div><div class="ornament"><span>☸</span></div></div><div class="content-wrap" id="mantraContent"></div></div>
 <div class="page" id="page-gallery"><div class="content-wrap" id="galleryContent"></div></div>
 
 <div class="modal-overlay" id="loginModal">
@@ -432,6 +432,7 @@ body::before {
     <div class="modal-footer"><button class="btn-primary" onclick="saveGalleryItem()">儲存</button></div>
   </div>
 </div>
+<input type="file" id="mantraAudioFileInput" accept="audio/mpeg,.mp3" style="display:none" onchange="handleMantraAudioSelected(event)">
 
 <div class="modal-overlay" id="essayViewModal">
   <div class="modal" style="max-width:560px">
@@ -629,12 +630,14 @@ async function renderDharmaEnHistory() {
 }
 async function showDharmaEnDetail(iso) { const zh = await apiGet('/api/dharma/history/'+iso); const enArr = await apiGet('/api/dharma/en?source='+encodeURIComponent(zh.source)); history.replaceState(null,'','#dharma-en/'+iso); document.getElementById('enHistoryBody').innerHTML = `<button class="detail-back" onclick="renderDharmaEnHistory()">‹ Back</button>${renderDharmaEntry(zh, enArr?.[0], formatDateEn(iso), 'en', '#dharma-en/'+iso)}`; }
 
-async function renderEssayList() {
-  history.replaceState(null,'','#essays');
+async function renderEssayList(type='essay') {
+  const isMantra = type === 'mantra';
+  const prefix = isMantra ? 'mantra' : 'essay';
+  history.replaceState(null,'','#'+(isMantra?'mantras':'essays'));
   apCleanup();
-  const essays = await apiGet('/api/essays'); const wrap = document.getElementById('essayContent');
-  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor()">＋ 新增心得</button></div>`:'') +
-    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}${e.audio_status==='ready'?`<span class="essay-audio-badge">🎧 ${fmtMinutes(e.audio_duration)}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
+  const essays = await apiGet(isMantra ? '/api/mantras' : '/api/essays'); const wrap = document.getElementById(isMantra ? 'mantraContent' : 'essayContent');
+  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openEssayEditor(null,null,'${type}')">＋ 新增${isMantra?'佛咒':'心得'}</button></div>`:'') +
+    `<div class="essay-list">${(essays||[]).map(e => `<div class="essay-card" onclick="showEssayPageDetail('${e.id}',false,'${type}')"><div class="essay-card-meta"><span class="essay-date">${formatDate(e.created_at)}</span>${e.tag?`<span class="essay-tag">${e.tag}</span>`:''}${e.audio_status==='ready'?`<span class="essay-audio-badge">🎧 ${fmtMinutes(e.audio_duration)}</span>`:''}</div><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,120)}…</div></div>`).join('')}</div>`;
 }
 
 // ── 語音播放器 ──
@@ -652,13 +655,14 @@ function apCleanup() {
   if (typeof _trPoll !== 'undefined' && _trPoll) { clearInterval(_trPoll); _trPoll = null; }
 }
 
-function renderAudioSection(e) {
+function renderAudioSection(e, type='essay') {
   if (e.audio_status === 'ready') {
+    const audioSrc = `/api/essays/${e.id}/audio.mp3?v=${encodeURIComponent(e.audio_updated_at||'')}`;
     return `<div class="audio-player">
-      <audio id="essayAudio" src="/api/essays/${e.id}/audio.mp3" preload="metadata"></audio>
+      <audio id="essayAudio" src="${audioSrc}" preload="metadata"></audio>
       <button class="ap-play" id="apPlay" onclick="apToggle()" title="播放 / 暫停">▶</button>
       <div class="ap-main">
-        <div class="ap-title">🎧 聆聽全文（${fmtMinutes(e.audio_duration)}）</div>
+        <div class="ap-title">🎧 ${type==='mantra'?'聆聽咒音':'聆聽全文'}（${fmtMinutes(e.audio_duration)}）</div>
         <div class="ap-bar" id="apBar" onclick="apSeekBar(event)"><div class="ap-progress" id="apProgress"></div></div>
         <div class="ap-time" id="apTime">0:00 / ${fmtTime(e.audio_duration)}</div>
       </div>
@@ -666,7 +670,7 @@ function renderAudioSection(e) {
         <button class="ap-btn" onclick="apSkip(-15)" title="倒退 15 秒">↺ 15</button>
         <button class="ap-btn" onclick="apSkip(15)" title="快轉 15 秒">15 ↻</button>
         <button class="ap-btn" id="apSpeed" onclick="apCycleSpeed()" title="播放速度">1×</button>
-        <a class="ap-btn" href="/api/essays/${e.id}/audio.mp3?download=1" title="下載 MP3 離線聆聽">⬇ MP3</a>
+        <a class="ap-btn" href="${audioSrc}&download=1" title="下載 MP3 離線聆聽">⬇ MP3</a>
       </div>
     </div>`;
   }
@@ -676,24 +680,51 @@ function renderAudioSection(e) {
   return '';
 }
 
-function apAdminButtons(e) {
+function apAdminButtons(e, type='essay') {
   if (!isAdmin) return '';
   if (e.audio_status === 'pending') return '';
   const label = e.audio_status === 'ready' ? '🎧 重新產生語音' : (e.audio_status === 'error' ? '🎧 語音產生失敗，重試' : '🎧 產生語音');
-  let html = `<button class="btn-outline btn-sm" onclick="apGenerate('${e.id}')">${label}</button>`;
-  if (e.audio_status === 'ready') html += `<button class="btn-outline btn-sm btn-danger" onclick="apDeleteAudio('${e.id}')">刪除語音</button>`;
+  let html = `<button class="btn-outline btn-sm" onclick="apGenerate('${e.id}','${type}')">${label}</button>`;
+  if (type === 'mantra') html += `<button class="btn-outline btn-sm" id="uploadAudioBtn" onclick="chooseMantraAudio('${e.id}')">⬆ 上傳 MP3</button>`;
+  if (e.audio_status === 'ready') html += `<button class="btn-outline btn-sm btn-danger" onclick="apDeleteAudio('${e.id}','${type}')">刪除語音</button>`;
   return html;
 }
 
-async function apGenerate(id) {
+async function apGenerate(id, type='essay') {
+  const current = await apiGet('/api/essays/'+id);
+  if (type === 'mantra' && current?.audio_source === 'upload' && !confirm('這篇佛咒已有上傳的 MP3，重新產生會覆蓋它。確定繼續嗎？')) return;
   const r = await apiPost('/api/essays/'+id+'/audio', {});
-  if (r.ok) { showToast('語音產生中…'); showEssayPageDetail(id); }
+  if (r.ok) { showToast('語音產生中…'); showEssayPageDetail(id,false,type); }
   else showToast('產生失敗');
 }
-async function apDeleteAudio(id) {
+async function apDeleteAudio(id, type='essay') {
   if (!confirm('刪除這篇文章的語音檔？')) return;
   await apiDelete('/api/essays/'+id+'/audio');
-  showEssayPageDetail(id);
+  showEssayPageDetail(id,false,type);
+}
+
+function chooseMantraAudio(id) {
+  const input = document.getElementById('mantraAudioFileInput');
+  input.dataset.id = id; input.value = ''; input.click();
+}
+async function handleMantraAudioSelected(ev) {
+  const input = ev.target, file = input.files && input.files[0], id = input.dataset.id;
+  if (!file || !id) return;
+  if (file.size > 30 * 1024 * 1024) { showToast('MP3 不可超過 30 MB'); return; }
+  const btn = document.getElementById('uploadAudioBtn'); if (btn) { btn.disabled = true; btn.textContent = '上傳中…'; }
+  try {
+    const url = URL.createObjectURL(file);
+    const duration = await new Promise((resolve, reject) => {
+      const audio = new Audio();
+      audio.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(audio.duration); };
+      audio.onerror = () => { URL.revokeObjectURL(url); reject(new Error('無法讀取音檔時長')); };
+      audio.src = url;
+    });
+    if (!Number.isFinite(duration) || duration <= 0) throw new Error('無法讀取音檔時長');
+    const r = await fetch(`/api/essays/${id}/audio/upload?duration=${encodeURIComponent(duration)}`, { method:'POST', body:file, headers:{'Content-Type':'audio/mpeg','Authorization':'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY)} });
+    if (!r.ok) { const data = await r.json().catch(()=>({})); throw new Error(data.error || '上傳失敗'); }
+    showToast('MP3 上傳完成'); showEssayPageDetail(id,false,'mantra');
+  } catch (e) { showToast(e.message || '上傳失敗'); if (btn) { btn.disabled = false; btn.textContent = '⬆ 上傳 MP3'; } }
 }
 
 function apToggle() {
@@ -781,20 +812,23 @@ function apBindPlayer(e) {
 }
 
 let _essayEnMode = false;
-async function showEssayPageDetail(id, keepLang) {
+async function showEssayPageDetail(id, keepLang, type='essay') {
+  const isMantra = type === 'mantra';
+  const prefix = isMantra ? 'mantra' : 'essay';
+  const wrapId = isMantra ? 'mantraContent' : 'essayContent';
   apCleanup();
   if (!keepLang) _essayEnMode = false;
   const e = await apiGet('/api/essays/'+id);
-  const wrap = document.getElementById('essayContent');
+  const wrap = document.getElementById(wrapId);
   if (!e || !e.id) { wrap.innerHTML = '<div class="history-empty">找不到這篇文章</div>'; return; }
-  history.replaceState(null,'','#essay/'+id);
+  history.replaceState(null,'','#'+prefix+'/'+id);
   const en = _essayEnMode && e.content_en;
   // 框內右上角的 EN：已有英文版=金色實心；翻譯中=禁用；尚無=中空（按了詢問是否即時產生）
   let langBtn;
-  if (e.content_en) langBtn = `<button class="btn-lang ${en?'en-mode':''}" onclick="toggleEssayLang('${id}')">${en?'中':'EN'}</button>`;
+  if (e.content_en) langBtn = `<button class="btn-lang ${en?'en-mode':''}" onclick="toggleEssayLang('${id}','${type}')">${en?'中':'EN'}</button>`;
   else if (e.translate_status === 'pending') langBtn = `<button class="btn-lang hollow" disabled>翻譯中…</button>`;
-  else langBtn = `<button class="btn-lang hollow" onclick="requestEssayTranslation('${id}')">EN</button>`;
-  wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList()">‹ 返回列表</button>
+  else langBtn = `<button class="btn-lang hollow" onclick="requestEssayTranslation('${id}','${type}')">EN</button>`;
+  wrap.innerHTML = `<button class="detail-back" onclick="renderEssayList('${type}')">‹ 返回列表</button>
     <div class="card"><div class="card-body">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
         <div class="essay-detail-date" style="margin-bottom:0;padding-top:8px">${en ? formatDateEn(e.created_at) : formatDate(e.created_at)}</div>
@@ -802,11 +836,11 @@ async function showEssayPageDetail(id, keepLang) {
       </div>
       <div class="essay-detail-title" style="margin-top:12px">${en ? e.title_en : e.title}</div>
       <div class="essay-detail-divider"></div>
-      ${en ? '' : renderAudioSection(e)}
+      ${en ? '' : renderAudioSection(e,type)}
       <div class="essay-detail-body" id="essayDetailBody"></div>
       <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn-share" onclick="shareUrl('#essay/${id}')">↗ 分享連結</button>
-        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}')">編輯</button>${apAdminButtons(e)}<button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}')">刪除</button>`:''}
+        <button class="btn-share" onclick="shareUrl('#${prefix}/${id}')">↗ 分享連結</button>
+        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editEssay('${e.id}','${type}')">編輯</button>${apAdminButtons(e,type)}<button class="btn-outline btn-sm btn-danger" onclick="deleteEssay('${e.id}','${type}')">刪除</button>`:''}
       </div>
     </div></div>`;
   const essayBody = document.getElementById('essayDetailBody');
@@ -816,34 +850,34 @@ async function showEssayPageDetail(id, keepLang) {
   // --- MATH RENDERING CALL ---
   initMathRendering(essayBody);
   if (e.audio_status === 'ready' && !en) apBindPlayer(e); // 英文版不提供中文語音，播放器整個收起
-  if (!e.content_en && e.translate_status === 'pending') watchEssayTranslation(id);
+  if (!e.content_en && e.translate_status === 'pending') watchEssayTranslation(id,type);
   if (e.audio_status === 'pending') {
     _apPoll = setInterval(async () => {
       const fresh = await apiGet('/api/essays/'+id);
-      if (fresh && fresh.audio_status !== 'pending' && location.hash === '#essay/'+id) { showEssayPageDetail(id); }
+      if (fresh && fresh.audio_status !== 'pending' && location.hash === '#'+prefix+'/'+id) { showEssayPageDetail(id,false,type); }
     }, 5000);
   }
 }
-function toggleEssayLang(id) { _essayEnMode = !_essayEnMode; showEssayPageDetail(id, true); }
+function toggleEssayLang(id, type='essay') { _essayEnMode = !_essayEnMode; showEssayPageDetail(id, true, type); }
 
 // 尚無英文版：詢問後即時產生（DeepSeek 翻譯一次、存 DB，之後所有人直接看）
 let _trPoll = null;
-async function requestEssayTranslation(id) {
+async function requestEssayTranslation(id, type='essay') {
   if (!confirm('本篇尚未存有英文版本，是否現在為您產生？\n（約需一至兩分鐘，完成後會自動切換）')) return;
   const r = await fetch('/api/essays/'+id+'/translate', { method:'POST' }).then(x=>x.json()).catch(()=>null);
   if (!r || !r.ok) { alert('翻譯服務暫時無法使用，請稍後再試'); return; }
-  if (r.status === 'ready') { _essayEnMode = true; showEssayPageDetail(id, true); return; }
+  if (r.status === 'ready') { _essayEnMode = true; showEssayPageDetail(id, true, type); return; }
   showToast('英文版翻譯中…');
-  showEssayPageDetail(id, true); // 重新渲染成「翻譯中…」並開始輪詢
+  showEssayPageDetail(id, true, type); // 重新渲染成「翻譯中…」並開始輪詢
 }
-function watchEssayTranslation(id) {
+function watchEssayTranslation(id, type='essay') {
   if (_trPoll) clearInterval(_trPoll);
   _trPoll = setInterval(async () => {
-    if (location.hash !== '#essay/'+id) { clearInterval(_trPoll); _trPoll = null; return; }
+    if (location.hash !== '#'+type+'/'+id) { clearInterval(_trPoll); _trPoll = null; return; }
     const fresh = await apiGet('/api/essays/'+id);
     if (!fresh) return;
-    if (fresh.content_en) { clearInterval(_trPoll); _trPoll = null; _essayEnMode = true; showEssayPageDetail(id, true); }
-    else if (fresh.translate_status === 'error') { clearInterval(_trPoll); _trPoll = null; showToast('翻譯失敗，請稍後再試'); showEssayPageDetail(id, true); }
+    if (fresh.content_en) { clearInterval(_trPoll); _trPoll = null; _essayEnMode = true; showEssayPageDetail(id, true, type); }
+    else if (fresh.translate_status === 'error') { clearInterval(_trPoll); _trPoll = null; showToast('翻譯失敗，請稍後再試'); showEssayPageDetail(id, true, type); }
   }, 4000);
 }
 
@@ -856,60 +890,37 @@ function showPrologue(btn) {
   if(btn) btn.classList.add('active');
   showEssayPageDetail(PROLOGUE_ID);
 }
-function openEssayEditor(e, ds) {
-  _editingType='essay'; _formDirty=false;
+function openEssayEditor(e, ds, type='essay') {
+  _editingType=type; _formDirty=false;
   document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||'';
   document.getElementById('essayTitleInput').value=e?e.title:''; document.getElementById('essayContentInput').value=e?e.content:''; document.getElementById('essayTagInput').value=e?e.tag:'';
   // 新文章預設勾選產生語音；編輯已有語音的文章則預設不重新產生
   document.getElementById('audioGenGroup').style.display='block';
   document.getElementById('essayAudioGen').checked = !e;
   document.getElementById('audioGenText').textContent = (e && e.audio_status==='ready') ? '🎧 重新產生語音 MP3（內文有修改時勾選）' : '🎧 發布後自動產生語音 MP3（可在網頁聆聽全文）';
+  document.getElementById('essayModalTitle').textContent = type==='mantra' ? '編輯佛咒' : '編輯佛法心得';
   openModal('essayModal');
 }
 function closeEssayModalSafe() { if(_formDirty && !confirm('您有未儲存的變更，確定要離開嗎？')) return; _formDirty=false; closeModal('essayModal'); }
 async function saveEssay() {
   const id=document.getElementById('essayEditId').value;
   const body={title:document.getElementById('essayTitleInput').value, content:document.getElementById('essayContentInput').value, dharma_source:document.getElementById('essayDharmaSource').value, tag:document.getElementById('essayTagInput').value};
-  if(_editingType==='essay' && document.getElementById('essayAudioGen').checked) body.generate_audio=true;
-  const r=id?await apiPut('/api/essays/'+id, body):await apiPost('/api/essays', body);
+  if(document.getElementById('essayAudioGen').checked) body.generate_audio=true;
+  const endpoint = _editingType==='mantra' ? '/api/mantras' : '/api/essays';
+  const r=id?await apiPut('/api/essays/'+id, body):await apiPost(endpoint, body);
   if(r.ok){
     _formDirty=false; closeModal('essayModal');
-    if(body.generate_audio) showToast('文章已儲存，語音產生中…');
+    if(body.generate_audio) showToast('內容已儲存，語音產生中…');
     if(_editingType==='mantra') renderMantraList(); else renderEssayList();
   }
 }
-async function editEssay(id) { const e=await apiGet('/api/essays/'+id); openEssayEditor(e); }
-async function deleteEssay(id) { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(); } }
-
-async function renderMantraList() {
-  history.replaceState(null,'','#mantras');
-  const mantras = await apiGet('/api/mantras'); const wrap = document.getElementById('mantraContent');
-  wrap.innerHTML = (isAdmin?`<div class="section-toolbar"><button class="btn-primary" onclick="openMantraEditor()">＋ 新增佛咒</button></div>`:'') +
-    `<div class="essay-list">${(mantras||[]).map(e => `<div class="essay-card" onclick="showMantraPageDetail('${e.id}')"><div class="essay-title">${e.title}</div><div class="essay-excerpt">${e.content.slice(0,100)}…</div></div>`).join('')}</div>`;
-}
-async function showMantraPageDetail(id) {
-  const e = await apiGet('/api/essays/'+id);
-  history.replaceState(null,'','#mantra/'+id);
-  const wrap = document.getElementById('mantraContent');
-  wrap.innerHTML = `<button class="detail-back" onclick="renderMantraList()">‹ 返回列表</button>
-    <div class="card"><div class="card-body">
-      <div class="essay-detail-date">${formatDate(e.created_at)}</div>
-      <div class="essay-detail-title">${e.title}</div>
-      <div class="essay-detail-divider"></div>
-      <div class="essay-detail-body" id="mantraDetailBody"></div>
-      <div style="margin-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn-share" onclick="shareUrl('#mantra/${id}')">↗ 分享連結</button>
-        ${isAdmin?`<button class="btn-outline btn-sm" onclick="editMantra('${e.id}')">編輯</button><button class="btn-outline btn-sm btn-danger" onclick="deleteMantra('${e.id}')">刪除</button>`:''}
-      </div>
-    </div></div>`;
-  const mantraBody = document.getElementById('mantraDetailBody');
-  mantraBody.innerHTML = renderMarkdown(e.content);
-  // --- MATH RENDERING CALL ---
-  initMathRendering(mantraBody);
-}
-function openMantraEditor(m) { _editingType='mantra'; _formDirty=false; document.getElementById('essayEditId').value=m?m.id:''; document.getElementById('essayTitleInput').value=m?m.title:''; document.getElementById('essayContentInput').value=m?m.content:''; document.getElementById('audioGenGroup').style.display='none'; document.getElementById('essayAudioGen').checked=false; openModal('essayModal'); }
-async function editMantra(id) { const e=await apiGet('/api/essays/'+id); openMantraEditor(e); }
-async function deleteMantra(id) { if(confirm('確定？')){ await apiDelete('/api/essays/'+id); renderMantraList(); } }
+async function editEssay(id, type='essay') { const e=await apiGet('/api/essays/'+id); openEssayEditor(e,null,type); }
+async function deleteEssay(id, type='essay') { if(confirm('刪除？')){ await apiDelete('/api/essays/'+id); renderEssayList(type); } }
+async function renderMantraList() { return renderEssayList('mantra'); }
+async function showMantraPageDetail(id) { return showEssayPageDetail(id,false,'mantra'); }
+function openMantraEditor(m) { return openEssayEditor(m,null,'mantra'); }
+async function editMantra(id) { return editEssay(id,'mantra'); }
+async function deleteMantra(id) { return deleteEssay(id,'mantra'); }
 
 async function renderGallery() {
   history.replaceState(null,'','#gallery');

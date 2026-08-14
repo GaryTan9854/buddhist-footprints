@@ -26,8 +26,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.18.1';
-const BUILD = '80';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.18.2';
+const BUILD = '82';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
@@ -61,6 +61,27 @@ async function readBody(req) {
       try { resolve(body ? JSON.parse(body) : {}); }
       catch (e) { reject(e); }
     });
+  });
+}
+
+function readRawBody(req, maxBytes) {
+  return new Promise((resolve, reject) => {
+    const declared = Number(req.headers['content-length'] || 0);
+    if (declared > maxBytes) { reject(Object.assign(new Error('Payload too large'), { status: 413 })); return; }
+    const chunks = [];
+    let total = 0;
+    let settled = false;
+    req.on('data', chunk => {
+      total += chunk.length;
+      if (total > maxBytes) {
+        settled = true;
+        reject(Object.assign(new Error('Payload too large'), { status: 413 }));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => { if (!settled) resolve(Buffer.concat(chunks)); });
+    req.on('error', err => { if (!settled) reject(err); });
   });
 }
 
@@ -421,9 +442,32 @@ async function handleApi(req, res) {
     if (method === 'POST') { queueEssayAudio(id); return sendJson(res, 200, { ok: true, status: 'pending' }); }
     if (method === 'DELETE') {
       deleteEssayAudio(id);
-      query("UPDATE essays SET audio_status=NULL, audio_duration=NULL, audio_timings=NULL WHERE id=?", [id]);
+      query("UPDATE essays SET audio_status=NULL, audio_duration=NULL, audio_timings=NULL, audio_voice=NULL, audio_source=NULL, audio_updated_at=? WHERE id=?", [new Date().toISOString(), id]);
       return sendJson(res, 200, { ok: true });
     }
+  }
+
+  const audioUpload = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/audio\/upload$/);
+  if (audioUpload && method === 'POST') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    const id = audioUpload[1];
+    const essay = query('SELECT id FROM essays WHERE id=?', [id])[0];
+    if (!essay) return sendJson(res, 404, { error: 'Not found' });
+    const duration = Number(url.searchParams.get('duration'));
+    if (!Number.isFinite(duration) || duration <= 0) return sendJson(res, 400, { error: 'Invalid duration' });
+    let audio;
+    try { audio = await readRawBody(req, 30 * 1024 * 1024); }
+    catch (e) { return sendJson(res, e.status || 400, { error: e.status === 413 ? 'Audio file too large (max 30 MB)' : 'Invalid audio body' }); }
+    const isMp3 = audio.length >= 3 && audio.slice(0, 3).toString() === 'ID3';
+    const isMpeg = audio.length >= 2 && audio[0] === 0xff && [0xfb, 0xf3, 0xf2].includes(audio[1]);
+    if (!isMp3 && !isMpeg) return sendJson(res, 400, { error: 'Not an MP3 file' });
+    try {
+      const file = audioFilePath(id);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, audio);
+      query("UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=NULL, audio_voice=NULL, audio_source='upload', audio_updated_at=? WHERE id=?", [duration, new Date().toISOString(), id]);
+      return sendJson(res, 200, { ok: true, status: 'ready' });
+    } catch (e) { console.error('[audio upload]', e); return sendJson(res, 500, { error: 'Could not save audio' }); }
   }
 
   if (pathname.startsWith('/api/essays/') && (method === 'GET' || method === 'PUT' || method === 'DELETE')) {
@@ -453,9 +497,10 @@ async function handleApi(req, res) {
 
   if (pathname === '/api/mantras' && method === 'POST') {
     if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    const { title, tag, content } = await readBody(req);
-    query("INSERT INTO essays (title, tag, content, type) VALUES (?, ?, ?, 'mantra')", [title, tag, content]);
-    return sendJson(res, 200, { ok: true });
+    const { title, tag, content, generate_audio } = await readBody(req);
+    const row = query("INSERT INTO essays (title, tag, content, type) VALUES (?, ?, ?, 'mantra') RETURNING id", [title, tag, content])[0];
+    if (generate_audio && row) queueEssayAudio(row.id);
+    return sendJson(res, 200, { ok: true, id: row ? row.id : null });
   }
 
   if (pathname === '/api/gallery') {

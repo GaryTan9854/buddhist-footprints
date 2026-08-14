@@ -179,11 +179,11 @@ async function generateEssayAudio(essayId) {
 
     fs.mkdirSync(AUDIO_DIR, { recursive: true });
     fs.writeFileSync(path.join(AUDIO_DIR, `${essayId}.mp3`), full);
-    query(`UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=?, audio_voice=? WHERE id=?`,
-      [duration, JSON.stringify(timings), voice, essayId]);
+    query(`UPDATE essays SET audio_status='ready', audio_duration=?, audio_timings=?, audio_voice=?, audio_source='tts', audio_updated_at=? WHERE id=?`,
+      [duration, JSON.stringify(timings), voice, new Date().toISOString(), essayId]);
     console.log(`[tts] done "${essay.title}" — ${Math.round(duration)}s, ${(full.length / 1024).toFixed(0)}KB`);
   } catch (e) {
-    query(`UPDATE essays SET audio_status='error' WHERE id=?`, [essayId]);
+    query(`UPDATE essays SET audio_status='error', audio_source=NULL, audio_updated_at=? WHERE id=?`, [new Date().toISOString(), essayId]);
     throw e;
   }
 }
