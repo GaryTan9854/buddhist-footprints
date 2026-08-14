@@ -16,3 +16,6 @@ credentials.json
 
 # 本地開發產生的語音檔（prod 在 ~/db/buddhist-footprints/audio/）
 audio/
+
+# 本地開發產生的文章圖片（prod 在 ~/db/buddhist-footprints/images/）
+images/

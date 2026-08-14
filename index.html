@@ -194,6 +194,7 @@ body::before {
 .essay-detail-body pre { background:rgba(26,22,18,0.05);padding:14px;border-radius:2px;overflow-x:auto;margin-bottom:16px; }
 .essay-detail-body pre code { background:none;padding:0; }
 .essay-detail-body hr { border:none;border-top:1px solid var(--border);margin:24px 0; }
+.essay-detail-body img,.essay-view-body img { display:block;max-width:100%;height:auto;margin:18px auto;border-radius:2px;box-shadow:0 2px 12px var(--shadow); }
 
 /* ── MODAL ── */
 .modal-overlay { display:none;position:fixed;inset:0;background:rgba(26,22,18,0.55);z-index:200;align-items:center;justify-content:center;padding:24px; }
@@ -358,7 +359,7 @@ body::before {
   <div class="site-logo" id="siteLogo" style="cursor:pointer" onclick="goHome()" title="回首頁">
     <span class="site-logo-main"><span style="color:var(--gold)">佛法</span><span style="color:#4f8c6b">足跡</span></span>
     <span class="site-logo-sub">Buddhist Footprints</span>
-    <span class="site-version" id="versionBadge">v3.18.2</span>
+    <span class="site-version" id="versionBadge">v3.18.3</span>
   </div>
   <nav class="site-nav">
     <button class="nav-btn active" id="navDharmaBtn" onclick="showPage('dharma',this)">每日佛典</button>
@@ -413,7 +414,7 @@ body::before {
       <input type="hidden" id="essayEditId"><input type="hidden" id="essayDharmaSource">
       <div class="form-group"><label class="form-label">標題</label><input class="form-input" id="essayTitleInput" oninput="_formDirty=true"></div>
       <div class="form-group"><label class="form-label">標籤</label><input class="form-input" id="essayTagInput" oninput="_formDirty=true"></div>
-      <div class="form-group"><label class="form-label">內文</label><textarea class="form-textarea" id="essayContentInput" oninput="_formDirty=true"></textarea></div>
+      <div class="form-group"><label class="form-label">內文</label><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap"><button type="button" class="btn-outline btn-sm" onclick="chooseEssayImages()">🖼 插入圖片</button><span id="essayImageStatus" style="font-family:'Noto Sans TC',sans-serif;font-size:10px;color:var(--ink-faint)">也可以直接把圖片貼到文字中的游標位置</span></div><textarea class="form-textarea" id="essayContentInput" oninput="_formDirty=true" onpaste="handleEssayPaste(event)" ondrop="handleEssayDrop(event)" ondragover="handleEssayDragOver(event)"></textarea></div>
       <div class="form-group" id="audioGenGroup"><label class="audio-gen-label"><input type="checkbox" id="essayAudioGen"><span id="audioGenText">🎧 發布後自動產生語音 MP3（可在網頁聆聽全文）</span></label></div>
     </div>
     <div class="modal-footer"><button class="btn-primary" onclick="saveEssay()">儲存</button></div>
@@ -433,6 +434,7 @@ body::before {
   </div>
 </div>
 <input type="file" id="mantraAudioFileInput" accept="audio/mpeg,.mp3" style="display:none" onchange="handleMantraAudioSelected(event)">
+<input type="file" id="essayImageFileInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple style="display:none" onchange="handleEssayImageSelected(event)">
 
 <div class="modal-overlay" id="essayViewModal">
   <div class="modal" style="max-width:560px">
@@ -890,6 +892,77 @@ function showPrologue(btn) {
   if(btn) btn.classList.add('active');
   showEssayPageDetail(PROLOGUE_ID);
 }
+
+// 文章圖片：上傳後把 Markdown 圖片語法插回原本的游標位置。
+let _essayImageSelection = null;
+function essayTextarea() { return document.getElementById('essayContentInput'); }
+function rememberEssayImageSelection() {
+  const area = essayTextarea();
+  if (area) _essayImageSelection = { start: area.selectionStart, end: area.selectionEnd };
+}
+function chooseEssayImages() {
+  rememberEssayImageSelection();
+  document.getElementById('essayImageFileInput').value = '';
+  document.getElementById('essayImageFileInput').click();
+}
+function imageFilesFromClipboard(data) {
+  const direct = Array.from(data?.files || []);
+  const items = Array.from(data?.items || []).filter(item => item.kind === 'file').map(item => item.getAsFile()).filter(Boolean);
+  return [...direct, ...items].filter((file, i, all) => file.type.startsWith('image/') && all.findIndex(other => other.name === file.name && other.size === file.size && other.type === file.type) === i);
+}
+function handleEssayPaste(event) {
+  const files = imageFilesFromClipboard(event.clipboardData);
+  if (!files.length) return;
+  event.preventDefault();
+  rememberEssayImageSelection();
+  handleEssayImageFiles(files);
+}
+function handleEssayDragOver(event) {
+  if (imageFilesFromClipboard(event.dataTransfer).length) event.preventDefault();
+}
+function handleEssayDrop(event) {
+  const files = imageFilesFromClipboard(event.dataTransfer);
+  if (!files.length) return;
+  event.preventDefault();
+  _essayImageSelection = { start: event.target.selectionStart, end: event.target.selectionEnd };
+  handleEssayImageFiles(files);
+}
+function handleEssayImageSelected(event) {
+  handleEssayImageFiles(Array.from(event.target.files || []));
+}
+async function uploadEssayImage(file) {
+  const res = await fetch('/api/essay-images', {
+    method: 'POST', body: file,
+    headers: { 'Content-Type': file.type || 'application/octet-stream', 'Authorization': 'Bearer '+sessionStorage.getItem(ADMIN_TOKEN_KEY) }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.url) throw new Error(data.error || '圖片上傳失敗');
+  return data;
+}
+async function handleEssayImageFiles(files) {
+  const images = files.filter(file => file.type.startsWith('image/'));
+  if (!images.length) return;
+  const area = essayTextarea();
+  if (!area) return;
+  const selection = _essayImageSelection || { start: area.selectionStart, end: area.selectionEnd };
+  const status = document.getElementById('essayImageStatus');
+  try {
+    let insertion = '';
+    for (let i = 0; i < images.length; i++) {
+      if (status) status.textContent = `圖片上傳中… ${i + 1}/${images.length}`;
+      const data = await uploadEssayImage(images[i]);
+      const alt = (images[i].name || '文章圖片').replace(/[\[\]]/g, '').replace(/\.[^.]+$/, '') || '文章圖片';
+      insertion += `${i ? '\n' : ''}![${alt}](${data.url})`;
+    }
+    area.setRangeText(insertion, selection.start, selection.end, 'end');
+    area.focus();
+    _formDirty = true;
+    if (status) status.textContent = '圖片已插入，可繼續編輯';
+  } catch (e) {
+    if (status) status.textContent = e.message || '圖片上傳失敗';
+    showToast(e.message || '圖片上傳失敗');
+  } finally { _essayImageSelection = null; }
+}
 function openEssayEditor(e, ds, type='essay') {
   _editingType=type; _formDirty=false;
   document.getElementById('essayEditId').value=e?e.id:''; document.getElementById('essayDharmaSource').value=ds||'';
@@ -897,6 +970,7 @@ function openEssayEditor(e, ds, type='essay') {
   // 新文章預設勾選產生語音；編輯已有語音的文章則預設不重新產生
   document.getElementById('audioGenGroup').style.display='block';
   document.getElementById('essayAudioGen').checked = !e;
+  document.getElementById('essayImageStatus').textContent = '也可以直接把圖片貼到文字中的游標位置';
   document.getElementById('audioGenText').textContent = (e && e.audio_status==='ready') ? '🎧 重新產生語音 MP3（內文有修改時勾選）' : '🎧 發布後自動產生語音 MP3（可在網頁聆聽全文）';
   document.getElementById('essayModalTitle').textContent = type==='mantra' ? '編輯佛咒' : '編輯佛法心得';
   openModal('essayModal');

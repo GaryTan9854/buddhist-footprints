@@ -10,7 +10,7 @@ try {
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { initDb, query } = require('./db');
+const { initDb, query, DB_PATH } = require('./db');
 const { queueEssayAudio, audioFilePath, deleteEssayAudio } = require('./tts');
 
 function loadEnvFile(filePath) {
@@ -26,11 +26,13 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.18.2';
-const BUILD = '82';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.18.3';
+const BUILD = '83';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
+const ESSAY_IMAGE_DIR = path.join(path.dirname(DB_PATH), 'images');
+const MAX_ESSAY_IMAGE_BYTES = 20 * 1024 * 1024;
 
 const MIME = {
   '.html': 'text/html',
@@ -91,6 +93,31 @@ const requireAuth = (req) => {
   const token = auth.split(' ')[1];
   return token === APP_PASSWORD;
 };
+
+function imageFilePath(id, ext) {
+  return path.join(ESSAY_IMAGE_DIR, `${id}${ext || ''}`);
+}
+
+function detectImageType(buf) {
+  if (buf.length >= 8 && buf.slice(0, 8).equals(Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]))) return { ext: '.png', mime: 'image/png' };
+  if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return { ext: '.jpg', mime: 'image/jpeg' };
+  if (buf.length >= 6 && ['GIF87a', 'GIF89a'].includes(buf.slice(0, 6).toString())) return { ext: '.gif', mime: 'image/gif' };
+  if (buf.length >= 12 && buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP') return { ext: '.webp', mime: 'image/webp' };
+  return null;
+}
+
+function essayImageIds(content) {
+  return new Set([...((content || '').matchAll(/\/api\/essay-images\/([0-9a-f]{32})/g))].map(m => m[1]));
+}
+
+function deleteEssayImages(content, keep = new Set()) {
+  for (const id of essayImageIds(content)) {
+    if (keep.has(id)) continue;
+    for (const ext of ['.png', '.jpg', '.gif', '.webp']) {
+      try { fs.unlinkSync(imageFilePath(id, ext)); } catch {}
+    }
+  }
+}
 
 // ── DHARMA POOL (三藏 × 十二部結構) ──
 const dharmaPool = [
@@ -414,6 +441,36 @@ async function handleApi(req, res) {
     return sendJson(res, 200, rows);
   }
 
+  // 文章內嵌圖片：檔案獨立保存，正文只保存 Markdown 圖片網址。
+  const essayImageMatch = pathname.match(/^\/api\/essay-images\/([0-9a-f]{32})$/);
+  if (essayImageMatch && method === 'GET') {
+    const id = essayImageMatch[1];
+    for (const ext of ['.png', '.jpg', '.gif', '.webp']) {
+      const file = imageFilePath(id, ext);
+      if (fs.existsSync(file)) {
+        const type = detectImageType(fs.readFileSync(file));
+        res.writeHead(200, { 'Content-Type': type?.mime || 'application/octet-stream', 'Cache-Control': 'public, max-age=31536000, immutable', 'Access-Control-Allow-Origin': '*' });
+        return fs.createReadStream(file).pipe(res);
+      }
+    }
+    return sendJson(res, 404, { error: 'Image not found' });
+  }
+
+  if (pathname === '/api/essay-images' && method === 'POST') {
+    if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+    let body;
+    try { body = await readRawBody(req, MAX_ESSAY_IMAGE_BYTES); }
+    catch (e) { return sendJson(res, e.status || 400, { error: e.status === 413 ? 'Image too large (max 20 MB)' : 'Invalid image body' }); }
+    const type = detectImageType(body);
+    if (!type) return sendJson(res, 400, { error: '只支援 PNG、JPEG、GIF 或 WebP 圖片' });
+    const id = crypto.randomBytes(16).toString('hex');
+    try {
+      fs.mkdirSync(ESSAY_IMAGE_DIR, { recursive: true });
+      fs.writeFileSync(imageFilePath(id, type.ext), body);
+      return sendJson(res, 200, { ok: true, id, url: `/api/essay-images/${id}`, mime: type.mime, size: body.length });
+    } catch (e) { console.error('[essay image upload]', e); return sendJson(res, 500, { error: 'Could not save image' }); }
+  }
+
   // 文章語音：串流 MP3（支援 Range，供播放器 seek 與下載）
   const audioMatch = pathname.match(/^\/api\/essays\/([0-9a-f]+)\/audio\.mp3$/);
   if (audioMatch && method === 'GET') {
@@ -474,7 +531,11 @@ async function handleApi(req, res) {
     const id = pathname.split('/').pop();
     if (method === 'GET') return sendJson(res, 200, query("SELECT * FROM essays WHERE id = ?", [id])[0]);
     if (!requireAuth(req)) return sendJson(res, 401, { error: 'Unauthorized' });
-    if (method === 'DELETE') { query("DELETE FROM essays WHERE id = ?", [id]); deleteEssayAudio(id); return sendJson(res, 200, { ok: true }); }
+    if (method === 'DELETE') {
+      const existing = query("SELECT content FROM essays WHERE id = ?", [id])[0];
+      query("DELETE FROM essays WHERE id = ?", [id]); deleteEssayAudio(id); deleteEssayImages(existing?.content);
+      return sendJson(res, 200, { ok: true });
+    }
     const body = await readBody(req);
     const { title, tag, content, dharma_source, generate_audio, title_en, content_en } = body;
     // 英文版翻譯單獨更新（一般編輯不帶這兩個欄位，避免被清空）
@@ -482,7 +543,10 @@ async function handleApi(req, res) {
       query("UPDATE essays SET title_en=?, content_en=? WHERE id=?", [title_en ?? null, content_en ?? null, id]);
       if (title === undefined) return sendJson(res, 200, { ok: true, id });
     }
-    query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title ?? null, tag ?? null, content ?? null, dharma_source ?? null, id]);
+    const oldContent = query("SELECT content FROM essays WHERE id=?", [id])[0]?.content || '';
+    const newContent = content ?? null;
+    query("UPDATE essays SET title=?, tag=?, content=?, dharma_source=? WHERE id=?", [title ?? null, tag ?? null, newContent, dharma_source ?? null, id]);
+    deleteEssayImages(oldContent, essayImageIds(newContent));
     if (generate_audio) queueEssayAudio(id);
     return sendJson(res, 200, { ok: true, id });
   }
