@@ -113,11 +113,13 @@ fi
 echo "♻️  Restarting PM2 $PM2_APP_NAME..."
 ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && set -a && source .env && set +a && NODE_ENV=production pm2 restart $PM2_APP_NAME --update-env && sleep 2 && curl -fsSL $HEALTH_URL'"
 
-# ── 5. DB backup MBP → MBA ────────────────────────────────────────────────────
+# ── DB 備份 ────────────────────────────────────────────────────
+# 2026-08-29：拉回 MBA 這條線已停用。災難復原改由 MBP 自己每天 03:00 備份到 NAS
+# （MBP:~/bin/backup-to-nas.sh，launchd com.gary.backup-to-nas）。
+# deploy 前的回滾保護留在 MBP 本機，見下。
 echo ""
-echo "🗄️  Pulling DB backup MBP → MBA..."
-rsync -az "$REMOTE_HOST:~/db/buddhist-footprints/" "$HOME/Documents/.db-backups/buddhist-footprints/"
-echo "   ✓ Backed up to ~/Documents/.db-backups/buddhist-footprints/"
+echo "🗄️  Deploy 前快照（MBP 本機，回滾用）…"
+ssh "$REMOTE_HOST" "~/bin/db-snapshot.sh buddhist-footprints"
 
 echo ""
 echo "✅ Deploy 完成！v$NEXT"
