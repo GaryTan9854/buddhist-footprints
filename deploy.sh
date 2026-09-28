@@ -3,6 +3,44 @@
 
 set -euo pipefail
 
+# >>> TUNA-VERIFY
+# ★ 同源區塊，**勿手改**。來源：~/Documents/deploy-verify.sh（改完跑 sync-deploy-verify.sh）
+# 用法：tuna_verify <ssh目標> <port> <期望版本|空字串> [對外hostname]
+tuna_verify() {
+  local target="$1" port="$2" want="$3" host="${4:-}" h got pub
+  h=$(ssh ${SSH_OPTS:-} "$target" "curl -s -m 8 http://127.0.0.1:$port/api/health" 2>/dev/null || true)
+  if [ -z "$h" ]; then
+    echo "   ❌ MBP 上 127.0.0.1:$port/api/health 沒有回應 —— app 沒有起來"
+    return 1
+  fi
+  echo "   本機：$h"
+  case "$h" in
+    *'"status":"ok"'*) ;;
+    *) echo "   ❌ health 沒有回 status:ok"; return 1 ;;
+  esac
+  got=$(printf '%s' "$h" | sed -n 's/.*"version":"\([^"]*\)".*/\1/p')
+  if [ -n "$want" ]; then
+    if [ -z "$got" ]; then
+      echo "   ❌ health 沒有 version 欄位，無法確認跑的是新版（期望 v$want）"
+      return 1
+    fi
+    if [ "$got" != "$want" ]; then
+      echo "   ❌ 線上是 v$got，不是 v$want —— 舊行程還佔著，這次部署沒有生效"
+      return 1
+    fi
+  fi
+  [ -n "$host" ] || return 0
+  pub=$(curl -s -m 12 -L "https://$host/api/health" 2>/dev/null || true)
+  case "$pub" in
+    *'"status":"ok"'*) echo "   對外：通（這站不需登入）" ;;
+    *cloudflareaccess*|*"<html"*|*"<!DOCTYPE"*|*"Sign in"*|*"login"*)
+      echo "   對外：Cloudflare Access 擋著，回的是登入頁（預期行為，不算失敗）" ;;
+    "") echo "   對外：連不上（tunnel／DNS 待確認；本機已經驗過了，不影響成敗）" ;;
+    *) echo "   對外：回了不是 health 的東西 → $(printf '%s' "$pub" | head -c 60)" ;;
+  esac
+}
+# <<< TUNA-VERIFY
+
 REMOTE_HOST="mbp"
 REMOTE_DIR="buddhist-footprints-dist"
 PM2_APP_NAME="buddhist"
@@ -111,7 +149,7 @@ if [[ -n "${DEEPSEEK_API_KEY:-}" ]]; then
 fi
 
 echo "♻️  Restarting PM2 $PM2_APP_NAME..."
-ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && set -a && source .env && set +a && NODE_ENV=production pm2 restart $PM2_APP_NAME --update-env && sleep 2 && curl -fsSL $HEALTH_URL'"
+ssh "$REMOTE_HOST" "zsh -lic 'cd ~/$REMOTE_DIR && set -a && source .env && set +a && NODE_ENV=production pm2 restart $PM2_APP_NAME --update-env'"
 
 # ── DB 備份 ────────────────────────────────────────────────────
 # 2026-08-29：拉回 MBA 這條線已停用。災難復原改由 MBP 自己每天 03:00 備份到 NAS
@@ -121,6 +159,10 @@ echo ""
 echo "🗄️  Deploy 前快照（MBP 本機，回滾用）…"
 ssh "$REMOTE_HOST" "~/bin/db-snapshot.sh buddhist-footprints"
 
+echo ""
+echo "🩺 驗證線上跑的真的是新版（判成敗只認 MBP 本機 loopback）"
+sleep 2
+tuna_verify "$REMOTE_HOST" 3004 "$NEXT" "buddhist.visadelab.xyz" || exit 1
 echo ""
 echo "✅ Deploy 完成！v$NEXT"
 echo "🌐 https://buddhist.visadelab.xyz"
