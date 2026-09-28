@@ -1,3 +1,21 @@
+// ★★ **IPv6 的鎖 —— 同源 copy，勿各改各的**（2026-09-28 這一批一起蓋上）
+//   ⚠ 先到的三站（tunacompanion 的 bot.js、tunaspend、tunaperson）用的是**沒有 typeof 守門的單行版**，
+//     兩種寫法都有效、都沒動；要改行為的話記得兩種都要找。
+//   Tailscale 一跑，MBA 與 MBP 都會多一條 `default fd7a:115c:a1e0:: … utunN`，
+//   而它**不轉發到公共 IPv6** ⇒ 每一次走 IPv6 的對外連線都注定 EHOSTUNREACH。
+//   Node 20+ 的 Happy Eyeballs（`net.autoSelectFamily` 預設 true）不看順序、v4/v6 **同時**發，
+//   所以症狀不是「網路不通」，是**對外請求間歇地、安靜地失敗**（上次量到某站六天 717,457 次）。
+//   `--dns-result-order=ipv4first` 在這兩台機器上沒有用（DNS 本來就把 IPv4 排前面）；
+//   有效的只有這一行。Gary 的 Roon ARC 需要 Tailscale ⇒ 這條路由一定會再回來。
+//   查一行：`netstat -rn -f inet6 | grep ^default` —— 看到 `fd7a` 就是它。
+//   ⚠ Node 版本太舊沒這個函式時**要吵**：安靜地不上鎖，就是把這個 bug 藏回去。
+{
+  const net = require('node:net');
+  if (typeof net.setDefaultAutoSelectFamily === 'function') net.setDefaultAutoSelectFamily(false);
+  else console.warn(`⚠ Node ${process.version} 沒有 setDefaultAutoSelectFamily —— IPv6 的鎖沒上，對外請求可能間歇失敗`);
+}
+
+
 const http = require('http');
 
 // Load .env
@@ -26,8 +44,8 @@ function loadEnvFile(filePath) {
 loadEnvFile(path.join(__dirname, '.env'));
 
 const APP = 'buddhist-footprints';
-const VERSION = '3.18.7';
-const BUILD = '88';  // deploy.sh 自動寫入（= git commit 總數）
+const VERSION = '3.18.8';
+const BUILD = '89';  // deploy.sh 自動寫入（= git commit 總數）
 const PORT = process.env.PORT || 3004;
 const ROOT = __dirname;
 const APP_PASSWORD = process.env.APP_PASSWORD || 'casper88';
