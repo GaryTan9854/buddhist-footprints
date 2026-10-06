@@ -57,12 +57,15 @@ body::before {
   color:var(--gold); background:rgba(184,149,42,0.08);
   border:1px solid rgba(184,149,42,0.26); border-radius:999px;
 }
-.site-nav { display:flex;align-items:center;gap:8px; }
+.site-nav { display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end; }
 .nav-btn {
   padding:8px 20px; font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:3px;
-  color:var(--ink-faint);background:none;border:none;cursor:pointer;
+  color:var(--ink-faint);background:none;border:none;cursor:pointer;white-space:nowrap;
   position:relative;transition:color 0.2s;
 }
+.nav-btn-ext { text-decoration:none;display:inline-flex;align-items:center;gap:5px; }
+.nav-btn-ext .ext-arrow { font-size:9px;opacity:0.7;transform:translateY(-1px); }
+.nav-btn-ext:hover .ext-arrow { opacity:1; }
 .nav-btn::after {
   content:'';position:absolute;bottom:0;left:20px;right:20px;
   height:1.5px;background:var(--gold);
@@ -285,7 +288,7 @@ body::before {
   .site-logo-sub{ display:none; }
   .site-version{ font-size:9px; padding:2px 7px; }
   .site-nav{
-    width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;
+    width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; flex-wrap:nowrap;
     padding:0 0 6px; border-top:1px solid rgba(184,149,42,0.12);
     gap:0; margin:0 -16px; padding-left:16px;
   }
@@ -382,6 +385,8 @@ body::before {
     <button class="nav-btn" onclick="showPage('essays',this)">佛法心得</button>
     <button class="nav-btn" onclick="showPage('mantras',this)">佛咒</button>
     <button class="nav-btn" onclick="showPage('gallery',this)">佛法圖集</button>
+    <a class="nav-btn nav-btn-ext" href="https://ask.shengyen.org" target="_blank" rel="noopener noreferrer"
+       title="連至法鼓山官方「問問聖嚴師父」（外部網站，另開新視窗）">問問聖嚴師父<span class="ext-arrow">↗</span></a>
     <button class="nav-btn" onclick="showPrologue(this)">網站序文</button>
   </nav>
 </header>
